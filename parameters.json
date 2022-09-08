@@ -1,0 +1,141 @@
+[
+  {
+    "name": "Healing",
+    "symbol": "H",
+    "positive": {
+      "cost_coefficient": 8,
+      "name_rus": "Лечение"
+    },
+    "negative": {
+      "cost_coefficient": 5,
+      "name_rus": "Токсичность"
+    }
+  },
+  {
+    "name": "Digestion",
+    "symbol": "D",
+    "positive": {
+      "cost_coefficient": 1,
+      "name_rus": "Улучшение пищеварения"
+    },
+    "negative": {
+      "cost_coefficient": 3,
+      "name_rus": "Расстройство пищеварения"
+    }
+  },
+  {
+    "name": "Pressure",
+    "symbol": "P",
+    "positive": {
+      "cost_coefficient": 2,
+      "reverse_benefit": true,
+      "name_rus": "Повышение внутричерепного давления"
+    },
+    "negative": {
+      "cost_coefficient": 2,
+      "name_rus": "Понижение внутричерепного давления"
+    }
+  },
+  {
+    "name": "Agility",
+    "symbol": "Ag",
+    "positive": {
+      "cost_coefficient": 17,
+      "reverse_benefit": true,
+      "name_rus": "Быстрая реакция"
+    },
+    "negative": {
+      "cost_coefficient": 13,
+      "name_rus": "Замедление"
+    }
+  },
+  {
+    "name": "Addictive",
+    "symbol": "Add",
+    "positive": {
+      "cost_coefficient": 25,
+      "name_rus": "Привыкание"
+    },
+    "negative": {
+      "cost_coefficient": 0,
+      "name_rus": "Отвращение"
+    }
+  },
+  {
+    "name": "Strength",
+    "symbol": "S",
+    "positive": {
+      "cost_coefficient": 17,
+      "name_rus": "Сила"
+    },
+    "negative": {
+      "cost_coefficient": 12,
+      "name_rus": "Истощение"
+    }
+  },
+  {
+    "name": "Encapsulation",
+    "symbol": "Enc",
+    "positive": {
+      "cost_coefficient": 4,
+      "reverse_benefit": true,
+      "name_rus": "Инкапсуляция"
+    },
+    "negative": {
+      "cost_coefficient": 4,
+      "reverse_benefit": true,
+      "name_rus": "Выветриваемость"
+    }
+  },
+  {
+    "name": "Duration",
+    "symbol": "Dur",
+    "positive": {
+      "cost_coefficient": 25,
+      "name_rus": "Увеличение продолжительности"
+    },
+    "negative": {
+      "cost_coefficient": 0,
+      "name_rus": "Уменьшение продолжительности"
+    }
+  },
+  {
+    "name": "Invisibility",
+    "symbol": "Inv",
+    "positive": {
+      "cost_coefficient": 83,
+      "name_rus": "Невидимость"
+    },
+    "negative": {
+      "cost_coefficient": 16,
+      "name_rus": "Свечение"
+    }
+  },
+  {
+    "name": "Allergy",
+    "symbol": "All",
+    "positive": {
+      "cost_coefficient": 10,
+      "reverse_benefit": true,
+      "name_rus": "Аллергичность"
+    },
+    "negative": {
+      "cost_coefficient": 1,
+      "reverse_benefit": true,
+      "name_rus": "Противоаллергенность"
+    }
+  },
+  {
+    "name": "Glitches",
+    "symbol": "G",
+    "positive": {
+      "cost_coefficient": 12,
+      "name_rus": "Галлюциогенность"
+    },
+    "negative": {
+      "cost_coefficient": 10,
+      "reverse_benefit": true,
+      "name_rus": "Стабилизация сознания"
+    }
+  }
+]
