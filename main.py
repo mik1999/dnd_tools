@@ -4,6 +4,7 @@ import dataclasses
 import string
 import copy
 import os
+import click
 
 
 class UnrecognizedComponent(Exception):
@@ -74,6 +75,14 @@ COMPLEXITY_MAP = {
     6: 25,
     7: 28
 }
+
+
+DEFAULT_MODS = {
+            'days': 5,
+            'hours': 6,
+            'rounds': 4,
+            'best_before': 12,
+        }
 
 
 class ParameterProcessor:
@@ -275,6 +284,8 @@ class ParametersManager(object):
     def __init__(self):
         parameters_json = json.load(open('parameters.json', encoding="utf-8"))
         self.parameters = dict()
+        self.culc_functions = dict()
+        self._prepare_param_culc()
         for parameter in parameters_json:
             symbol = parameter['symbol']
             param_new = Parameter(
@@ -284,6 +295,17 @@ class ParametersManager(object):
                 negative=OneSideParameter(**parameter['negative']),
             )
             self.parameters.update({symbol: param_new})
+
+    def _prepare_param_culc(self):
+        for subclass in ParameterProcessor.__subclasses__():
+            self.culc_functions.update(
+                {subclass.parameter_symbol: subclass.description}
+            )
+
+    def param_description(self, param_symbol, coefficient, mods=None):
+        if mods is None:
+            mods = copy.deepcopy(DEFAULT_MODS)
+        return self.culc_functions[param_symbol](coefficient, mods)
 
     def get_param(self, symbol: str):
         result = self.parameters.get(symbol, None)
@@ -395,10 +417,12 @@ class ComponentsManager(object):
         result += '. Примерная стоимость : ' + cost_str(component.cost) + '.'
         return result
 
-    def components_list(self):
+    def components_list(self, show_alias: bool = False, show_params: bool = False):
         result = ''
         for i, component in enumerate(self.components):
-            result += f' {str(i + 1)}) {component.name} {str(component.synonyms)};\n'
+            synonyms = '' if not show_alias else ' ' + str(component.synonyms)
+            params = '' if not show_params else ' ' + str(component.parameters)
+            result += f' {str(i + 1)}) {component.name}{synonyms}{params};\n'
         return result
 
 
@@ -451,11 +475,10 @@ class Potion(object):
         result = ''
         for fnt in os.walk('potions/'):
             for i, fn in enumerate(fnt[2]):
-                path = 'potion/' + fn
                 potion = Potion(cm, pm)
                 potion.read(fn[:-5])
                 result += f'  {i + 1}) {potion.name}\n'
-        return result
+        return result[:-1]  # erase line end
 
     def mix_from(self, formula: str):
         self.parse_formula(formula)
@@ -556,26 +579,22 @@ class Potion(object):
         if not self.parameters_vector:
             return 'Компоненты данного зелья нейтрализовали друг друга, поэтому никакого эффекта оно не дает.'
         description = 'Похоже, что получившаясся субстанция обладает следующими свойствами:\n'
-        mods = {
-            'days': 5,
-            'hours': 6,
-            'rounds': 4,
-            'best_before': self.best_before
-        }
+        mods = copy.deepcopy(DEFAULT_MODS)
+        mods['best_before'] = self.best_before
         counter = 1
-        for subclass in ParameterProcessor.__subclasses__():
-            if subclass.parameter_symbol in self.parameters_vector.keys():
-                coefficient = self.parameters_vector[subclass.parameter_symbol]
-                rus_name = self.pm.param_name(subclass.parameter_symbol, coefficient)
-                description += ' ' + str(counter) + f') {rus_name}. ' + subclass.description(coefficient, mods) + '\n'
-                counter += 1
+        for parameter_symbol in self.parameters_vector.keys():
+            coefficient = self.parameters_vector[parameter_symbol]
+            rus_name = self.pm.param_name(parameter_symbol, coefficient)
+            param_description = self.pm.param_description(parameter_symbol, coefficient, mods)
+            description += ' ' + str(counter) + f') {rus_name}. ' + param_description + '\n'
+            counter += 1
         self.best_before = mods['best_before']
         return description
 
     def overall_description(self):
         if self.empty:
             return 'Empty potion'
-        result = f'У вас получилось: {self.market_type} {str(self.name) if self.name else ""}.\n'
+        result = f'У вас получилось: {self.market_type}{" " + str(self.name) if self.name else ""}.\n'
         result += 'Вектор параметров: ' + str(self.parameters_vector) + '\n'
         if self.portions == 0:
             result += (f'Общей массы компонент ({self.mass} г.) не хватает для приготавления даже одной порции. '
@@ -610,169 +629,102 @@ class Potion(object):
         return result
 
 
-HELLO_MSG = '\nДобро пожаловать в зельеварку! Что будем готовить?'
-HELP_MSG = '''Доступные команды:
-помощь (h, help) - выводит это сообщение.
-помощь (h, help) <название команды> - подробнее о команде.
-компоненты (комп, c, components) список (l, list) [-s -e - todo] - перечислить все компоненты.
-компоненты (комп, c, components) описание (d, description) <название компоненты> - 
-  описание компоненты.
-параметры (парам, parameters) список (l, list) - перечислить все параметры.
-готовить (mix, cook) <формула = список компонент> - приготовить зелье из введенных компонент.
-  Для подробностей напишите "помощь готовить".
-зелья (p, potion) сохранить (s, save) [-f] <название> - сохранить последнее приготовленное зелье.
-зелья (p, potion) описание (d, description) <название зелья> - описание ранее созданного и сохраненного зелья.
-зелья (p, potion) список (l, list) - перечислить все сохраненные зелья.
-выход (exit) - выйти из программы'''
-HELP_COMP_LIST_MSG = '''Перечислить все компоненты
-Использование: компоненты (комп, c, components) список (l, list)'''
-HELP_COMP_DESCR_MSG = '''Описание компоненты
-Использование: компоненты (комп, c, components) описание (d, description) <название компоненты>
-Пример: комп описание ястребинка шепчущая
-Кстати, компоненты перечислены в файле components.json, и добавление новой не требует написания кода'''
-HELP_PARAM_LIST_MSG = '''Перечислить все параметры
-Использование: параметры (парам, parameters) список (l, list) '''
-HELP_MIX_MSG = '''Приготовление зелья
-Использование: готовить (mix, cook) <формула>
-Примеры формул: 8 Ястребинка Шепчушая, 4 Зверобой, Растение Харрады
-То же самое: 8 * Ястребинка Шепчушая + 4 * Зверобой + 1 * Растение Харрады
-Можно использовать короткие названия компонент: 8 ястребинка, 4 зверобой, харрада'''
-HELP_POT_SAVE_MSG = '''Сохранение последнего приготовленного зелья
-Использование: зелья (p, potion) сохранить (s, save) [-f] <название>
-Опциональный флаг -f перезаписывает уже существующее зелье с таким названием
-Примеры: зелья сохранить Тиравин
-Перезапись: зелья сохранить -f Тиравин'''
-HELP_POT_DESCR_MSG = '''Описание ранее созданного и сохраненного зелья
-Использование: зелья (p, potion) описание (s, save) <название зелья>
-Пример: зелья описание Тиравин'''
-HELP_POT_LIST_MSG = '''Перечислить все сохраненные зелья
-Использование: зелья (p, potion)  список (l, list) '''
-HELP_EXIT_MSG = 'Выход из программы: написать "выход" (или exit)'
+cm = ComponentsManager()
+pm = ParametersManager()
+last_potion = None
 
-def run():
-    cm = ComponentsManager()
-    pm = ParametersManager()
-    last_potion = None
-    print(HELP_MSG)
-    while True:
-        print(HELLO_MSG)
-        command = input()
-        words_w_e = command.strip().split()
-        words = []
-        for word in words_w_e:
-            if word != '':
-                words.append(word)
-        if not words:
-            continue
-        if words[0] in {'h', 'help', 'помощь'}:
-            if len(words) > 1:
-                if words[1] in ['компоненты', 'комп', 'c', 'components', 'компонента', 'component']:
-                    if len(words) > 2:
-                        if words[2] in ['список', 'l', 'list']:
-                            print(HELP_COMP_LIST_MSG)
-                        elif words[2] in ['описание', 'd', 'description']:
-                            print(HELP_COMP_DESCR_MSG)
-                        else:
-                            print(HELP_COMP_LIST_MSG + '\n' + HELP_COMP_DESCR_MSG)
-                    else:
-                        print(HELP_COMP_LIST_MSG + '\n' + HELP_COMP_DESCR_MSG)
-                elif words[1] in ['параметры', 'парам', 'parameters', 'parameter', 'параметр', 'param']:
-                    print(HELP_PARAM_LIST_MSG)
-                elif words[1] in ['готовить', 'mix', 'cook']:
-                    print(HELP_MIX_MSG)
-                elif words[1] in ['exit', 'выход']:
-                    print(HELP_EXIT_MSG)
-                elif words[1] in ['зелье', 'potion', 'p']:
-                    if len(words) > 2 and words[2] in ['сохранить', 's', 'save']:
-                        print(HELP_POT_SAVE_MSG)
-                    elif len(words) > 2 and words[2] in ['описание', 'd', 'description', 'read', 'load']:
-                        print(HELP_POT_DESCR_MSG)
-                    elif len(words) > 2 and words[2] in ['list', 'l', 'список']:
-                        print(HELP_POT_DESCR_MSG)
-                    else:
-                        print(HELP_POT_SAVE_MSG + '\n' + HELP_POT_DESCR_MSG)
-                else:
-                    print(HELP_MSG)
-            else:
-                print(HELP_MSG)
-        elif words[0] in {'компоненты', 'компонента', 'component',  'комп', 'c', 'components'}:
-            if len(words) <= 1:
-                print(f'команда {words[0]} требует подкоманды (список или описание)')
-                continue
-            if words[1] in {'список', 'l', 'list'}:
-                print(cm.components_list())
-            elif words[1] in {'описание', 'd', 'description'}:
-                if len(words) < 3:
-                    print('Для использования этой команды также надо вводить название компоненты.')
-                    continue
-                component_name = ' '.join(words[2:])
-                try:
-                    print(cm.info(component_name, pm))
-                except UnrecognizedComponent:
-                    print(f'Компонента {component_name} не найдена. Проверьте правильность введенного названия.')
-                    continue
-            else:
-                print(f'Не удается распознать подкоманду {words[1]}.')
-                continue
-        elif words[0] in ['параметры', 'парам', 'parameters', 'parameter', 'параметр', 'param']:
-            if len(words) < 2 or words[1] not in ['список', 'l', 'list']:
-                print(f'Не удается распознать подкоманду {" ".join(words[1:])}')
-                continue
-            else:
-                print(pm.parameters_list())
-        elif words[0] in {'готовить', 'mix', 'cook', 'готовка'}:
-            formula = ' '.join(words[1:])
-            if not formula:
-                print('Формула зелья не может быть пустой.')
-                continue
-            potion = Potion(cm, pm)
+
+@click.group()
+def entrypoint():
+    pass
+
+
+@entrypoint.group('comp', help='Работа с компонентами')
+def components():
+    pass
+
+
+@components.command('list', help='Перечислить все компоненты')
+@click.option('-a', '--alias', is_flag=True, help='Указывать синонимы компонент')
+@click.option('-p', '--param', is_flag=True, help='Указывать вектора параметров компонент')
+def components_list(alias, param):
+    print(cm.components_list(alias, param))
+
+
+@components.command('descr', help='Перечислить все компоненты')
+@click.argument('component_name', type=click.STRING)
+def components_list(component_name):
+    try:
+        print(cm.info(component_name, pm))
+    except UnrecognizedComponent:
+        print(f'Компоненты с именем {component_name} не существует.')
+
+
+@entrypoint.group('param', help='Работа с параметрами')
+def parameters():
+    pass
+
+
+@parameters.command('list', help='Список параметров')
+def params_list():
+    print(pm.parameters_list())
+
+
+@parameters.command('culc', help='Подсчитать эффект параметра')
+@click.argument('parameter_symbol', type=click.STRING)
+@click.argument('value', type=click.INT)
+def params_list(parameter_symbol, value):
+    try:
+        parameter = pm.get_param(parameter_symbol)
+        print(parameter.positive.name_rus + ': ' + pm.param_description(parameter.symbol, value))
+        print(parameter.negative.name_rus + ': ' + pm.param_description(parameter.symbol, -value))
+    except NoSuchParameter:
+        print(f'Не существует параметра с таким "{parameter_symbol}" символом.')
+
+
+@entrypoint.group('potion', help='Работа с зельями')
+def potions():
+    pass
+
+
+@potions.command('mix', help='Готовка зелья, "3 светогриб + зверобой"')
+@click.argument('formula', type=click.STRING)
+@click.option('-s', '--save', help='Имя для сохранения зелья')
+@click.option('-f', '--force', is_flag=True, help='Разрешить перезапись зелья')
+def mix(formula, save, force):
+    potion = Potion(cm, pm)
+    try:
+        if save:
+            potion.name = save
+        potion.mix_from(formula)
+        print(potion.overall_description())
+        if save:
+            potion.name = save
             try:
-                potion.mix_from(formula)
-                last_potion = potion
-                print(potion.overall_description())
-            except ParsingFormulaError as ex:
-                print('Ошибка чтения введенного рецепта: ' + ex.message)
-        elif words[0] in {'зелья', 'potion', 'зелье', 'p'}:
-            if len(words) > 1 and words[1] in {'сохранить', 'save'}:
-                force_flag = False
-                if last_potion is None:
-                    print('Сначала сварите какое-то зелье')
-                    continue
-                if len(words) < 3 or (words[2] == '-f' and len(words) < 4):
-                    print('Не введено название зелья. Попробуйте еще раз.')
-                    continue
-                if words[2] == '-f':
-                    force_flag = True
-                    potion_name = ' '.join(words[3:])
-                else:
-                    potion_name = ' '.join(words[2:])
-                try:
-                    last_potion.name = potion_name
-                    last_potion.write(force_flag)
-                    print('Зелье успешно сохранено')
-                except FileExistsError:
-                    print('Зелье с таким названием уже существует. Используйте флаг -f чтобы перезаписать')
-            elif len(words) > 1 and words[1] in {'описание', 'd', 'description', 'load', 'read'}:
-                if len(words) < 3:
-                    print('Название зелья не введено')
-                    continue
-                potion_name = ' '.join(words[2:])
-                try:
-                    potion = Potion(cm, pm)
-                    potion.read(potion_name)
-                    print(potion.overall_description())
-                except FileNotFoundError:
-                    print(f'Зелья с названием "{potion_name}" не существует. Проверьте правильность написания.')
-            elif len(words) > 1 and words[1] in {'список', 'l', 'list'}:
-                print(Potion.potions_list(cm, pm))
-            else:
-                print(f'Подкомада {words[1]} не распознана.')
-        elif words[0] in {'выход', 'exit'}:
-            print('До свидания!')
-            break
-        else:
-            print('Команда не распознана. Введите "помощь" для просмотра списка команд.')
+                potion.write(force_flag=force)
+                print(f'Зелье успешно сохранено как {save + ".json"}')
+            except FileExistsError:
+                print('Зелье с таким названием уже существует. Используйте флаг -f чтобы перезаписать')
+
+    except ParsingFormulaError as ex:
+        print('Ошибка чтения введенного рецепта: ' + ex.message)
+
+
+@potions.command('descr', help='Описание сохраненного зелья')
+@click.argument('potion_name', type=click.STRING)
+def potion_description(potion_name):
+    try:
+        potion = Potion(cm, pm)
+        potion.read(potion_name)
+        print(potion.overall_description())
+    except FileNotFoundError:
+        print(f'Зелья с названием "{potion_name}" не существует.')
+
+
+@potions.command('list', help='Список всех сохраненных зелий')
+def potions_list():
+    print(Potion.potions_list(cm, pm))
 
 
 if __name__ == '__main__':
-    run()
+    entrypoint()
