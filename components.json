@@ -137,7 +137,7 @@
     "mass": 30,
     "parameters": {
       "G": 3,
-      "D": 4
+      "Dur": 11
     },
     "complexity_mod": 1,
     "rarity": 1,
@@ -155,9 +155,9 @@
     "cost": 100,
     "mass": 150,
     "parameters": {
-      "P": 13,
+      "P": 6,
       "G": 16,
-      "All": 7
+      "All": 6
     },
     "complexity_mod": 2,
     "rarity": 2,
@@ -171,7 +171,7 @@
     "cost": 60,
     "mass": 15,
     "parameters": {
-      "All": -6
+      "All": -12
     },
     "complexity_mod": 1,
     "rarity": 1,

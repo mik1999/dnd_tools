@@ -86,7 +86,7 @@ DEFAULT_MODS = {
 
 
 class ParameterProcessor:
-    pass
+    parameter_symbol = ''
 
 
 # Более ранние применяются раньше
@@ -111,10 +111,9 @@ class DurationProcessor(ParameterProcessor):
 
     @staticmethod
     def description(value: int, mods: dict):
-        coef = (1 + value / 10) if value > 0 else 1 / (1 - value / 2)
-        mods['rounds'] = int(mods['rounds'] * coef)
-        mods['days'] = int(mods['days'] * coef)
-        mods['hours'] = int(mods['hours'] * coef)
+        mods['rounds'] = max(1, mods['rounds'] + value)
+        mods['days'] = max(1, mods['days'] + value)
+        mods['hours'] = max(1, mods['hours'] + value)
         if value > 0:
             return 'Увеличена длительность эффектов.'
         return 'Снижена длительность эффектов.'
@@ -226,6 +225,7 @@ class AllergyProcessor(ParameterProcessor):
                 result += (f'Сильная аллергическая реакция вызывает анафилактический шок. Вы теряете '
                            f'{double_average_to_dices(10 * value)} хитов, вплоть до вашего текущего значения хитов,'
                            f'и получаете 2 степени истощения.')
+            return result
         return (f'Иммунитет к аллергическим реакциям, не вызванным приемом зелий, на {-value} часов. '
                 f'Теперь вы можете гладить котиков, не чихая :)')
 
@@ -518,7 +518,11 @@ class Potion(object):
 
         positive_cost = 0
         negative_cost = 0
-        for parameter_symbol in self.parameters_vector:
+        # the right classes order
+        for subclass in ParameterProcessor.__subclasses__():
+            parameter_symbol = subclass.parameter_symbol
+            if parameter_symbol not in self.parameters_vector:
+                continue
             parameter = self.pm.get_param(parameter_symbol)
             coef = self.parameters_vector[parameter_symbol]
             if coef > 0:
@@ -582,7 +586,11 @@ class Potion(object):
         mods = copy.deepcopy(DEFAULT_MODS)
         mods['best_before'] = self.best_before
         counter = 1
-        for parameter_symbol in self.parameters_vector.keys():
+        # the right classes order
+        for subclass in ParameterProcessor.__subclasses__():
+            parameter_symbol = subclass.parameter_symbol
+            if parameter_symbol not in self.parameters_vector:
+                continue
             coefficient = self.parameters_vector[parameter_symbol]
             rus_name = self.pm.param_name(parameter_symbol, coefficient)
             param_description = self.pm.param_description(parameter_symbol, coefficient, mods)
