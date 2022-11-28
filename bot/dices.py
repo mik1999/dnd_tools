@@ -126,8 +126,8 @@ class DicesGenerator:
         if not self.warning_dices:
             return ''
         if len(self.warning_dices) == 1:
-            return f'Обратите внимение, вы выбрали необычную кость {self.warning_dices[0]}'
+            return f'Обратите внимение, вы выбрали необычную кость d{self.warning_dices[0]}'
         return (
                 'Обратите внимание, вы выбрали необычные кости: ' +
-                ', '.join(map(str, self.warning_dices))
+                ', '.join(map(lambda x: 'd' + str(x), self.warning_dices))
         )

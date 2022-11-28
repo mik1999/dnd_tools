@@ -1,49 +1,68 @@
 import dices
+import menu
+import messages as msgs
 
 import telebot
 import telebot.types
 
 
-def handle_dices_formula(
+def check_and_switch_by_command(
+        message: telebot.types.Message,
         bot: telebot.TeleBot,
+) -> bool:
+    """
+    If message start with command - switch to appropriate state
+    and write a message
+    :param message: user message
+    :param bot: the bot
+    :return: true if swithed using a command and false otherwise
+    """
+    STATE_BY_COMMAND = {
+        '/start': {
+            'state': menu.BotStates.main,
+            'message': msgs.MAIN_MENU,
+        },
+        '/dices': {
+            'state': menu.BotStates.dices,
+            'message': msgs.DICES_CHOICE,
+        },
+    }
+    if not message.text.startswith('/'):
+        return False
+    for command in STATE_BY_COMMAND.keys():
+        if message.text.startswith(command):
+            state_doc = STATE_BY_COMMAND[command]
+            menu.switch_to_state(
+                bot, state_doc['state'],
+                message, state_doc['message'],
+            )
+            return True
+    return False
+
+
+def handle_dices_formula(
         message: telebot.types.Message,
         formula: str,
-        set_state,
+        message_on_empty_formula: str,
+        bot: telebot.TeleBot,
 ):
     generator = dices.DicesGenerator()
-    delete_state_flag = True
     try:
         generator.parse(formula)
     except dices.EmptyFormulaError:
-        if set_state:
-            bot.set_state(message.from_user.id, set_state, message.chat.id)
-            bot.send_message(message.chat.id, 'Какие кости кидать? \nПример: 2d6 + 2')
-            delete_state_flag = False
+        menu.switch_to_state(bot, menu.BotStates.dices, message, message_on_empty_formula)
     except dices.IncorrectSymbolsError:
-        bot.send_message(
-            message.chat.id,
-            'Не понимаю. Формула не должна содержать '
-            'чего-то, кроме знаков + и -, цифр, пробелов и '
-            'обозначений куба (d или к). '
-            '\nПример: 2d6 + 3'
-            '\nНажмите /dices, чтобы попробовать еще раз',
-        )
+        menu.switch_to_state(bot, menu.BotStates.dices, message, msgs.DICES_INCORRECT_SYMBOL)
     except dices.ParseDiceFormulaError:
-        bot.send_message(
-            message.chat.id,
-            'Формула не распознана.'
-            'Нажмите /dices, чтобы попробовать еще раз'
-            '\nПример правильной формулы:'
-            '\n3к8 + 2',
-        )
+        menu.switch_to_state(bot, menu.BotStates.dices, message, msgs.DICES_PARSE_ERROR)
     except dices.ComplexityError:
-        bot.send_message(message.chat.id, 'Мне лень это считать - слишком сложно')
+        menu.switch_to_state(bot, menu.BotStates.dices, message, msgs.DICES_COMPLEXITY_ERROR)
     except:
-        bot.send_message(message.chat.id, 'Ошибка. Нажмите /dices, чтобы попробовать еще раз')
+        menu.switch_to_state(bot, menu.BotStates.dices, message, msgs.DICES_PARSE_ERROR)
     else:
-        bot.send_message(message.chat.id, generator.sample())
         generator_warnings = generator.get_warnings()
         if generator_warnings:
-            bot.send_message(message.chat.id, generator_warnings)
-    if delete_state_flag:
-        bot.delete_state(message.from_user.id, message.chat.id)
+            bot.send_message(message.chat.id, generator.sample())
+            menu.switch_to_state(bot, menu.BotStates.dices, message, generator_warnings)
+        else:
+            menu.switch_to_state(bot, menu.BotStates.dices, message, generator.sample())

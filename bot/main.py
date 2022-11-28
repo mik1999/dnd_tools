@@ -1,12 +1,12 @@
-import telebot
 import telebot.types
-import logging
 
 from telebot import custom_filters
-from telebot.handler_backends import State, StatesGroup
 from telebot.storage import StateMemoryStorage
 
-import dices
+import helpers
+import logging
+import menu
+import messages as msgs
 
 
 logger = logging.getLogger()
@@ -30,71 +30,58 @@ _bot.set_my_commands([
 ])
 
 
-class BotStates(StatesGroup):
-    dices = State()
-
-
 @_bot.message_handler(commands=['start'])
 def send_welcome(message: telebot.types.Message):
-    logger.info(f'Caught start command from user {message.from_user.username}')
-    _bot.send_message(message.chat.id, f'Привет!')
+    menu.switch_to_state(
+        _bot, menu.BotStates.main,
+        message, msgs.MAIN_MENU,
+    )
 
 
-def handle_dices_formula(message, formula: str, set_state):
-    generator = dices.DicesGenerator()
-    delete_state_flag = True
-    try:
-        generator.parse(formula)
-    except dices.EmptyFormulaError:
-        if set_state:
-            _bot.set_state(message.from_user.id, set_state, message.chat.id)
-            _bot.send_message(message.chat.id, 'Какие кости кидать? \nПример: 2d6 + 2')
-            delete_state_flag = False
-    except dices.IncorrectSymbolsError:
-        _bot.send_message(
-            message.chat.id,
-            'Не понимаю. Формула не должна содержать '
-            'чего-то, кроме знаков + и -, цифр, пробелов и '
-            'обозначений куба (d или к). '
-            '\nПример: 2d6 + 3'
-            '\nНажмите /dices, чтобы попробовать еще раз',
+@_bot.message_handler(state=menu.BotStates.main)
+def handle_main(message: telebot.types.Message):
+    if helpers.check_and_switch_by_command(message, _bot):
+        return
+    STATE_BY_MESSAGE = {
+        'Кинуть кости': {
+            'state': menu.BotStates.dices,
+            'message': msgs.DICES_CHOICE,
+        }
+    }
+    state_doc = STATE_BY_MESSAGE.get(message.text)
+    if state_doc:
+        menu.switch_to_state(
+            _bot, state_doc['state'],
+            message, state_doc['message'],
         )
-    except dices.ParseDiceFormulaError:
-        _bot.send_message(
-            message.chat.id,
-            'Формула не распознана.'
-            'Нажмите /dices, чтобы попробовать еще раз'
-            '\nПример правильной формулы:'
-            '\n3к8 + 2',
+
+
+@_bot.message_handler(state=menu.BotStates.dices)
+def handle_dices(message: telebot.types.Message):
+    if helpers.check_and_switch_by_command(message, _bot):
+        return
+    if message.text == 'Назад':
+        menu.switch_to_state(
+            _bot, menu.BotStates.main,
+            message, msgs.MAIN_MENU,
         )
-    except dices.ComplexityError:
-        _bot.send_message(message.chat.id, 'Мне лень это считать - слишком сложно')
-    except:
-        _bot.send_message(message.chat.id, 'Ошибка. Нажмите /dices, чтобы попробовать еще раз')
-    else:
-        _bot.send_message(message.chat.id, generator.sample())
-        generator_warnings = generator.get_warnings()
-        if generator_warnings:
-            _bot.send_message(message.chat.id, generator_warnings)
-    if delete_state_flag:
-        _bot.delete_state(message.from_user.id, message.chat.id)
+        return
+    helpers.handle_dices_formula(message, message.text, menu.BotStates.dices, _bot)
 
 
 @_bot.message_handler(commands=['dices'])
-def handle_dices(message):
+def handle_dices(message: telebot.types.Message):
     formula = message.text[6:]
-    handle_dices_formula(message, formula, BotStates.dices)
-
-
-@_bot.message_handler(state=BotStates.dices)
-def handle_dices(message):
-    telebot.TeleBot
-    handle_dices_formula(message, message.text, None)
+    helpers.handle_dices_formula(message, formula, menu.BotStates.dices, _bot)
 
 
 @_bot.message_handler(func=(lambda x: True))
-def misunderstand(message):
-    _bot.send_message(message.chat.id, 'Используйте меню, чтобы выбрать команды')
+def misunderstand(message: telebot.types.Message):
+    _bot.send_message(
+        message.chat.id,
+        msgs.MISUNDERSTAND,
+        reply_markup=message.reply_markup,
+    )
 
 
 _bot.add_custom_filter(custom_filters.StateFilter(_bot))

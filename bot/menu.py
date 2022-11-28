@@ -48,7 +48,7 @@ class BaseStateSwitcher:
         raise NotImplemented()
 
 
-class MainStateSwitcher:
+class MainStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.main
 
     @classmethod
@@ -57,14 +57,12 @@ class MainStateSwitcher:
             _,
             markup: telebot.types.ReplyKeyboardMarkup,
     ):
-        btn1 = telebot.types.KeyboardButton("/dices")
+        btn1 = telebot.types.KeyboardButton('Кинуть кости')
         markup.add(btn1)
 
 
-class DicesStateSwitcher:
+class DicesStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.dices
-
-    DICES = ['d4', 'd6', 'd8', 'd10', 'd20', 'd100']
 
     @classmethod
     def edit_markup(
@@ -72,8 +70,13 @@ class DicesStateSwitcher:
             _,
             markup: telebot.types.ReplyKeyboardMarkup,
     ):
-        for text in DicesStateSwitcher.DICES + ['Назад']:
-            markup.add(telebot.types.KeyboardButton(text))
+        row_texts = [
+            ['d4', 'd6', 'd8'],
+            ['d10', 'd20', 'd100'],
+            ['Назад'],
+        ]
+        for row in row_texts:
+            markup.add(*[telebot.types.KeyboardButton(text) for text in row])
 
 
 def switch_to_state(
@@ -90,7 +93,7 @@ def switch_to_state(
     :param bot_message: message to be sent
     """
     for switcher in BaseStateSwitcher.__subclasses__():
-        if switcher.STATE == state:
+        if switcher.STATE.name == state.name:
             switcher.swith_to_state(bot, user_message, bot_message)
             return
     logger.error(f'Failed to switch to {state} state')
