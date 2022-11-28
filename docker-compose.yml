@@ -1,0 +1,8 @@
+version: '3'
+services:
+  dnd_bot:
+    container_name: dnd-bot-container
+    build: .
+    entrypoint: python main.py
+    ports:
+      - '2398:2398'
