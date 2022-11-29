@@ -2,8 +2,8 @@ import copy
 import dataclasses
 import json
 
-from .consts import DEFAULT_MODS
-from .parameter_processors import ParameterProcessor
+from consts import DEFAULT_MODS
+from parameter_processors import ParameterProcessor
 
 
 class NoSuchParameter(Exception):
@@ -27,8 +27,8 @@ class Parameter:
 
 
 class ParametersManager(object):
-    def __init__(self):
-        parameters_json = json.load(open('parameters.json', encoding="utf-8"))
+    def __init__(self, parameters_json_path='parameters.json'):
+        parameters_json = json.load(open(parameters_json_path, encoding="utf-8"))
         self.parameters = dict()
         self.culc_functions = dict()
         self._prepare_param_culc()
@@ -66,6 +66,18 @@ class ParametersManager(object):
                 return parameter.positive.name_rus
             return parameter.negative.name_rus
         return 'error-parameter'
+
+    def parameter_symbols(self):
+        return [
+            subclass.parameter_symbol
+            for subclass in ParameterProcessor.__subclasses__()
+        ]
+
+    def parameter_brief(self, symbol: str):
+        parameter = self.get_param(symbol)
+        return (f'{parameter.name} ({parameter.symbol})\n'
+                f'Эффект параметра с положительным коэффициентом: {parameter.positive.name_rus}\n'
+                f'Эффект параметра с отрицательным коэффициентом: {parameter.negative.name_rus}')
 
     def parameters_list(self):
         processors = []

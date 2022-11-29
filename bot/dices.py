@@ -103,8 +103,8 @@ class DicesGenerator:
                 else:
                     comments = ''
                     if len(samples) > 1:
-                        comments = '+'.join(map(str, samples))
-                    result += f'{sum(samples)}({comments})'
+                        comments = '(' + '+'.join(map(str, samples)) + ')'
+                    result += f'{sum(samples)}{comments}'
                 total_sum += sum(samples) * event.sign
             else:
                 # bies

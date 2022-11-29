@@ -1,3 +1,5 @@
+import typing
+
 import dices
 import menu
 import messages as msgs
@@ -38,6 +40,27 @@ def check_and_switch_by_command(
             )
             return True
     return False
+
+
+def process_state_by_message(
+        message: telebot.types.Message,
+        bot: telebot.TeleBot,
+        state_by_message_map,
+):
+    if check_and_switch_by_command(message, bot):
+        return
+    if message.text is None:
+        menu.switch_to_state(
+            bot, menu.BotStates.main,
+            message, msgs.ON_NO_USER_TEXT,
+        )
+    message_text: str = message.text
+    state_doc = state_by_message_map.get(message_text)
+    if state_doc:
+        menu.switch_to_state(
+            bot, state_doc['state'],
+            message, state_doc['message'],
+        )
 
 
 def handle_dices_formula(
