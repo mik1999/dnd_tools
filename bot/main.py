@@ -3,13 +3,12 @@ import telebot.types
 from telebot import custom_filters
 from telebot.storage import StateMemoryStorage
 
-import alchemy.parameters_manager
-
+from alchemy import parameters_manager
 import helpers
 import logging
 import menu
 import messages as msgs
-import parameters_manager
+
 
 logger = logging.getLogger()
 
