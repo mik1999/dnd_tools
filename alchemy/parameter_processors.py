@@ -1,4 +1,4 @@
-from calculation_helper import double_average_to_dices
+from alchemy.calculation_helper import double_average_to_dices
 
 
 class ParameterProcessor:

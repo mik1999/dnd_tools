@@ -2,8 +2,8 @@ import copy
 import dataclasses
 import json
 
-from consts import DEFAULT_MODS
-from parameter_processors import ParameterProcessor
+from alchemy.consts import DEFAULT_MODS
+from alchemy.parameter_processors import ParameterProcessor
 
 
 class NoSuchParameter(Exception):

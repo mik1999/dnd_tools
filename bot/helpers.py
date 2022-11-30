@@ -59,8 +59,12 @@ def process_state_by_message(
     if state_doc:
         menu.switch_to_state(
             bot, state_doc['state'],
-            message, state_doc['message'],
+            message, state_doc.get('message'),
         )
+        return
+    # ToDo nesessary ?
+    current_state = bot.get_state(message.from_user.id, message.chat.id)
+    menu.switch_to_state(bot, current_state, message, msgs.PARSE_BUTTON_ERROR)
 
 
 def handle_dices_formula(

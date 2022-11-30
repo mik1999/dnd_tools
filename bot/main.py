@@ -3,6 +3,7 @@ import telebot.types
 from telebot import custom_filters
 from telebot.storage import StateMemoryStorage
 
+from alchemy import components_manager
 from alchemy import parameters_manager
 import helpers
 import logging
@@ -49,7 +50,7 @@ def handle_main(message: telebot.types.Message):
         },
         'Алхимия': {
             'state': menu.BotStates.alchemy,
-            'message': msgs.ALCHEMY_SWITCH,
+            # 'message': msgs.ALCHEMY_SWITCH,
         }
     }
     helpers.process_state_by_message(
@@ -77,10 +78,7 @@ def handle_alchemy(message: telebot.types.Message):
             'state': menu.BotStates.parameters,
             'message': msgs.PARAMETER_CHOICE,
         },
-        'Компоненты': {
-            'state': menu.BotStates.dummy,
-            'message': msgs.DUMMY,
-        },
+        'Ингредиенты': {'state': menu.BotStates.components_menu},
         'Зелья': {
             'state': menu.BotStates.dummy,
             'message': msgs.DUMMY,
@@ -130,6 +128,94 @@ def handle_parameters(message: telebot.types.Message):
     except parameters_manager.NoSuchParameter:
         text = msgs.NO_SUCH_PARAMETER
     menu.switch_to_state(_bot, menu.BotStates.parameters, message, text)
+
+
+cm = components_manager.ComponentsManager('../components.json')
+
+
+@_bot.message_handler(state=menu.BotStates.components_menu)
+def handle_component_menu(message: telebot.types.Message):
+    if helpers.check_and_switch_by_command(message, _bot):
+        return
+    STATE_BY_MESSAGE = {
+        'Список ингредиентов': {
+            'state': menu.BotStates.components_enter_name,
+            'message': cm.components_list(show_telegram_links=True),
+        },
+        'Об ингредиенте': {
+            'state': menu.BotStates.components_enter_name,
+            # 'message': None, show default message
+        },
+        'Назад': {'state': menu.BotStates.alchemy},
+    }
+    helpers.process_state_by_message(
+        message, _bot, STATE_BY_MESSAGE,
+    )
+
+
+@_bot.message_handler(state=menu.BotStates.components_enter_name)
+def handle_component_enter(message: telebot.types.Message):
+    if message.text.startswith('/'):
+        component_name = message.text[1:].split()[0]
+        try:
+            bot_message = cm.info(component_name, pm)
+            menu.switch_to_state(
+                _bot, menu.BotStates.components_component_show,
+                message, bot_message,
+            )
+            return
+        except components_manager.UnrecognizedComponent:
+            menu.switch_to_state(
+                _bot, menu.BotStates.components_enter_name,
+                message, msgs.UNRECOGNIZED_COMPONENT,
+            )
+            return
+    # if command does not encode component
+    if helpers.check_and_switch_by_command(message, _bot):
+        return
+    if message.text == 'Назад':
+        menu.switch_to_state(
+            _bot, menu.BotStates.components_menu, message,
+        )
+        return
+    try:
+        bot_message = cm.info(message.text, pm)
+        menu.switch_to_state(
+            _bot, menu.BotStates.components_component_show,
+            message, bot_message,
+        )
+        return
+    except components_manager.UnrecognizedComponent:
+        _bot.set_state(
+            message.from_user.id,
+            menu.BotStates.components_enter_name,
+            message.chat.id,
+        )
+        suggestions = cm.suggest_components(message.text)
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
+        if not suggestions:
+            markup.add('Назад')
+            _bot.send_message(message.chat.id, msgs.COMPONENT_NO_SUGGESTIONS, reply_markup=markup)
+            return
+
+        buttons = suggestions + ['Назад']
+        for i in range(len(buttons) // 2):
+            markup.add(buttons[2 * i], buttons[2 * i + 1])
+        if len(buttons) % 2 == 1:
+            markup.add(buttons[-1])
+        _bot.send_message(message.chat.id, msgs.COMPONENTS_SUGGESTIONS_FOUND, reply_markup=markup)
+
+
+@_bot.message_handler(state=menu.BotStates.components_component_show)
+def handle_component_show(message: telebot.types.Message):
+    if helpers.check_and_switch_by_command(message, _bot):
+        return
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': menu.BotStates.components_menu},
+    }
+    helpers.process_state_by_message(
+        message, _bot, STATE_BY_MESSAGE,
+    )
 
 
 @_bot.message_handler(commands=['dices'])

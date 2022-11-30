@@ -6,6 +6,7 @@ import telebot.handler_backends as telebot_backends
 import telebot.types
 
 from alchemy import parameters_manager
+import messages as msgs
 
 
 logger = logging.getLogger()
@@ -18,9 +19,14 @@ class BotStates(telebot_backends.StatesGroup):
     parameters = telebot_backends.State()
     dummy = telebot_backends.State()
 
+    components_menu = telebot_backends.State()
+    components_enter_name = telebot_backends.State()
+    components_component_show = telebot_backends.State()
+
 
 class BaseStateSwitcher:
     STATE: telebot_backends.State = None
+    DEFAULT_MESSAGE = None
     # redefine ROW_TEXTS (simple) or edit_markup (compl)
     ROW_TEXTS: typing.List[typing.List[str]] = [['Назад']]
 
@@ -29,7 +35,7 @@ class BaseStateSwitcher:
             cls,
             bot: telebot.TeleBot,
             user_message: telebot.types.Message,
-            bot_message: str,
+            bot_message: str = None,
     ):
         """
         Update user's state and set appropriate buttons
@@ -40,6 +46,11 @@ class BaseStateSwitcher:
         bot.set_state(user_message.from_user.id, cls.STATE, user_message.chat.id)
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
         cls.edit_markup(user_message, markup)
+        if bot_message is None:
+            bot_message = cls.DEFAULT_MESSAGE
+            if bot_message is None:
+                bot_message = 'Извините, произошла ошибка'
+                logger.error(f'Попытка использовать неустановленное дефолтное сообщение для {cls.STATE}')
         bot.send_message(user_message.chat.id, bot_message, reply_markup=markup)
 
     @classmethod
@@ -74,8 +85,9 @@ class DicesStateSwitcher(BaseStateSwitcher):
 
 class AlchemyStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.alchemy
+    DEFAULT_MESSAGE = msgs.ALCHEMY_SWITCH
     ROW_TEXTS = [
-            ['Параметры', 'Компоненты', 'Зелья'],
+            ['Параметры', 'Ингредиенты', 'Зелья'],
             ['Что это такое?', 'Назад'],
         ]
 
@@ -112,11 +124,35 @@ class DummyStateSwitcher(BaseStateSwitcher):
     ROW_TEXTS = [['Назад']]
 
 
+class ComponentsMenuStateSwitcher(BaseStateSwitcher):
+    STATE = BotStates.components_menu
+    DEFAULT_MESSAGE = 'Можете посмотреть список ингридиентов или ввести название конкретного'
+    ROW_TEXTS = [['Список ингредиентов', 'Об ингредиенте'],
+                 ['Назад']]
+
+
+class CompEnterNameStateSwitcher(BaseStateSwitcher):
+    DEFAULT_MESSAGE = 'Введите название ингредиента'
+    STATE = BotStates.components_enter_name
+    ROW_TEXTS = [['Назад']]
+
+
+class ComponentShowStateSwitcher(BaseStateSwitcher):
+    STATE = BotStates.components_component_show
+    ROW_TEXTS = [['Назад']]
+
+
+def _state_name(state):
+    if isinstance(state, str):
+        return state
+    return state.name
+
+
 def switch_to_state(
         bot: telebot.TeleBot,
         state: telebot_backends.State,
         user_message: telebot.types.Message,
-        bot_message: str,
+        bot_message: typing.Optional[str] = None,
 ):
     """
     Switch to a state and write message using appropriate Switcher
@@ -126,9 +162,9 @@ def switch_to_state(
     :param bot_message: message to be sent
     """
     for switcher in BaseStateSwitcher.__subclasses__():
-        if switcher.STATE.name == state.name:
+        if switcher.STATE.name == _state_name(state):
             switcher.swith_to_state(bot, user_message, bot_message)
             return
     logger.error(f'Failed to switch to {state} state')
     # send the message at least
-    bot.send_message(user_message.chat.id, bot_message)
+    bot.send_message(user_message.chat.id, bot_message or 'Ошибка')

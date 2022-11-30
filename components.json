@@ -1,6 +1,7 @@
 [
   {
     "name": "Ястребинка Шепчущая",
+    "name_en": "whisper_hawk",
     "organ": "стебель",
     "only_forms": ["мазь"],
     "synonyms": [
@@ -22,6 +23,7 @@
   },
   {
     "name": "Зверобой",
+    "name_en": "tutsan",
     "organ": "листья",
     "synonyms": [
       "tutsan"
@@ -37,6 +39,7 @@
   },
   {
     "name": "Растение Харрады",
+    "name_en": "harrada_leaf",
     "organ": "лист",
     "synonyms": [
       "harrada",
@@ -58,6 +61,7 @@
   },
   {
     "name": "Рог единорога",
+    "name_en": "unicorn_horn",
     "organ": "пыль",
     "only_forms": ["порошок"],
     "synonyms": [
@@ -78,6 +82,7 @@
   },
   {
     "name": "Петрушка",
+    "name_en": "parsley",
     "organ": "ростки",
     "only_forms": ["порошок, мазь, зелье"],
     "synonyms": [
@@ -96,6 +101,7 @@
   },
   {
     "name": "Саламандра",
+    "name_en": "salamander_saliva",
     "organ": "слюни",
     "synonyms": [
       "слюни саламандры",
@@ -112,6 +118,7 @@
   },
   {
     "name": "Гифлома",
+    "name_en": "gifloma",
     "organ": "стебли",
     "synonyms": [
       "стебли гифломы",
@@ -129,6 +136,7 @@
   },
   {
     "name": "Светогриб",
+    "name_en": "shroomlight",
     "synonyms": [
       "shroomlight"
     ],
@@ -145,6 +153,7 @@
   },
   {
     "name": "Лиана Понтия",
+    "name_en": "pontei_liana",
     "organ": "цветок",
     "synonyms": [
       "liana",
@@ -165,6 +174,7 @@
   },
   {
     "name": "Зодиум",
+    "name_en": "zodium",
     "synonyms": [
       "zodium"
     ],
