@@ -3,6 +3,7 @@ import typing
 import dices
 import menu
 import messages as msgs
+import states
 
 import telebot
 import telebot.types
@@ -19,25 +20,12 @@ def check_and_switch_by_command(
     :param bot: the bot
     :return: true if swithed using a command and false otherwise
     """
-    STATE_BY_COMMAND = {
-        '/start': {
-            'state': menu.BotStates.main,
-            'message': msgs.MAIN_MENU,
-        },
-        '/dices': {
-            'state': menu.BotStates.dices,
-            'message': msgs.DICES_CHOICE,
-        },
-    }
     if not message.text.startswith('/'):
         return False
-    for command in STATE_BY_COMMAND.keys():
+    for command in states.STATE_BY_COMMAND.keys():
         if message.text.startswith(command):
-            state_doc = STATE_BY_COMMAND[command]
-            menu.switch_to_state(
-                bot, state_doc['state'],
-                message, state_doc['message'],
-            )
+            state = states.STATE_BY_COMMAND[command]
+            menu.switch_to_state(bot, state, message)
             return True
     return False
 

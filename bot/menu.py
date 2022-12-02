@@ -6,22 +6,11 @@ import telebot.handler_backends as telebot_backends
 import telebot.types
 
 from alchemy import parameters_manager
+from states import BotStates
 import messages as msgs
 
 
 logger = logging.getLogger()
-
-
-class BotStates(telebot_backends.StatesGroup):
-    main = telebot_backends.State()
-    dices = telebot_backends.State()
-    alchemy = telebot_backends.State()
-    parameters = telebot_backends.State()
-    dummy = telebot_backends.State()
-
-    components_menu = telebot_backends.State()
-    components_enter_name = telebot_backends.State()
-    components_component_show = telebot_backends.State()
 
 
 class BaseStateSwitcher:
@@ -71,11 +60,13 @@ class BaseStateSwitcher:
 
 class MainStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.main
+    DEFAULT_MESSAGE = msgs.MAIN_MENU
     ROW_TEXTS = [['Кинуть кости'], ['Алхимия']]
 
 
 class DicesStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.dices
+    DEFAULT_MESSAGE = msgs.DICES_CHOICE
     ROW_TEXTS = [
             ['d4', 'd6', 'd8'],
             ['d10', 'd20', 'd100'],
@@ -121,7 +112,8 @@ class ParametersStateSwitcher(BaseStateSwitcher):
 
 class DummyStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.dummy
-    ROW_TEXTS = [['Назад']]
+    DEFAULT_MESSAGE = msgs.DUMMY
+    ROW_TEXTS = [['В меню']]
 
 
 class ComponentsMenuStateSwitcher(BaseStateSwitcher):

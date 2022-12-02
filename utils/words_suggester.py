@@ -15,7 +15,7 @@ class WordsSuggester:
         inds_with_dist = []
         result = []
         for index, candidate in enumerate(self.words):
-            if candidate.startswith(word):
+            if candidate.lower().startswith(word):
                 prefix_inds_list.append(index)
             inds_with_dist.append((word_distance(word, candidate), index))
         prefix_inds_list = sorted(prefix_inds_list, key=(lambda x: len(self.words[x])))

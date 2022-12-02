@@ -1,0 +1,19 @@
+import telebot.handler_backends as telebot_backends
+
+
+class BotStates(telebot_backends.StatesGroup):
+    main = telebot_backends.State()
+    dices = telebot_backends.State()
+    alchemy = telebot_backends.State()
+    parameters = telebot_backends.State()
+    dummy = telebot_backends.State()
+
+    components_menu = telebot_backends.State()
+    components_enter_name = telebot_backends.State()
+    components_component_show = telebot_backends.State()
+
+
+STATE_BY_COMMAND = {
+    '/start': BotStates.main,
+    '/dices': BotStates.dices,
+}
