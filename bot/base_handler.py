@@ -5,9 +5,9 @@ from alchemy import parameters_manager
 import helpers
 import menu
 import messages as msgs
+from mongo_context import MongoContext
 
 import logging
-import states
 import typing
 
 
@@ -24,6 +24,7 @@ class BaseMessageHandler:
             self, bot: telebot.TeleBot,
             pm: parameters_manager.ParametersManager,
             cm: components_manager.ComponentsManager,
+            mongo_context: MongoContext,
     ):
         if self.STATE is None:
             # do nothing if class is incomplete
@@ -31,6 +32,7 @@ class BaseMessageHandler:
         self.bot = bot
         self.pm = pm
         self.cm = cm
+        self.mongo = mongo_context
         self.message: typing.Optional[telebot.types.Message] = None
 
         @bot.message_handler(state=self.STATE)
@@ -74,6 +76,9 @@ class BaseMessageHandler:
             message: typing.Optional[str] = None,
     ):
         menu.switch_to_state(self.bot, state, self.message, message)
+
+    def try_again(self, message: typing.Optional[str] = None):
+        self.switch_to_state(self.STATE, message)
 
     def process_state_by_message(self, unknown_pass_enabled=True):
         if self.message.text is None and unknown_pass_enabled:

@@ -1,14 +1,13 @@
 import telebot.types
 
-from telebot import custom_filters
-from telebot.storage import StateMemoryStorage
-
 from alchemy import components_manager
 from alchemy import parameters_manager
+from alchemy import potion
 import helpers
 import logging
 import menu
 import messages as msgs
+import pymongo.errors as mongo_errors
 from states import BotStates
 
 from base_handler import BaseMessageHandler
@@ -47,9 +46,16 @@ class AlchemyMenuHandler(BaseMessageHandler):
             'message': msgs.PARAMETER_CHOICE,
         },
         'Ингредиенты': {'state': BotStates.components_menu},
-        'Зелья': {'state': BotStates.dummy},
-        'Что это такое?': {'state': BotStates.dummy},
+        'Зелья': {'state': BotStates.potions_menu},
+        'Что это такое?': {'state': BotStates.alchemy_doc},
         'Назад': {'state': BotStates.main},
+    }
+
+
+class AlchemyDocHandler(BaseMessageHandler):
+    STATE = BotStates.alchemy_doc
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.alchemy},
     }
 
 
@@ -145,6 +151,79 @@ class ComponentShowHandler(BaseMessageHandler):
     STATE_BY_MESSAGE = {
         'Назад': {'state': BotStates.components_menu},
     }
+
+
+class PotionsMenuHandler(BaseMessageHandler):
+    STATE = BotStates.potions_menu
+    STATE_BY_MESSAGE = {
+
+        'Мои зелья': {'state': BotStates.dummy},
+        'Готовить': {'state': BotStates.potions_enter_formula},
+        'Что это такое?': {'state': BotStates.dummy},
+        'Назад': {'state': BotStates.alchemy},
+        'Вывести список ингридиентов': {'state': BotStates.dummy},
+    }
+
+
+class PotionsEnterFormulaHandler(BaseMessageHandler):
+    STATE = BotStates.potions_enter_formula
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.potions_menu},
+    }
+
+    def handle_message(self, message: telebot.types.Message):
+        cook_potion = potion.Potion(self.cm, self.pm)
+        try:
+            cook_potion.mix_from(message.text, use_suggestions=True)
+        except potion.ParsingFormulaError as parse_error:
+            self.switch_to_state(BotStates.potions_enter_formula, parse_error.message)
+            return
+
+        search_filter = {'user': message.from_user.id, 'name': '__cache'}
+        update = {'$set': {'potion': cook_potion.to_dict()}}
+        self.mongo.user_potions.update_one(search_filter, update=update, upsert=True)
+        self.switch_to_state(BotStates.potions_cooked, cook_potion.overall_description())
+
+
+class PotionsCookedHandler(BaseMessageHandler):
+    STATE = BotStates.potions_cooked
+    STATE_BY_MESSAGE = {
+        'Готовить ещё': {'state': BotStates.potions_enter_formula},
+        'Сохранить': {'state': BotStates.potions_enter_name},
+        'В меню': {'state': BotStates.potions_menu},
+    }
+
+
+MAX_NAME_LENGTH = 50
+
+
+class PotionsEnterNameHandler(BaseMessageHandler):
+    STATE = BotStates.potions_enter_name
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.potions_cooked},
+    }
+
+    def handle_message(self, message: telebot.types.Message):
+        name = message.text
+        if not name:
+            self.try_again(msgs.EMPTY_TEXT_ERROR)
+        if len(name) > MAX_NAME_LENGTH:
+            self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
+        search_filter = {'user': message.from_user.id, 'name': '__cache'}
+        cache_potion = self.mongo.user_potions.find_one(search_filter)
+        if not cache_potion or not cache_potion.get('potion'):
+            self.switch_to_state(BotStates.potions_menu, msgs.NOT_FOUND)
+        potion_doc = {
+            'user': message.from_user.id,
+            'name': name,
+            'potion': cache_potion['potion'],
+        }
+        try:
+            self.mongo.user_potions.insert_one(potion_doc)
+        except mongo_errors.DuplicateKeyError:
+            self.try_again(msgs.DUPLICATE_NAME_ERROR)
+            return
+        self.switch_to_state(BotStates.potions_menu, msgs.SAVE_SUCCESS)
 
 
 if __name__ == '__main__':

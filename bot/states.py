@@ -5,12 +5,19 @@ class BotStates(telebot_backends.StatesGroup):
     main = telebot_backends.State()
     dices = telebot_backends.State()
     alchemy = telebot_backends.State()
+    alchemy_doc = telebot_backends.State()
     parameters = telebot_backends.State()
     dummy = telebot_backends.State()
 
     components_menu = telebot_backends.State()
     components_enter_name = telebot_backends.State()
     components_component_show = telebot_backends.State()
+
+    potions_menu = telebot_backends.State()
+    potions_enter_formula = telebot_backends.State()
+    potions_cooked = telebot_backends.State()
+    potions_enter_name = telebot_backends.State()
+    potions_list = telebot_backends.State()
 
 
 STATE_BY_COMMAND = {

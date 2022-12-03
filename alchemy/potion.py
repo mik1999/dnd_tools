@@ -2,7 +2,7 @@ import json
 import string
 import copy
 import os
-
+import typing
 
 from . import calculation_helper as calcs
 from . import consts
@@ -34,6 +34,12 @@ class Potion(object):
         self.market_type = None
         self.complexity = None
         self.best_before = 12
+        self.marks = []
+
+    def to_dict(self) -> typing.Dict[str, typing.Any]:
+        result = copy.deepcopy(self.formula)
+        result.update({'__name': self.name})
+        return result
 
     def write(self, force_flag: bool):
         if not self.name:
@@ -41,10 +47,17 @@ class Potion(object):
         filename = 'potions/' + self.name + '.json'
         if (not force_flag) and os.path.exists(filename):
             raise FileExistsError(f'Файл с названием {filename} уже существует')
-        dict_repr = copy.deepcopy(self.formula)
-        dict_repr.update({'__name': self.name})
         with open(filename, 'w', encoding='utf-8') as file:
-            file.write(str(dict_repr))
+            file.write(str(self.to_dict()))
+
+    def from_dict(self, dict_repr):
+        self.name = dict_repr['__name']
+        dict_repr.pop('__name')
+        self.formula = dict_repr
+
+        self.calculate_parameters()
+        self.calculate_characteristics()
+        self.empty = False
 
     def read(self, potion_name):
         if not self.empty:
@@ -71,8 +84,8 @@ class Potion(object):
                 result += f'  {i + 1}) {potion.name}\n'
         return result[:-1]  # erase line end
 
-    def mix_from(self, formula: str):
-        self.parse_formula(formula)
+    def mix_from(self, formula: str, use_suggestions=False):
+        self.parse_formula(formula, use_suggestions)
         self.calculate_parameters()
         self.calculate_characteristics()
         self.empty = False
@@ -135,7 +148,7 @@ class Potion(object):
         else:
             self.market_type = 'бурда'
 
-    def parse_formula(self, formula: str):
+    def parse_formula(self, formula: str, use_suggestions=False):
         comp_set_old = {formula}
         comp_set = set()
         for delimiter in ',+':
@@ -159,14 +172,30 @@ class Potion(object):
             if fragment[i] in '*-':
                 i += 1
             fragment = fragment[i:].strip()
-            try:
-                component = self.cm.recognize_component(fragment)
-            except UnrecognizedComponent:
-                raise ParsingFormulaError(f'Не получается распознать компонент \'{fragment}\' - '
-                                          f'это не название какого-либо компонента и не синоним.')
+            component = self.get_component(fragment, use_suggestions)
             if self.formula.get(component.name):
-                raise ParsingFormulaError(f'Компонент \'{component.name}\' использован дважды, второй раз в \'{fragment}\'.')
+                raise ParsingFormulaError(
+                    f'Компонент \'{component.name}\' использован дважды, второй раз в \'{fragment}\'.',
+                )
             self.formula[component.name] = coefficient
+
+    def get_component(self, name: str, use_suggestions: bool):
+        if use_suggestions:
+            suggestions = self.cm.suggest_components(name)
+            if not suggestions:
+                raise ParsingFormulaError(
+                    f'Не получается распознать компонент \'{name}\'',
+                )
+            suggestion = suggestions[0]
+            component = self.cm.recognize_component(suggestion)
+            if component.name != name and component.name_en != name:
+                self.marks.append((name, suggestion))
+            return component
+        try:
+            return self.cm.recognize_component(name)
+        except UnrecognizedComponent:
+            raise ParsingFormulaError(f'Не получается распознать компонент \'{name}\' - '
+                                      f'это не название какого-либо компонента и не синоним.')
 
     def parameters_description(self):
         if self.empty:
@@ -193,7 +222,10 @@ class Potion(object):
     def overall_description(self):
         if self.empty:
             return 'Empty potion'
-        result = f'У вас получилось: {self.market_type}{" " + str(self.name) if self.name else ""}.\n'
+        result = ''
+        if self.marks:
+            result += 'Интерпетирую ' + ', '.join(f'{name} как {suggestion}' for name, suggestion in self.marks) + '\n'
+        result += f'У вас получилось: {self.market_type}{" " + str(self.name) if self.name else ""}.\n'
         result += 'Вектор параметров: ' + str(self.parameters_vector) + '\n'
         if self.portions == 0:
             result += (f'Общей массы компонент ({self.mass} г.) не хватает для приготавления даже одной порции. '

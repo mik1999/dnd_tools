@@ -9,7 +9,6 @@ from alchemy import parameters_manager
 from states import BotStates
 import messages as msgs
 
-
 logger = logging.getLogger()
 
 
@@ -18,9 +17,10 @@ class BaseStateSwitcher:
     DEFAULT_MESSAGE = None
     # redefine ROW_TEXTS (simple) or edit_markup (compl)
     ROW_TEXTS: typing.List[typing.List[str]] = [['Назад']]
+    DEFAULT_PARSE_MODE = None
 
     @classmethod
-    def swith_to_state(
+    def switch_to_state(
             cls,
             bot: telebot.TeleBot,
             user_message: telebot.types.Message,
@@ -31,7 +31,10 @@ class BaseStateSwitcher:
         :param bot: the bot
         :param user_message: current user message
         :param bot_message: message to be sent
+        :param parse_mode: a way to parse message, 
+                           e.g. for docs use "Markdown"
         """
+        parse_mode = cls.DEFAULT_PARSE_MODE
         bot.set_state(user_message.from_user.id, cls.STATE, user_message.chat.id)
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
         cls.edit_markup(user_message, markup)
@@ -40,7 +43,7 @@ class BaseStateSwitcher:
             if bot_message is None:
                 bot_message = 'Извините, произошла ошибка'
                 logger.error(f'Попытка использовать неустановленное дефолтное сообщение для {cls.STATE}')
-        bot.send_message(user_message.chat.id, bot_message, reply_markup=markup)
+        bot.send_message(user_message.chat.id, bot_message, reply_markup=markup, parse_mode=parse_mode)
 
     @classmethod
     def edit_markup(
@@ -68,19 +71,19 @@ class DicesStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.dices
     DEFAULT_MESSAGE = msgs.DICES_CHOICE
     ROW_TEXTS = [
-            ['d4', 'd6', 'd8'],
-            ['d10', 'd20', 'd100'],
-            ['Назад'],
-        ]
+        ['d4', 'd6', 'd8'],
+        ['d10', 'd20', 'd100'],
+        ['Назад'],
+    ]
 
 
 class AlchemyStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.alchemy
     DEFAULT_MESSAGE = msgs.ALCHEMY_SWITCH
     ROW_TEXTS = [
-            ['Параметры', 'Ингредиенты', 'Зелья'],
-            ['Что это такое?', 'Назад'],
-        ]
+        ['Параметры', 'Ингредиенты', 'Зелья'],
+        ['Что это такое?', 'Назад'],
+    ]
 
 
 class ParametersStateSwitcher(BaseStateSwitcher):
@@ -129,9 +132,47 @@ class CompEnterNameStateSwitcher(BaseStateSwitcher):
     ROW_TEXTS = [['Назад']]
 
 
+class PotionsMenuStateSwitcher(BaseStateSwitcher):
+    DEFAULT_MESSAGE = ('Вода в котле закипает, в воздухе витает запах трав, '
+                       'перегонный куб готов к работе, книга рецептов раскрыта. '
+                       'Что будем делать?')
+
+    STATE = BotStates.potions_menu
+    ROW_TEXTS = [
+        ['Мои зелья', 'Готовить'],
+        ['Что это такое?', 'Назад'],
+        ['Вывести список ингридиентов'],
+    ]
+
+
+class PotionsEnterFormulaStateSwitcher(BaseStateSwitcher):
+    DEFAULT_MESSAGE = 'Введите формулу, например, зверобой + 2 гифлома'
+
+    STATE = BotStates.potions_enter_formula
+    ROW_TEXTS = [['Назад']]
+
+
+class PotionsCookedMenuStateSwitcher(BaseStateSwitcher):
+    STATE = BotStates.potions_cooked
+    ROW_TEXTS = [['Готовить ещё', 'Сохранить'], ['В меню']]
+
+
+class PotionsEnterNameStateSwitcher(BaseStateSwitcher):
+    STATE = BotStates.potions_enter_name
+    DEFAULT_MESSAGE = 'Введите название для нового зелья'
+    ROW_TEXTS = [['Отмена']]
+
+
 class ComponentShowStateSwitcher(BaseStateSwitcher):
     STATE = BotStates.components_component_show
     ROW_TEXTS = [['Назад']]
+
+
+class AlchemyDocSwitcher(BaseStateSwitcher):
+    STATE = BotStates.alchemy_doc
+    ROW_TEXTS: typing.List[typing.List[str]] = [['Назад']]
+    DEFAULT_PARSE_MODE = 'MarkdownV2'
+    DEFAULT_MESSAGE = msgs.ALCHEMY_ABOUT
 
 
 def _state_name(state):
@@ -152,10 +193,11 @@ def switch_to_state(
     :param state: state to switch to
     :param user_message: current user message
     :param bot_message: message to be sent
+    :param parse_mode: message parse mode, e.g. Markdown
     """
     for switcher in BaseStateSwitcher.__subclasses__():
-        if switcher.STATE.name == _state_name(state):
-            switcher.swith_to_state(bot, user_message, bot_message)
+        if switcher.STATE and switcher.STATE.name == _state_name(state):
+            switcher.switch_to_state(bot, user_message, bot_message)
             return
     logger.error(f'Failed to switch to {state} state')
     # send the message at least

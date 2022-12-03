@@ -1,11 +1,12 @@
-import copy
-
 from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
 import logging
 import menu
 import messages as msgs
+from mongo_context import MongoContext
+import pymongo
+import pymongo.collection
 import states
 import telebot
 from telebot import custom_filters
@@ -28,6 +29,11 @@ class HandlersController:
         menu.ParametersStateSwitcher.calculate_row_texts()
         self.pm = parameters_manager.ParametersManager('../parameters.json')
         self.cm = components_manager.ComponentsManager('../components.json')
+
+        client = pymongo.MongoClient()
+        db = client.get_database('dnd')
+        self.user_potions = db.get_collection('user_potions')
+        self.mongo_context = MongoContext(self.user_potions)
 
         self.init_handlers()
         self.init_commands()
@@ -67,7 +73,7 @@ class HandlersController:
 
     def init_handlers(self):
         for subclass in base_handler.BaseMessageHandler.__subclasses__():
-            _ = subclass(self.bot, self.pm, self.cm)
+            _ = subclass(self.bot, self.pm, self.cm, self.mongo_context)
 
 
 
