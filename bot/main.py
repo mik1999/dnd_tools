@@ -194,7 +194,8 @@ class PotionsCookedHandler(BaseMessageHandler):
     }
 
 
-MAX_NAME_LENGTH = 50
+MAX_NAME_LENGTH = 100
+MAX_SAVED_POTIONS = 3
 
 
 class PotionsEnterNameHandler(BaseMessageHandler):
@@ -204,15 +205,26 @@ class PotionsEnterNameHandler(BaseMessageHandler):
     }
 
     def handle_message(self, message: telebot.types.Message):
+        potions_count = self.mongo.user_potions.count_documents(
+            {'user': message.from_user.id},
+        )
+        # + 1 -- cached potion
+        if potions_count >= MAX_SAVED_POTIONS + 1:
+            self.switch_to_state(BotStates.potions_menu, msgs.TOO_MUCH_POTIONS.format(MAX_SAVED_POTIONS))
+            return
         name = message.text
         if not name:
             self.try_again(msgs.EMPTY_TEXT_ERROR)
+            return
         if len(name) > MAX_NAME_LENGTH:
             self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
+            return
         search_filter = {'user': message.from_user.id, 'name': '__cache'}
         cache_potion = self.mongo.user_potions.find_one(search_filter)
+        cache_potion['potion']['__name'] = name
         if not cache_potion or not cache_potion.get('potion'):
             self.switch_to_state(BotStates.potions_menu, msgs.NOT_FOUND)
+            return
         potion_doc = {
             'user': message.from_user.id,
             'name': name,
