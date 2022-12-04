@@ -3,11 +3,11 @@ import telebot.handler_backends as telebot_backends
 from alchemy import components_manager
 from alchemy import parameters_manager
 import helpers
-import menu
 import messages as msgs
+import logging
 from mongo_context import MongoContext
 
-import logging
+from states import BotStates, STATE_BY_COMMAND
 import typing
 
 
@@ -51,19 +51,35 @@ class BaseMessageHandler:
         try:
             logger.info(f'Got message {message.text} from user {message.from_user.username}')
             self.message = message
+            reply_message = None
             if self.DO_DEFAULT_COMMANDS:
-                if helpers.check_and_switch_by_command(message, self.bot):
+                reply_message = self.check_and_switch_by_command()
+                if reply_message is not None:
                     return
-            if self.process_state_by_message(unknown_pass_enabled=True) is not None:
-                return
-            reply_message = self.handle_message(message)
-            # ToDo: uncomment after all handlers use switch v2
-            # logger.info(f'Reply {reply_message} to user {message.from_user.username}')
+            if reply_message is None:
+                reply_message = self.process_state_by_message(unknown_pass_enabled=True)
+            if reply_message is None:
+                reply_message = self.handle_message(message)
+            logger.info(f'Reply {reply_message} to user {message.from_user.username}')
         except Exception as ex:
             # whatever happens it must not break bot polling
             logger.error(f'Caught exception {ex} while handling message '
                          f'{message} from user {message.from_user.username}'
                          f'(id={message.from_user.id})')
+
+    def check_and_switch_by_command(self) -> typing.Optional[telebot.types.Message]:
+        """
+        If message start with command - switch to appropriate state
+        and write a message
+        :return: result message if swithed using a command and None otherwise
+        """
+        if not self.message.text.startswith('/'):
+            return None
+        for command in STATE_BY_COMMAND.keys():
+            if self.message.text.startswith(command):
+                state = STATE_BY_COMMAND[command]
+                return self.switch_to_state(state)
+        return None
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -82,13 +98,6 @@ class BaseMessageHandler:
     def switch_to_state(
             self, state: telebot_backends.State,
             message: typing.Optional[str] = None,
-            parse_mode: typing.Optional[str] = None,
-    ) -> telebot.types.Message:
-        return menu.switch_to_state(self.bot, state, self.message, message, parse_mode=parse_mode)
-
-    def switch_to_state_v2(
-            self, state: telebot_backends.State,
-            message: typing.Optional[str] = None,
             markup: telebot.types.ReplyKeyboardMarkup = None,
             parse_mode: typing.Optional[str] = None,
     ) -> telebot.types.Message:
@@ -99,35 +108,28 @@ class BaseMessageHandler:
     def try_again(
             self, message: typing.Optional[str] = None,
             parse_mode: typing.Optional[str] = None,
+            markup: telebot.types.ReplyKeyboardMarkup = None,
     ) -> telebot.types.Message:
-        return self.switch_to_state(self.STATE, message, parse_mode=parse_mode)
-
-    def try_again_v2(
-            self, message: typing.Optional[str] = None,
-            parse_mode: typing.Optional[str] = None,
-    ) -> telebot.types.Message:
-        return self.switch_to_state_v2(self.STATE, message, parse_mode=parse_mode)
+        return self.switch_to_state(self.STATE, message, parse_mode=parse_mode, markup=markup)
 
     def process_state_by_message(
             self, unknown_pass_enabled=True,
     ) -> typing.Optional[telebot.types.Message]:
         if self.message.text is None and unknown_pass_enabled:
-            menu.switch_to_state(
-                self.bot, menu.BotStates.main,
-                self.message, msgs.ON_NO_USER_TEXT,
+            self.switch_to_state(
+                BotStates.main, msgs.ON_NO_USER_TEXT,
             )
             return None
         message_text: str = self.message.text
         state_doc = self.STATE_BY_MESSAGE.get(message_text)
         if state_doc:
-            return menu.switch_to_state(
-                self.bot, state_doc['state'],
-                self.message, state_doc.get('message'),
+            return self.switch_to_state(
+                state_doc['state'], state_doc.get('message'),
             )
         if not unknown_pass_enabled:
             # ToDo nesessary ? try replace by self.send_message(msgs.PARSE_BUTTON_ERROR)
-            current_state = self.bot.get_state(self.message.from_user.id, self.message.chat.id)
-            return self.switch_to_state(current_state, msgs.PARSE_BUTTON_ERROR)
+            markup = self.make_markup(self.make_buttons_list())
+            return self.send_message(msgs.PARSE_BUTTON_ERROR, reply_markup=markup)
         return None
 
     def send_message(
@@ -151,6 +153,7 @@ class BaseMessageHandler:
         Update user's state and set appropriate buttons
         :param bot_message: message to send
         :param markup: markup to be set. Sets default of markup is None
+        :param parse_mode: message parse mode e.g. MarkdownV2
         """
         if parse_mode is None:
             parse_mode = self.PARSE_MODE
@@ -158,16 +161,23 @@ class BaseMessageHandler:
             self.message.from_user.id, self.STATE, self.message.chat.id,
         )
         if markup is None:
-            markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
-            buttons_list = self.make_buttons_list()
-            for row in buttons_list:
-                markup.add(*[telebot.types.KeyboardButton(text) for text in row])
+            markup = self.make_markup(self.make_buttons_list())
         if bot_message is None:
-            bot_message = self.DEFAULT_MESSAGE
+            bot_message = self.get_default_message()
             if bot_message is None:
                 bot_message = 'Извините, произошла ошибка'
                 logger.error(f'Попытка использовать неустановленное дефолтное сообщение для {self.STATE}')
         return self.send_message(bot_message, reply_markup=markup, parse_mode=parse_mode)
+
+    @staticmethod
+    def make_markup(buttons_list) -> telebot.types.ReplyKeyboardMarkup:
+        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
+        for row in buttons_list:
+            markup.add(*[telebot.types.KeyboardButton(text) for text in row])
+        return markup
+
+    def get_default_message(self):
+        return self.DEFAULT_MESSAGE
 
     def make_buttons_list(
             self,
@@ -176,3 +186,14 @@ class BaseMessageHandler:
         Makes list of buttons to show on switch to this state
         """
         return self.BUTTONS
+
+
+class DocHandler(BaseMessageHandler):
+    BUTTONS: typing.List[typing.List[str]] = [['Ок']]
+    PARSE_MODE = 'MarkdownV2'
+    PARENT_STATE: typing.Optional[telebot_backends.State] = None
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        return self.switch_to_state(self.PARENT_STATE)

@@ -2,7 +2,6 @@ from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
 import logging
-import menu
 import messages as msgs
 from mongo_context import MongoContext
 import pymongo
@@ -10,7 +9,9 @@ import pymongo.collection
 import states
 import telebot
 from telebot import custom_filters
+import telebot.handler_backends as telebot_backends
 from telebot.storage import StateMemoryStorage
+import typing
 
 
 logger = logging.getLogger()
@@ -31,7 +32,6 @@ class HandlersController:
         self.bot.last_suggestions = {}
         self.bot.add_custom_filter(custom_filters.StateFilter(self.bot))
 
-        menu.ParametersStateSwitcher.calculate_row_texts()
         self.pm = parameters_manager.ParametersManager('../parameters.json')
         self.cm = components_manager.ComponentsManager('../components.json')
 
@@ -47,10 +47,18 @@ class HandlersController:
         @self.bot.message_handler(func=(lambda x: True))
         def misunderstand(message: telebot.types.Message):
             # ToDo: if message contains button text process like the button
-            menu.switch_to_state(self.bot, states.BotStates.main,
-                                 message, msgs.MISUNDERSTAND)
+            self.switch_to_state(states.BotStates.main, message, msgs.MISUNDERSTAND)
 
         logger.info('Finished HandlersController initializing successfully')
+
+    def switch_to_state(
+            self, state: telebot_backends.State,
+            message: telebot.types.Message,
+            bot_message: typing.Optional[str] = None,
+    ) -> telebot.types.Message:
+        handler = self.handler_by_state[state]
+        handler.message = message
+        return handler.switch_on_me(bot_message)
 
     def run(self):
         logger.info('Start polling bot')
@@ -60,17 +68,11 @@ class HandlersController:
 
         @self.bot.message_handler(commands=['start'])
         def start_handler(message: telebot.types.Message):
-            menu.switch_to_state(
-                self.bot, states.STATE_BY_COMMAND['/start'],
-                message,
-            )
+            self.switch_to_state(states.STATE_BY_COMMAND['/start'], message)
 
         @self.bot.message_handler(commands=['dices'])
         def dices_handler(message: telebot.types.Message):
-            menu.switch_to_state(
-                self.bot, states.STATE_BY_COMMAND['/dices'],
-                message,
-            )
+            self.switch_to_state(states.STATE_BY_COMMAND['/dices'], message)
 
         self.bot.set_my_commands([
             telebot.types.BotCommand('/start', 'Главное меню'),
@@ -80,8 +82,9 @@ class HandlersController:
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
             handler = subclass(self.bot, self.pm, self.cm, self.mongo_context)
-            self.handler_by_state[handler.STATE] = handler
-            handler.set_handler_by_state(self.handler_by_state)
+            if handler.STATE is not None:
+                self.handler_by_state[handler.STATE] = handler
+                handler.set_handler_by_state(self.handler_by_state)
 
 
 

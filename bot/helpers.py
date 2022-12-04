@@ -1,7 +1,6 @@
 import typing
 
 import dices
-import menu
 import messages as msgs
 import states
 
