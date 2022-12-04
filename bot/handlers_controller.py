@@ -16,6 +16,11 @@ from telebot.storage import StateMemoryStorage
 logger = logging.getLogger()
 
 
+def all_subclasses(cls):
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
+
 class HandlersController:
     def __init__(self):
         logger.info('Start HandlersController initializing')
@@ -35,6 +40,7 @@ class HandlersController:
         self.user_potions = db.get_collection('user_potions')
         self.mongo_context = MongoContext(self.user_potions)
 
+        self.handler_by_state = dict()
         self.init_handlers()
         self.init_commands()
 
@@ -72,9 +78,10 @@ class HandlersController:
         ])
 
     def init_handlers(self):
-        for subclass in base_handler.BaseMessageHandler.__subclasses__():
-            _ = subclass(self.bot, self.pm, self.cm, self.mongo_context)
-
+        for subclass in all_subclasses(base_handler.BaseMessageHandler):
+            handler = subclass(self.bot, self.pm, self.cm, self.mongo_context)
+            self.handler_by_state[handler.STATE] = handler
+            handler.set_handler_by_state(self.handler_by_state)
 
 
 

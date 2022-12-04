@@ -25,16 +25,16 @@ class BaseStateSwitcher:
             bot: telebot.TeleBot,
             user_message: telebot.types.Message,
             bot_message: str = None,
-    ):
+            parse_mode: typing.Optional[str] = None,
+    ) -> telebot.types.Message:
         """
         Update user's state and set appropriate buttons
         :param bot: the bot
         :param user_message: current user message
         :param bot_message: message to be sent
-        :param parse_mode: a way to parse message, 
-                           e.g. for docs use "Markdown"
         """
-        parse_mode = cls.DEFAULT_PARSE_MODE
+        if parse_mode is None:
+            parse_mode = cls.DEFAULT_PARSE_MODE
         bot.set_state(user_message.from_user.id, cls.STATE, user_message.chat.id)
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=6)
         cls.edit_markup(user_message, markup)
@@ -43,7 +43,9 @@ class BaseStateSwitcher:
             if bot_message is None:
                 bot_message = 'Извините, произошла ошибка'
                 logger.error(f'Попытка использовать неустановленное дефолтное сообщение для {cls.STATE}')
-        bot.send_message(user_message.chat.id, bot_message, reply_markup=markup, parse_mode=parse_mode)
+        return bot.send_message(
+            user_message.chat.id, bot_message, reply_markup=markup, parse_mode=parse_mode,
+        )
 
     @classmethod
     def edit_markup(
@@ -186,19 +188,18 @@ def switch_to_state(
         state: telebot_backends.State,
         user_message: telebot.types.Message,
         bot_message: typing.Optional[str] = None,
-):
+        parse_mode: typing.Optional[str] = None,
+) -> telebot.types.Message:
     """
     Switch to a state and write message using appropriate Switcher
     :param bot: the bot
     :param state: state to switch to
     :param user_message: current user message
     :param bot_message: message to be sent
-    :param parse_mode: message parse mode, e.g. Markdown
     """
     for switcher in BaseStateSwitcher.__subclasses__():
         if switcher.STATE and switcher.STATE.name == _state_name(state):
-            switcher.switch_to_state(bot, user_message, bot_message)
-            return
+            return switcher.switch_to_state(bot, user_message, bot_message, parse_mode)
     logger.error(f'Failed to switch to {state} state')
     # send the message at least
     bot.send_message(user_message.chat.id, bot_message or 'Ошибка')

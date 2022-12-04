@@ -1,3 +1,5 @@
+import copy
+
 import telebot.types
 
 from alchemy import components_manager
@@ -7,8 +9,11 @@ import helpers
 import logging
 import menu
 import messages as msgs
+import pymongo
 import pymongo.errors as mongo_errors
+import typing
 from states import BotStates
+from utils.words_suggester import WordsSuggester
 
 from base_handler import BaseMessageHandler
 import handlers_controller
@@ -156,13 +161,20 @@ class ComponentShowHandler(BaseMessageHandler):
 class PotionsMenuHandler(BaseMessageHandler):
     STATE = BotStates.potions_menu
     STATE_BY_MESSAGE = {
-
-        'Мои зелья': {'state': BotStates.dummy},
+        # 'Мои зелья': {'state': BotStates.dummy},
         'Готовить': {'state': BotStates.potions_enter_formula},
         'Что это такое?': {'state': BotStates.dummy},
         'Назад': {'state': BotStates.alchemy},
         'Вывести список ингридиентов': {'state': BotStates.dummy},
     }
+
+    # ToDo: delete handler
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text == 'Мои зелья':
+            return self.switch_to_state_v2(BotStates.potions_list)
+        return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
 class PotionsEnterFormulaHandler(BaseMessageHandler):
@@ -214,11 +226,11 @@ class PotionsEnterNameHandler(BaseMessageHandler):
             return
         name = message.text
         if not name:
-            self.try_again(msgs.EMPTY_TEXT_ERROR)
-            return
+            return self.try_again(msgs.EMPTY_TEXT_ERROR)
+
         if len(name) > MAX_NAME_LENGTH:
-            self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
-            return
+            return self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
+
         search_filter = {'user': message.from_user.id, 'name': '__cache'}
         cache_potion = self.mongo.user_potions.find_one(search_filter)
         cache_potion['potion']['__name'] = name
@@ -236,6 +248,83 @@ class PotionsEnterNameHandler(BaseMessageHandler):
             self.try_again(msgs.DUPLICATE_NAME_ERROR)
             return
         self.switch_to_state(BotStates.potions_menu, msgs.SAVE_SUCCESS)
+
+
+class PotionsListHandler(BaseMessageHandler):
+    STATE = BotStates.potions_list
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.potions_menu},
+    }
+    DEFAULT_MESSAGE = ('Введите название зелья, по которому я могу '
+                       'его искать, или воспользуйтесь предложениями в меню')
+    MAX_POTION_BUTTONS = 6
+
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        """
+        append last viewed potions
+        """
+        saved_potions = self.mongo.user_potions.find(
+            {'user': self.message.from_user.id},
+            projection={'name': True, 'last_viewed': True},
+        ).sort('last_viewed', pymongo.DESCENDING)
+        buttons = [['Вывести список', 'Назад']]
+        batch = []
+        for user_potion in saved_potions:
+            potion_name = user_potion.get('name', 'ошибка')
+            if potion_name == '__cache':
+                continue
+            batch.append(potion_name)
+            if len(batch) == 2:
+                buttons.append(copy.deepcopy(batch))
+                batch = []
+        if batch:
+            buttons.append(copy.deepcopy(batch))
+        return buttons
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text == 'Вывести список':
+            saved_potions = self.mongo.user_potions.find(
+                {'user': self.message.from_user.id},
+                projection={'name': True, 'last_viewed': True},
+            ).sort('last_viewed', pymongo.DESCENDING)
+            bot_message = ''
+            for index, user_potion in enumerate(saved_potions):
+                potion_name = user_potion.get('name', 'ошибка')
+                if potion_name == '__cache':
+                    continue
+                bot_message += f'{index + 1}\\)    `{potion_name}`'
+            return self.try_again_v2(bot_message, parse_mode='MarkdownV2')
+        if message.text.startswith('/'):
+            name = message.text[1:].replace('_', ' ')
+            potion_doc = self.mongo.user_potions.find_one(
+                {'user': message.from_user.id, 'name': name}
+            )
+            if not potion_doc or not potion_doc.get('potion'):
+                return self.try_again(msgs.NOT_FOUND)
+            user_potion = potion.Potion(self.cm, self.pm)
+            user_potion.from_dict(potion_doc['potion'])
+            return self.switch_to_state(BotStates.dummy, user_potion.overall_description())
+
+        saved_potions = self.mongo.user_potions.find(
+            {'user': self.message.from_user.id},
+        ).sort('last_viewed', pymongo.DESCENDING)
+        potions = dict()
+        for index, user_potion in enumerate(saved_potions):
+            potion_name = user_potion.get('name', 'ошибка')
+            if potion_name == '__cache' or user_potion.get('potion') is None:
+                continue
+            potions.update({potion_name: user_potion['potion']})
+        suggester = WordsSuggester(list(potions.keys()))
+        suggestions = suggester.suggest(message.text, max_size=1)
+        if not suggestions:
+            self.try_again(msgs.NO_SUGGESTIONS)
+        user_potion = potion.Potion(self.cm, self.pm)
+        user_potion.from_dict(potions[suggestions[0]])
+        return self.switch_to_state(BotStates.dummy, user_potion.overall_description())
 
 
 if __name__ == '__main__':
