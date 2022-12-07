@@ -8,10 +8,13 @@ def cost_str(cost: float):
     return gold_str + (' ' if silver_str else '') + silver_str + (' ' if copper_str else '') + copper_str
 
 
-def double_average_to_dices(number: int) -> str:
+def double_average_to_dices(number: int, sample=False) -> str:
     # todo: d6, d8, d10, d12, ...
     if number == 0:
         return '0'
+    if sample:
+        # ToDo fix this dummy
+        return str(int(number // 2))
     dices = 0
     bonus = 0
     if number % 2 == 1:

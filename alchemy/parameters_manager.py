@@ -48,10 +48,10 @@ class ParametersManager(object):
                 {subclass.parameter_symbol: subclass.description}
             )
 
-    def param_description(self, param_symbol, coefficient, mods=None):
+    def param_description(self, param_symbol, coefficient, mods=None, sample=False):
         if mods is None:
             mods = copy.deepcopy(DEFAULT_MODS)
-        return self.culc_functions[param_symbol](coefficient, mods)
+        return self.culc_functions[param_symbol](coefficient, mods, sample=sample)
 
     def get_param(self, symbol: str):
         result = self.parameters.get(symbol, None)

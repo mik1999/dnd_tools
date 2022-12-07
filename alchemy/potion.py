@@ -51,6 +51,7 @@ class Potion(object):
             file.write(str(self.to_dict()))
 
     def from_dict(self, dict_repr):
+        dict_repr = copy.deepcopy(dict_repr)
         self.name = dict_repr['__name']
         dict_repr.pop('__name')
         self.formula = dict_repr
@@ -197,7 +198,7 @@ class Potion(object):
             raise ParsingFormulaError(f'Не получается распознать компонент \'{name}\' - '
                                       f'это не название какого-либо компонента и не синоним.')
 
-    def parameters_description(self):
+    def parameters_description(self, sample=False):
         if self.empty:
             return 'Empty potion'
         if not self.parameters_vector:
@@ -213,13 +214,13 @@ class Potion(object):
                 continue
             coefficient = self.parameters_vector[parameter_symbol]
             rus_name = self.pm.param_name(parameter_symbol, coefficient)
-            param_description = self.pm.param_description(parameter_symbol, coefficient, mods)
+            param_description = self.pm.param_description(parameter_symbol, coefficient, mods, sample=sample)
             description += ' ' + str(counter) + f') {rus_name}. ' + param_description + '\n'
             counter += 1
         self.best_before = mods['best_before']
         return description
 
-    def overall_description(self):
+    def overall_description(self, sample=False):
         if self.empty:
             return 'Empty potion'
         result = ''
@@ -242,7 +243,7 @@ class Potion(object):
                       f'чтобы все компоненты содержали ее в списке возможных форм.\n')
         result += (f'Сложность приготовления: {self.complexity} (бросок к20 с инструментами алхимика). '
                    f'Время приготовления равно {self.cooking_time} мин.\n')
-        result += self.parameters_description()
+        result += self.parameters_description(sample=sample)
         if self.portions > 0:
             if self.cost == 0:
                 result += (f'Эта бурда ничего не стоит, хотя приготовление одной порции тратит ингридиентов '

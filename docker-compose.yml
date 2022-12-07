@@ -3,6 +3,33 @@ services:
   dnd_bot:
     container_name: dnd-bot-container
     build: .
-    entrypoint: python main.py
+    entrypoint: python -O main.py
     ports:
       - '2398:2398'
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    networks:
+      - backend
+  mongo:
+    image: mongo:4.0.8
+    container_name: mongodb-container
+    restart: unless-stopped
+    ports:
+     - "27017:27017"
+    command: mongod
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dnd_telegram_bot
+      MONGO_INITDB_ROOT_PASSWORD: f249f9Gty2793f20nD2330ry8432
+      MONGO_INITDB_DATABASE: dnd
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /var/log/mongodb
+    volumes:
+      - ./mongo/data:/data/db
+      - ./mongo/initdb.js:/docker-entrypoint-initdb.d/initdb.js:ro
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge

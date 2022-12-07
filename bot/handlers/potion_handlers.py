@@ -11,7 +11,7 @@ import typing
 from states import BotStates
 from utils.words_suggester import WordsSuggester
 
-from base_handler import BaseMessageHandler
+from base_handler import BaseMessageHandler, DocHandler
 
 
 class PotionsMenuHandler(BaseMessageHandler):
@@ -19,9 +19,8 @@ class PotionsMenuHandler(BaseMessageHandler):
     STATE_BY_MESSAGE = {
         'Мои зелья': {'state': BotStates.potions_list},
         'Готовить': {'state': BotStates.potions_enter_formula},
-        'Что это такое?': {'state': BotStates.dummy},
+        'Что это такое?': {'state': BotStates.potions_cooking_doc},
         'Назад': {'state': BotStates.alchemy},
-        'Вывести список ингридиентов': {'state': BotStates.dummy},
     }
     DEFAULT_MESSAGE = ('Вода в котле закипает, в воздухе витает запах трав, '
                        'перегонный куб готов к работе, книга рецептов раскрыта. '
@@ -32,6 +31,13 @@ class PotionsMenuHandler(BaseMessageHandler):
         ['Что это такое?', 'Назад'],
         ['Вывести список ингридиентов'],
     ]
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text == 'Вывести список ингридиентов':
+            return self.try_again(self.cm.components_list(show_params=True))
+        return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
 class PotionsEnterFormulaHandler(BaseMessageHandler):
@@ -67,8 +73,8 @@ class PotionsCookedHandler(BaseMessageHandler):
     BUTTONS = [['Готовить ещё', 'Сохранить'], ['В меню']]
 
 
-MAX_NAME_LENGTH = 100
-MAX_SAVED_POTIONS = 3
+MAX_NAME_LENGTH = 50
+MAX_SAVED_POTIONS = 100
 
 
 class PotionsEnterNameHandler(BaseMessageHandler):
@@ -103,7 +109,7 @@ class PotionsEnterNameHandler(BaseMessageHandler):
             'user': message.from_user.id,
             'name': name,
             'potion': cache_potion['potion'],
-            'last_viewed': datetime.datetime.now().isoformat(),
+            'last_viewed': datetime.datetime.utcnow(),
         }
         try:
             self.mongo.user_potions.insert_one(potion_doc)
@@ -154,11 +160,13 @@ class PotionsListHandler(BaseMessageHandler):
                 projection={'name': True, 'last_viewed': True},
             ).sort('last_viewed', pymongo.DESCENDING)
             bot_message = ''
-            for index, user_potion in enumerate(saved_potions):
+            index = 1
+            for user_potion in saved_potions:
                 potion_name = user_potion.get('name', 'ошибка')
                 if potion_name == '__cache':
                     continue
-                bot_message += f'{index + 1}\\)    `{potion_name}`\n'
+                bot_message += f'{index}\\)    `{potion_name}`\n'
+                index += 1
             return self.try_again(bot_message, parse_mode='MarkdownV2')
 
         saved_potions = self.mongo.user_potions.find(
@@ -173,7 +181,78 @@ class PotionsListHandler(BaseMessageHandler):
         suggester = WordsSuggester(list(potions.keys()))
         suggestions = suggester.suggest(message.text, max_size=1)
         if not suggestions:
-            self.try_again(msgs.NO_SUGGESTIONS)
+            return self.try_again(msgs.NO_SUGGESTIONS)
         user_potion = potion.Potion(self.cm, self.pm)
-        user_potion.from_dict(potions[suggestions[0]])
-        return self.switch_to_state(BotStates.dummy, user_potion.overall_description())
+        potion_doc = potions[suggestions[0]]
+        user_potion.from_dict(potion_doc)
+        self.mongo.user_potions.update_one(
+            {'user': self.message.from_user.id, 'name': '__cache'},
+            {'$set': {'potion': potion_doc}, '$currentDate': {'last_viewed': True}},
+        )
+        self.mongo.user_potions.update_one(
+            {'user': self.message.from_user.id, 'name': potion_doc['__name']},
+            {'$currentDate': {'last_viewed': True}},
+        )
+        return self.switch_to_state(BotStates.potion_show, user_potion.overall_description())
+
+
+class CookingDocHandler(DocHandler):
+    STATE = BotStates.potions_cooking_doc
+    DEFAULT_MESSAGE = msgs.MIX_ABOUT
+    PARENT_STATE = BotStates.potions_menu
+
+
+class PotionShowHandler(BaseMessageHandler):
+    STATE = BotStates.potion_show
+    BUTTONS = [
+        ['Сэмплировать', 'Удалить'],
+        ['Назад'],
+    ]
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.potions_menu},
+    }
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        potion_doc = self.mongo.user_potions.find_one(
+            {'user': message.from_user.id, 'name': '__cache'},
+        )
+        if not potion_doc or not potion_doc.get('potion', {}).get('__name'):
+            return self.try_again(msgs.NOT_FOUND)
+        cache_potion = potion.Potion(self.cm, self.pm)
+        cache_potion.from_dict(potion_doc['potion'])
+        if message.text == 'Сэмплировать':
+            return self.try_again(cache_potion.overall_description(sample=True))
+        if message.text == 'Удалить':
+            reply = msgs.POTION_DELETE_CONFIRM.format(potion_doc['potion']['__name'])
+            return self.switch_to_state(BotStates.potions_delete_confirm, reply)
+        return self.try_again(msgs.PARSE_BUTTON_ERROR)
+
+
+class PotionDeleteHandler(BaseMessageHandler):
+    STATE = BotStates.potions_delete_confirm
+    BUTTONS = [
+        ['Да', 'Нет'],
+    ]
+    STATE_BY_MESSAGE = {
+        'Нет': {'state': BotStates.potions_list},
+    }
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text != 'Да':
+            return self.try_again(msgs.PARSE_BUTTON_ERROR)
+        potion_doc = self.mongo.user_potions.find_one(
+            {'user': message.from_user.id, 'name': '__cache'},
+        )
+        if not potion_doc or not potion_doc.get('potion', {}).get('__name'):
+            return self.try_again(msgs.NOT_FOUND)
+        result = self.mongo.user_potions.delete_one(
+            {'user': message.from_user.id, 'name': potion_doc['potion']['__name']}
+        )
+        reply = 'Ошибка удаления'
+        if result.deleted_count == 1:
+            reply = 'Успешно удалено'
+        return self.switch_to_state(BotStates.potions_list, reply)

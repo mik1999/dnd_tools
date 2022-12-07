@@ -22,6 +22,11 @@ def all_subclasses(cls):
         [s for c in cls.__subclasses__() for s in all_subclasses(c)])
 
 
+MONGO_LOGIN = 'dnd_telegram_bot'
+MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
+HOST = '172.21.0.2'
+
+
 class HandlersController:
     def __init__(self):
         logger.info('Start HandlersController initializing')
@@ -35,7 +40,17 @@ class HandlersController:
         self.pm = parameters_manager.ParametersManager('../parameters.json')
         self.cm = components_manager.ComponentsManager('../components.json')
 
-        client = pymongo.MongoClient()
+        if __debug__:
+            logger.warning('Using degub environment')
+            client = pymongo.MongoClient(f'mongodb://{MONGO_LOGIN}:{MONGO_PASSWORD}@localhost:27017/dnd')
+        else:
+            logger.info('Using production environment')
+            client = pymongo.MongoClient(
+                host=[f'{HOST}:27017'],
+                serverSelectionTimeoutMS=2000,
+                username=MONGO_LOGIN,
+                password=MONGO_PASSWORD,
+            )
         db = client.get_database('dnd')
         self.user_potions = db.get_collection('user_potions')
         self.mongo_context = MongoContext(self.user_potions)
@@ -85,6 +100,3 @@ class HandlersController:
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler
                 handler.set_handler_by_state(self.handler_by_state)
-
-
-

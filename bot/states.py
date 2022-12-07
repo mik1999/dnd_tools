@@ -19,6 +19,8 @@ class BotStates(telebot_backends.StatesGroup):
     potions_enter_name = telebot_backends.State()
     potions_list = telebot_backends.State()
     potion_show = telebot_backends.State()
+    potions_cooking_doc = telebot_backends.State()
+    potions_delete_confirm = telebot_backends.State()
 
 
 STATE_BY_COMMAND = {

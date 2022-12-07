@@ -25,7 +25,7 @@ class MainStateHandler(BaseMessageHandler):
         'Алхимия': {'state': BotStates.alchemy},
     }
     DEFAULT_MESSAGE = msgs.MAIN_MENU
-    BUTTONS = [['Кинуть кости'], ['Алхимия']]
+    BUTTONS = [['Алхимия'], ['Кинуть кости']]
 
 
 class DicesStateHandler(BaseMessageHandler):

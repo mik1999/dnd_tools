@@ -10,7 +10,7 @@ class EncapsulationProcessor(ParameterProcessor):
     parameter_symbol = 'Enc'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             diff = int(mods['best_before'] * (value + 1) ** 0.5) - mods['best_before']
             mods['best_before'] += diff
@@ -26,7 +26,7 @@ class DurationProcessor(ParameterProcessor):
     parameter_symbol = 'Dur'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         mods['rounds'] = max(1, mods['rounds'] + value)
         mods['days'] = max(1, mods['days'] + value)
         mods['hours'] = max(1, mods['hours'] + value)
@@ -39,8 +39,8 @@ class HealingProcessor(ParameterProcessor):
     parameter_symbol = 'H'
 
     @staticmethod
-    def description(value: int, mods: dict):
-        hits = double_average_to_dices(abs(value))
+    def description(value: int, mods: dict, sample=False):
+        hits = double_average_to_dices(abs(value), sample=sample)
         if value > 0:
             return 'Живительная сила наполняет ваше тело. Вы восстанавливаете {} хитов.'.format(hits)
         return (f'Ваш организм отравлен токсинами. Каждый ход, '
@@ -52,7 +52,7 @@ class DigestionProcessor(ParameterProcessor):
     parameter_symbol = 'D'
 
     @staticmethod
-    def description(value: int, _: dict):
+    def description(value: int, _: dict, sample=False):
         if value > 0:
             lunches = min(3, int(((value + 2) // 3) ** 0.5))
             return 'Вы чувствуете насыщение, как будто пообедали {} раз(а).'.format(lunches)
@@ -67,7 +67,7 @@ class PressureProcessor(ParameterProcessor):
     parameter_symbol = 'P'
 
     @staticmethod
-    def description(value: int, _: dict):
+    def description(value: int, _: dict, sample=False):
         result = ''
         if value > 0:
             result += 'Ваша голова начинает сильно болеть: вены пульсируют, черепушка словно вот-вот расколется.'
@@ -77,7 +77,7 @@ class PressureProcessor(ParameterProcessor):
         wisdom = value // 3 + 1
         result += f' На 1к4 часов значение вашей мудрости снижено на {wisdom}.'
         if value >= 7:
-            result += f' Кроме того, вы получаете психический уров, равный {double_average_to_dices(value - 5)} хитов.'
+            result += f' Кроме того, вы получаете психический уров, равный {double_average_to_dices(value - 5, sample=sample)} хитов.'
         if value >= 10:
             result += f' Наконец, сильное нарушение давления добавляет вам 1 степень истощения.'
         return result
@@ -87,12 +87,12 @@ class AddictiveProcessor(ParameterProcessor):
     parameter_symbol = 'Add'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             return (f'Принимая это вещество, вы чувствуете кратковременную эйфорию, но каждый день без приема '
                     f'такого же вещества вы будете испытывать ломки. У вас помеха к проверкам характеристик: '
                     f'ловкость, мудрость и харизма, если сегодня вы еще не принимали это вещество. Каждое утро, '
-                    f'следующее за днем без приема дозы, приносит {double_average_to_dices(value)} психического '
+                    f'следующее за днем без приема дозы, приносит {double_average_to_dices(value, sample=sample)} психического '
                     f'урона. Кроме того, каждый день вы можете сделать проверку Харизмы Сл {8 + value}, и в '
                     f'случае успеха вы избавляетесь от зависимости.')
         return (f'От этой смеси исходить жуткая фонь на {-value * 10} футов, прием ее внутрь заставляет вас '
@@ -104,7 +104,7 @@ class AgilityProcessor(ParameterProcessor):
     parameter_symbol = 'Ag'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             agility = (value + 1) // 2
             speed = ((value + 2) // 3) * 5
@@ -120,7 +120,7 @@ class InvisibilityProcessor(ParameterProcessor):
     parameter_symbol = 'Inv'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             return f'Вы становитесь невидимым на {value * 10} минут.'
         return (f'На {mods["rounds"]} раундов от вас исходит свет: яркий в радиусе {value * 10} футов '
@@ -132,14 +132,14 @@ class AllergyProcessor(ParameterProcessor):
     parameter_symbol = 'All'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             result = f'У вас начинает чесаться тело: помеха к ловкости на {mods["hours"]} часов.'
             if value >= 3:
                 result += f'Из-за насморка вы теряете обоняние: у вас помеха на все боски, связанные с этим чувством.'
             if value >= 5:
                 result += (f'Сильная аллергическая реакция вызывает анафилактический шок. Вы теряете '
-                           f'{double_average_to_dices(10 * value)} хитов, вплоть до вашего текущего значения хитов,'
+                           f'{double_average_to_dices(10 * value, sample=sample)} хитов, вплоть до вашего текущего значения хитов,'
                            f'и получаете 2 степени истощения.')
             return result
         return (f'Иммунитет к аллергическим реакциям, не вызванным приемом зелий, на {-value} часов. '
@@ -150,10 +150,10 @@ class StrengthProcessor(ParameterProcessor):
     parameter_symbol = 'S'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             return (f'Ваше тело наполняется силой и жизненной энергией на {mods["rounds"]} часов: вы получаете'
-                    f'+{value // 2 + 1} к силе и {double_average_to_dices(value)} временных хитов, но от непривычки'
+                    f'+{value // 2 + 1} к силе и {double_average_to_dices(value, sample=sample)} временных хитов, но от непривычки'
                     f'у вас -{value // 3 + 1} к ловкости. ')
         return f'Силы покидают ваше тело. Вы получаете {int((-value) ** 0.5)} уровней истощения.'
 
@@ -162,7 +162,7 @@ class GlitchesProcessor(ParameterProcessor):
     parameter_symbol = 'G'
 
     @staticmethod
-    def description(value: int, mods: dict):
+    def description(value: int, mods: dict, sample=False):
         if value > 0:
             int_bonus = value // 2 + 1
             wisdom = value
