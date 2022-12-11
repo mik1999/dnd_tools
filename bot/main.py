@@ -1,3 +1,5 @@
+import copy
+
 from base_handler import BaseMessageHandler
 
 import dices
@@ -57,11 +59,16 @@ class DicesStateHandler(BaseMessageHandler):
             return self.switch_to_state(BotStates.dices, msgs.DICES_PARSE_ERROR)
         else:
             generator_warnings = generator.get_warnings()
+            markup = None
+            if message.text not in ['d4', 'd6', 'd8', 'd10', 'd20', 'd100']:
+                buttons = copy.deepcopy(self.BUTTONS)
+                buttons[2].append(message.text)
+                markup = self.make_markup(buttons)
             if generator_warnings:
                 self.send_message(generator.sample())
-                return self.switch_to_state(BotStates.dices, generator_warnings)
+                return self.switch_to_state(BotStates.dices, generator_warnings, markup=markup)
             else:
-                return self.switch_to_state(BotStates.dices, generator.sample())
+                return self.switch_to_state(BotStates.dices, generator.sample(), markup=markup)
 
 
 class DummyHandler(BaseMessageHandler):

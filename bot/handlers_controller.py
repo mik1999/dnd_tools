@@ -1,3 +1,5 @@
+import requests.exceptions
+
 from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
@@ -24,7 +26,7 @@ def all_subclasses(cls):
 
 MONGO_LOGIN = 'dnd_telegram_bot'
 MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
-HOST = '172.21.0.2'
+HOST = '172.21.0.2'  # 172.20.0.2 on barnaul-2
 
 
 class HandlersController:
@@ -77,7 +79,14 @@ class HandlersController:
 
     def run(self):
         logger.info('Start polling bot')
-        self.bot.polling()
+        while True:
+            try:
+                self.bot.polling()
+            except requests.exceptions.ReadTimeout as ex:
+                logger.error(f'Caught ReadTimeout error {ex}, restarting polling')
+            except Exception as ex:
+                logger.error(f'Fatal error {ex}, stop handling')
+                break
 
     def init_commands(self):
 
