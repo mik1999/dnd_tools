@@ -11,7 +11,8 @@ services:
     links:
       - mongo
     networks:
-      - backend
+      backend:
+        ipv4_address: 172.20.0.3
   mongo:
     image: mongo:4.0.8
     container_name: mongodb-container
@@ -29,7 +30,11 @@ services:
       - ./mongo/data:/data/db
       - ./mongo/initdb.js:/docker-entrypoint-initdb.d/initdb.js:ro
     networks:
-      - backend
+      backend:
+        ipv4_address: 172.20.0.2
 networks:
   backend:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

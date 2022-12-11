@@ -26,7 +26,7 @@ def all_subclasses(cls):
 
 MONGO_LOGIN = 'dnd_telegram_bot'
 MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
-HOST = '172.21.0.2'  # 172.20.0.2 on barnaul-2
+HOST = '172.20.0.2'  # 172.20.1.2 was prev
 
 
 class HandlersController:
