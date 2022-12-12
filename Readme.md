@@ -1,5 +1,8 @@
 <h1>DnD tools bot</h1>
+
 <em>Поможет любителям Dungeon and Dragons, в первую очередь мастеру подземелий</em>
+
+Написать боту <a href="https://t.me/dnd_tools_bot"> @dnd_tools_bot </a>
 
 <h2> Что сейчас умеет бот? </h2>
 
