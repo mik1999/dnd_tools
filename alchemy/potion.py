@@ -78,7 +78,7 @@ class Potion(object):
     @staticmethod
     def potions_list(cm: ComponentsManager, pm: ParametersManager):
         result = ''
-        for fnt in os.walk('potions/'):
+        for fnt in os.walk('console/potions/'):
             for i, fn in enumerate(fnt[2]):
                 potion = Potion(cm, pm)
                 potion.read(fn[:-5])
