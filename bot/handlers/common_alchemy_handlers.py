@@ -58,8 +58,7 @@ class ParametersHandler(BaseMessageHandler):
 
         if self.buttons is None:
             logger.info('Start collection parameter symbols')
-            pm = parameters_manager.ParametersManager('../parameters.json')
-            symbols = pm.parameter_symbols()
+            symbols = self.pm.parameter_symbols()
             batch = []
             BUTTONS = []
             for symbol in symbols:

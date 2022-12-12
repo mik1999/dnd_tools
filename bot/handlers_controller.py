@@ -26,7 +26,7 @@ def all_subclasses(cls):
 
 MONGO_LOGIN = 'dnd_telegram_bot'
 MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
-HOST = '172.20.0.2'  # 172.20.1.2 was prev
+HOST = '172.20.56.2'
 
 
 class HandlersController:
@@ -39,8 +39,8 @@ class HandlersController:
         self.bot.last_suggestions = {}
         self.bot.add_custom_filter(custom_filters.StateFilter(self.bot))
 
-        self.pm = parameters_manager.ParametersManager('../parameters.json')
-        self.cm = components_manager.ComponentsManager('../components.json')
+        self.pm = parameters_manager.ParametersManager('../alchemy/parameters.json')
+        self.cm = components_manager.ComponentsManager('../alchemy/components.json')
 
         if __debug__:
             logger.warning('Using degub environment')

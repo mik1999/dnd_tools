@@ -9,7 +9,7 @@ RUN pip install -r /app/requirements.txt
 COPY alchemy /app/alchemy
 COPY utils /app/utils
 COPY bot /app/bot
-COPY parameters.json /app/.
-COPY components.json /app/.
+COPY alchemy/parameters.json /app/.
+COPY alchemy/components.json /app/.
 
 ENV PYTHONPATH "${PYTHONPATH}:/app"
