@@ -152,8 +152,9 @@ class StrengthProcessor(ParameterProcessor):
     @staticmethod
     def description(value: int, mods: dict, sample=False):
         if value > 0:
-            return (f'Ваше тело наполняется силой и жизненной энергией на {mods["rounds"]} часов: вы получаете'
-                    f'+{value // 2 + 1} к силе и {double_average_to_dices(value, sample=sample)} временных хитов, но от непривычки'
+            return (f'Ваше тело наполняется силой и жизненной энергией на {mods["rounds"]} раундов: вы получаете'
+                    f'+{value // 2 + 1} к силе и {double_average_to_dices(5 * value, sample=sample)} '
+                    f'временных хитов, но от непривычки '
                     f'у вас -{value // 3 + 1} к ловкости. ')
         return f'Силы покидают ваше тело. Вы получаете {int((-value) ** 0.5)} уровней истощения.'
 

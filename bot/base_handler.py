@@ -2,7 +2,7 @@ import telebot
 import telebot.handler_backends as telebot_backends
 from alchemy import components_manager
 from alchemy import parameters_manager
-import helpers
+import generators
 import messages as msgs
 import logging
 from mongo_context import MongoContext
@@ -24,6 +24,7 @@ class BaseMessageHandler:
             self, bot: telebot.TeleBot,
             pm: parameters_manager.ParametersManager,
             cm: components_manager.ComponentsManager,
+            gm: generators.GeneratorsManager,
             mongo_context: MongoContext,
     ):
         if self.STATE is None:
@@ -32,6 +33,7 @@ class BaseMessageHandler:
         self.bot = bot
         self.pm = pm
         self.cm = cm
+        self.gm = gm
         self.mongo = mongo_context
         self.handler_by_state = None
         self.message: typing.Optional[telebot.types.Message] = None
@@ -186,6 +188,19 @@ class BaseMessageHandler:
         Makes list of buttons to show on switch to this state
         """
         return self.BUTTONS
+
+    def set_user_cache(self, data: str):
+        self.mongo.user_info.update_one(
+            {'user': self.message.from_user.id},
+            {'$set': {'cache': data}},
+            upsert=True,
+        )
+
+    def get_user_cache(self) -> typing.Optional[str]:
+        doc = self.mongo.user_info.find_one({'user': self.message.from_user.id})
+        if not doc:
+            return None
+        return doc.get('cache')
 
 
 class DocHandler(BaseMessageHandler):

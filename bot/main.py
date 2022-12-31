@@ -9,6 +9,7 @@ import handlers_controller
 
 from handlers import common_alchemy_handlers
 from handlers import component_handlers
+from handlers import generators_handlers
 from handlers import potion_handlers
 
 import logging
@@ -24,10 +25,11 @@ class MainStateHandler(BaseMessageHandler):
     STATE = BotStates.main
     STATE_BY_MESSAGE = {
         'Кинуть кости': {'state': BotStates.dices},
+        'Генераторы': {'state': BotStates.generators_menu},
         'Алхимия': {'state': BotStates.alchemy},
     }
     DEFAULT_MESSAGE = msgs.MAIN_MENU
-    BUTTONS = [['Алхимия'], ['Кинуть кости']]
+    BUTTONS = [['Алхимия'], ['Генераторы', 'Кинуть кости']]
 
 
 class DicesStateHandler(BaseMessageHandler):

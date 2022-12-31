@@ -3,6 +3,7 @@ import requests.exceptions
 from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
+import generators
 import logging
 import messages as msgs
 from mongo_context import MongoContext
@@ -41,6 +42,7 @@ class HandlersController:
 
         self.pm = parameters_manager.ParametersManager('../alchemy/parameters.json')
         self.cm = components_manager.ComponentsManager('../alchemy/components.json')
+        self.gm = generators.GeneratorsManager()
 
         if __debug__:
             logger.warning('Using degub environment')
@@ -55,7 +57,8 @@ class HandlersController:
             )
         db = client.get_database('dnd')
         self.user_potions = db.get_collection('user_potions')
-        self.mongo_context = MongoContext(self.user_potions)
+        self.user_info = db.get_collection('user_info')
+        self.mongo_context = MongoContext(self.user_potions, self.user_info)
 
         self.handler_by_state = dict()
         self.init_handlers()
@@ -105,7 +108,7 @@ class HandlersController:
 
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
-            handler = subclass(self.bot, self.pm, self.cm, self.mongo_context)
+            handler = subclass(self.bot, self.pm, self.cm, self.gm, self.mongo_context)
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler
                 handler.set_handler_by_state(self.handler_by_state)

@@ -2,6 +2,7 @@ version: '3'
 services:
   dnd_bot:
     container_name: dnd-bot-container
+    restart: unless-stopped
     build: .
     entrypoint: python -O main.py
     ports:

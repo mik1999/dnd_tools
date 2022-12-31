@@ -40,8 +40,7 @@
     "name": "Agility",
     "symbol": "Ag",
     "positive": {
-      "cost_coefficient": 17,
-      "reverse_benefit": true,
+      "cost_coefficient": 50,
       "name_rus": "Быстрая реакция"
     },
     "negative": {
@@ -65,7 +64,7 @@
     "name": "Strength",
     "symbol": "S",
     "positive": {
-      "cost_coefficient": 17,
+      "cost_coefficient": 75,
       "name_rus": "Сила"
     },
     "negative": {

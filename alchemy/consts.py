@@ -13,6 +13,6 @@ COMPLEXITY_MAP = {
 DEFAULT_MODS = {
             'days': 5,
             'hours': 6,
-            'rounds': 4,
+            'rounds': 5,
             'best_before': 12,
         }

@@ -22,6 +22,9 @@ class BotStates(telebot_backends.StatesGroup):
     potions_cooking_doc = telebot_backends.State()
     potions_delete_confirm = telebot_backends.State()
 
+    generators_menu = telebot_backends.State()
+    names_generator = telebot_backends.State()
+    names_generator_sex_choice = telebot_backends.State()
 
 STATE_BY_COMMAND = {
     '/start': BotStates.main,
