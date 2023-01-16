@@ -19,7 +19,8 @@ class EncapsulationProcessor(ParameterProcessor):
         value *= -1
         diff = mods['best_before'] - int(mods['best_before'] * (value + 1) ** -0.5)
         mods['best_before'] -= diff
-        return f'Зелье быстро выветривается: срок годности снижен на {diff} дней.'
+        return f'Зелье быстро выветривается: срок годности снижен на {diff} дней. ' \
+               f'Сложность попадания взрывных зелий уменьшена.'
 
 
 class DurationProcessor(ParameterProcessor):

@@ -1,11 +1,12 @@
 import telebot.types
 
 from alchemy import components_manager
-
+import helpers
 import messages as msgs
 from states import BotStates
 
 from base_handler import BaseMessageHandler
+from utils.words_suggester import TooManySuggestionsError
 
 
 class ComponentsMenuHandler(BaseMessageHandler):
@@ -54,27 +55,22 @@ class ComponentsEnterHandler(BaseMessageHandler):
                 BotStates.components_component_show, bot_message,
             )
         except components_manager.UnrecognizedComponent:
-            suggestions = self.cm.suggest_components(message.text)
-            markup = telebot.types.ReplyKeyboardMarkup(
-                resize_keyboard=True, row_width=6,
-            )
+            try:
+                suggestions = self.cm.suggest_components(message.text)
+            except TooManySuggestionsError:
+                return self.try_again(msgs.REQUEST_TOO_BROAD)
             if not suggestions:
-                markup.add('Назад')
                 return self.switch_to_state(
                     BotStates.components_enter_name,
                     msgs.COMPONENT_NO_SUGGESTIONS,
-                    markup=markup,
+                    markup=helpers.make_aligned_markup(['Назад'], 1),
                 )
 
             buttons = suggestions + ['Назад']
-            for i in range(len(buttons) // 2):
-                markup.add(buttons[2 * i], buttons[2 * i + 1])
-            if len(buttons) % 2 == 1:
-                markup.add(buttons[-1])
             return self.switch_to_state(
                 BotStates.components_enter_name,
-                msgs.COMPONENTS_SUGGESTIONS_FOUND,
-                markup=markup,
+                msgs.REQUEST_SUGGESTIONS_FOUND,
+                markup=helpers.make_aligned_markup(buttons, 2),
             )
 
 
