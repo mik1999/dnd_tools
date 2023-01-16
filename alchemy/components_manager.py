@@ -5,7 +5,7 @@ import typing
 from alchemy.calculation_helper import cost_str
 from alchemy.consts import POTION_FORMS
 from alchemy.parameters_manager import ParametersManager
-from utils.words_suggester import WordsSuggester
+from utils.words_suggester import WordsSuggester, WordsSuggesterV2
 
 
 class UnrecognizedComponent(Exception):
@@ -47,7 +47,7 @@ class ComponentsManager(object):
             self.synonyms_map[self.components[i].name_en] = i
             for word in self.components[i].synonyms:
                 self.synonyms_map[word.lower()] = i
-        self.suggester = WordsSuggester(
+        self.suggester = WordsSuggesterV2(
             [component.name for component in self.components] +
             [component.name_en for component in self.components]
         )
