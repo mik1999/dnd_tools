@@ -3,6 +3,7 @@ import requests.exceptions
 from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
+from bestiary import bestiary
 import generators
 import logging
 import messages as msgs
@@ -43,6 +44,7 @@ class HandlersController:
         self.pm = parameters_manager.ParametersManager('../alchemy/parameters.json')
         self.cm = components_manager.ComponentsManager('../alchemy/components.json')
         self.gm = generators.GeneratorsManager()
+        self.bestiary = bestiary.Bestiary('../bestiary/')
 
         if __debug__:
             logger.warning('Using degub environment')
@@ -85,11 +87,9 @@ class HandlersController:
         while True:
             try:
                 self.bot.polling()
+                break
             except requests.exceptions.ReadTimeout as ex:
                 logger.error(f'Caught ReadTimeout error {ex}, restarting polling')
-            except Exception as ex:
-                logger.error(f'Fatal error {ex}, stop handling')
-                break
 
     def init_commands(self):
 
@@ -101,14 +101,31 @@ class HandlersController:
         def dices_handler(message: telebot.types.Message):
             self.switch_to_state(states.STATE_BY_COMMAND['/dices'], message)
 
+        @self.bot.message_handler(commands=['cook'])
+        def cook_handler(message: telebot.types.Message):
+            self.switch_to_state(states.STATE_BY_COMMAND['/cook'], message)
+
+        @self.bot.message_handler(commands=['name'])
+        def name_handler(message: telebot.types.Message):
+            self.bot.send_message(message.chat.id, self.gm.sample_name())
+
+        @self.bot.message_handler(commands=['bestiary'])
+        def bestiary_handler(message: telebot.types.Message):
+            self.switch_to_state(states.STATE_BY_COMMAND['/bestiary'], message)
+
         self.bot.set_my_commands([
-            telebot.types.BotCommand('/start', 'Главное меню'),
-            telebot.types.BotCommand('/dices', 'Кинуть кости'),
+                telebot.types.BotCommand('/start', 'Главное меню'),
+                telebot.types.BotCommand('/dices', 'Кинуть кости'),
+                telebot.types.BotCommand('/cook', 'Готовить зелье'),
+                telebot.types.BotCommand('/name', 'Случайное имя'),
+                telebot.types.BotCommand('/bestiary', 'Бестиарий'),
         ])
 
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
-            handler = subclass(self.bot, self.pm, self.cm, self.gm, self.mongo_context)
+            handler = subclass(
+                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context,
+            )
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler
                 handler.set_handler_by_state(self.handler_by_state)

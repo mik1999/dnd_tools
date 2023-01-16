@@ -2,6 +2,7 @@ import telebot
 import telebot.handler_backends as telebot_backends
 from alchemy import components_manager
 from alchemy import parameters_manager
+from bestiary import bestiary
 import generators
 import messages as msgs
 import logging
@@ -25,6 +26,7 @@ class BaseMessageHandler:
             pm: parameters_manager.ParametersManager,
             cm: components_manager.ComponentsManager,
             gm: generators.GeneratorsManager,
+            bestiary: bestiary.Bestiary,
             mongo_context: MongoContext,
     ):
         if self.STATE is None:
@@ -34,13 +36,22 @@ class BaseMessageHandler:
         self.pm = pm
         self.cm = cm
         self.gm = gm
+        self.bestiary = bestiary
         self.mongo = mongo_context
         self.handler_by_state = None
         self.message: typing.Optional[telebot.types.Message] = None
 
         @bot.message_handler(state=self.STATE)
         def _(message: telebot.types.Message):
-            return self.handle_message_middleware(message)
+            if __debug__:
+                return self.handle_message_middleware(message)
+            try:
+                return self.handle_message_middleware(message)
+            except Exception as ex:
+                # whatever happens it must not break bot polling
+                logger.error(f'Caught exception {ex} while handling message '
+                             f'{message} from user {message.from_user.username}'
+                             f'(id={message.from_user.id})')
 
     def set_handler_by_state(self, handler_by_state):
         self.handler_by_state = handler_by_state
@@ -50,24 +61,18 @@ class BaseMessageHandler:
         Do some middleware staff and call custom handling
         :param message: user message
         """
-        try:
-            logger.info(f'Got message {message.text} from user {message.from_user.username}')
-            self.message = message
-            reply_message = None
-            if self.DO_DEFAULT_COMMANDS:
-                reply_message = self.check_and_switch_by_command()
-                if reply_message is not None:
-                    return
-            if reply_message is None:
-                reply_message = self.process_state_by_message(unknown_pass_enabled=True)
-            if reply_message is None:
-                reply_message = self.handle_message(message)
-            logger.info(f'Reply {reply_message} to user {message.from_user.username}')
-        except Exception as ex:
-            # whatever happens it must not break bot polling
-            logger.error(f'Caught exception {ex} while handling message '
-                         f'{message} from user {message.from_user.username}'
-                         f'(id={message.from_user.id})')
+        logger.info(f'Got message {message.text} from user {message.from_user.username}')
+        self.message = message
+        reply_message = None
+        if self.DO_DEFAULT_COMMANDS:
+            reply_message = self.check_and_switch_by_command()
+            if reply_message is not None:
+                return
+        if reply_message is None:
+            reply_message = self.process_state_by_message(unknown_pass_enabled=True)
+        if reply_message is None:
+            reply_message = self.handle_message(message)
+        logger.info(f'Reply {reply_message} to user {message.from_user.username}')
 
     def check_and_switch_by_command(self) -> typing.Optional[telebot.types.Message]:
         """
@@ -77,6 +82,8 @@ class BaseMessageHandler:
         """
         if not self.message.text.startswith('/'):
             return None
+        if self.message.text.startswith('/name'):
+            return self.switch_to_state(BotStates.names_generator, self.gm.sample_name())
         for command in STATE_BY_COMMAND.keys():
             if self.message.text.startswith(command):
                 state = STATE_BY_COMMAND[command]
@@ -140,6 +147,12 @@ class BaseMessageHandler:
         return self.bot.send_message(
             self.message.chat.id, message, parse_mode=parse_mode, reply_markup=reply_markup,
         )
+
+    def send_photo(
+            self, photo_path: str,
+    ) -> telebot.types.Message:
+        photo = open(photo_path, 'rb')
+        return self.bot.send_photo(self.message.chat.id, photo)
 
     DEFAULT_MESSAGE = None
     BUTTONS: typing.List[typing.List[str]] = [['Назад']]

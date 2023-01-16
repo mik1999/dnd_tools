@@ -2,7 +2,7 @@ import copy
 
 from base_handler import BaseMessageHandler
 
-import dices
+import utils.dices as dices
 import handlers_controller
 
 # ignore unused import! It is used to bind handlers!

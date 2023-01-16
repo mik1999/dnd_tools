@@ -61,7 +61,10 @@ class GeneratorsManager:
             random_race = True
         race_names = self.names[race]
         random_sex = False
-        if sex is None or race_names.get(sex) is None:
+        if race == 'Человек' and (sex is None or sex not in self.SEXES[:2]):
+            sex = sample(self.SEXES[:2])
+            random_sex = True
+        elif race != 'Человек' and (sex is None or race_names.get(sex) is None):
             max_index = 1 if race_names.get('child') is None else 2
             sex = self.SEXES[random.randint(0, max_index)]
             random_sex = True
@@ -115,6 +118,10 @@ class GeneratorsManager:
         return f'{first_name}'
 
     def gen_tavern(self):
-        tavern_name = f'{sample(self.tavern_adjs)} {sample(self.tavern_nouns)}'
+        adj = sample(self.tavern_adjs)
+        noun = sample(self.tavern_nouns)
+        adj = adj[noun['gender']]
+        noun = noun['word']
+        tavern_name = f'{adj} {noun}'
         host_name = self.sample_name()
         return f'Таверна "{tavern_name}"\nХозяин: {host_name}'
