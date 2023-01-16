@@ -36,12 +36,14 @@ class DicesGenerator:
     def __init__(self):
         self.events: typing.List[DiceEvent] = []
         self.warning_dices = []
+        self.parent_string: typing.Optional[str] = None
 
     @staticmethod
     def check_symbols(formula):
         return not (set(formula) - DicesGenerator.SYMBOLS_ALLOWED)
 
     def parse(self, formula: str):
+        self.parent_string = formula
         if len(formula) > 300:
             raise ComplexityError()
         self.warning_dices = []
@@ -82,6 +84,7 @@ class DicesGenerator:
             handle_fragment(minus_on_right[0], 1)
             for term in minus_on_right[1:]:
                 handle_fragment(term, -1)
+        return self
 
     def sample(self) -> str:
         result = ''
@@ -131,3 +134,15 @@ class DicesGenerator:
                 'Обратите внимание, вы выбрали необычные кости: ' +
                 ', '.join(map(lambda x: 'd' + str(x), self.warning_dices))
         )
+
+    def __str__(self):
+        return self.parent_string
+
+    def mean(self) -> int:
+        result = 0.0
+        for event in self.events:
+            if event.dice_type != 0:
+                result += event.sign * event.dices_number * (event.dice_type / 2)
+            else:
+                result += event.sign * event.bies
+        return int(result)

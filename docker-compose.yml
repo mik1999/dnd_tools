@@ -14,6 +14,8 @@ services:
     networks:
       backend:
         ipv4_address: 172.20.56.3
+    volumes:
+      - ./bestiary/img:/data/img
   mongo:
     image: mongo:4.0.8
     container_name: mongodb-container

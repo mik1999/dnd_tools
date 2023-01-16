@@ -34,6 +34,7 @@ class Potion(object):
         self.market_type = None
         self.complexity = None
         self.best_before = 12
+        self.explosion_complexity = 15
         self.marks = []
 
     def to_dict(self) -> typing.Dict[str, typing.Any]:
@@ -148,6 +149,8 @@ class Potion(object):
             self.market_type = 'яд'
         else:
             self.market_type = 'бурда'
+        self.explosion_complexity += self.parameters_vector.get('Enc', 0)
+
 
     def parse_formula(self, formula: str, use_suggestions=False):
         comp_set_old = {formula}
@@ -241,6 +244,8 @@ class Potion(object):
             result += (f'Невозможно приготовить это зелье, так как нет ни одной доступной формы. '
                       f'Чтобы конкретная форма была доступна, нужно, '
                       f'чтобы все компоненты содержали ее в списке возможных форм.\n')
+        if self.market_type == 'яд' and 'взрывное зелье' in self.possible_forms:
+            result += f'Сложность попадания при броске взрывного зелья равна {self.explosion_complexity}.\n'
         result += (f'Сложность приготовления: {self.complexity} (бросок к20 с инструментами алхимика). '
                    f'Время приготовления равно {self.cooking_time} мин.\n')
         result += self.parameters_description(sample=sample)
