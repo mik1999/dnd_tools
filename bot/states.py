@@ -12,6 +12,8 @@ class BotStates(telebot_backends.StatesGroup):
     components_menu = telebot_backends.State()
     components_enter_name = telebot_backends.State()
     components_component_show = telebot_backends.State()
+    components_location_choice = telebot_backends.State()
+    components_enter_roll_value = telebot_backends.State()
 
     potions_menu = telebot_backends.State()
     potions_enter_formula = telebot_backends.State()

@@ -42,7 +42,7 @@ class HandlersController:
         self.bot.add_custom_filter(custom_filters.StateFilter(self.bot))
 
         self.pm = parameters_manager.ParametersManager('../alchemy/parameters.json')
-        self.cm = components_manager.ComponentsManager('../alchemy/components.json')
+        self.cm = components_manager.ComponentsManager('../alchemy/')
         self.gm = generators.GeneratorsManager()
         self.bestiary = bestiary.Bestiary('../bestiary/')
 

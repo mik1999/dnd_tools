@@ -136,5 +136,17 @@
       "reverse_benefit": true,
       "name_rus": "Стабилизация сознания"
     }
+  },
+  {
+    "name": "Charisma",
+    "symbol": "Cha",
+    "positive": {
+      "cost_coefficient": 80,
+      "name_rus": "Уверенность в себе"
+    },
+    "negative": {
+      "cost_coefficient": 70,
+      "name_rus": "Деморализация"
+    }
   }
 ]

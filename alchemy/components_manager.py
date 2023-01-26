@@ -1,16 +1,28 @@
+import collections
 import dataclasses
+import enum
 import json
+import random
 import typing
 
 from alchemy.calculation_helper import cost_str
 from alchemy.consts import POTION_FORMS
 from alchemy.parameters_manager import ParametersManager
 from utils.words_suggester import WordsSuggester, WordsSuggesterV2
+from utils.dices import DicesGenerator
 
 
 class UnrecognizedComponent(Exception):
     pass
 
+
+class Location(enum.Enum):
+    FOREST = 'Лес'
+    MEADOW = 'Луг'
+    UNDERGROUND = 'Подземелье'
+
+
+LOCATIONS_LIST = [Location.FOREST, Location.MEADOW, Location.UNDERGROUND]
 
 @dataclasses.dataclass
 class Component(object):
@@ -27,6 +39,7 @@ class Component(object):
     cooking_time_mod: float = 1
     complexity_mod: int = 0
     only_forms: typing.Tuple[str] = tuple(POTION_FORMS)
+    locations: typing.Tuple[str] = tuple()
 
 
 RARITY_NAME_MAP = {
@@ -38,8 +51,8 @@ RARITY_NAME_MAP = {
 
 
 class ComponentsManager(object):
-    def __init__(self, parameters_json_path='components.json'):
-        components_json = json.load(open(parameters_json_path, encoding="utf-8"))
+    def __init__(self, base_path='./'):
+        components_json = json.load(open(base_path + 'components.json', encoding="utf-8"))
         self.components = [Component(**component) for component in components_json]
         self.synonyms_map = dict()
         for i in range(len(self.components)):
@@ -51,6 +64,7 @@ class ComponentsManager(object):
             [component.name for component in self.components] +
             [component.name_en for component in self.components]
         )
+        self.randomizer = ComponentsRandomizer(self.components, base_path)
 
     def suggest_components(self, word: str) -> typing.List[str]:
         return self.suggester.suggest(word)
@@ -91,7 +105,8 @@ class ComponentsManager(object):
         forms = ', '.join([str(form) for form in component.only_forms])
         result += f'Возможные формы зелий, которые можно приготовить с этим компонентом: {forms}' \
                   f'{"(все)" if component.only_forms == POTION_FORMS else ""}\n'
-
+        if component.locations:
+            result += 'Встречается в: ' + ', '.join(component.locations) + '\n'
         result += 'Редкость: ' + RARITY_NAME_MAP[component.rarity]
         result += '. Примерная стоимость : ' + cost_str(component.cost) + '.'
         return result
@@ -107,3 +122,72 @@ class ComponentsManager(object):
             telegram_link = '' if not show_telegram_links else ' (/' + component.name_en + ')'
             result += f' {str(i + 1)}) {component.name}{telegram_link} {synonyms}{params};\n'
         return result
+
+    def sample_component(
+            self, roll_value: int, location: Location,
+    ) -> typing.Tuple[typing.Optional[Component], int]:
+        return self.randomizer.sample(roll_value, location)
+
+
+class ComponentsRandomizer:
+    def __init__(self, components: typing.List[Component], base_path='./'):
+        self.location_components: typing.Dict[
+            Location, typing.Dict[int, typing.List[Component]],
+        ] = {loc: {r: [] for r in range(4)} for loc in LOCATIONS_LIST}
+        for component in components:
+            for location in component.locations:
+                self.location_components[Location(location)][component.rarity].append(component)
+        with open(base_path + 'rarity_points_by_roll.json', 'r') as file:
+            points_info = json.load(file)
+        values = points_info['loot']
+        self.values: typing.Dict[
+            int,
+            typing.List[typing.Tuple[int, DicesGenerator]]
+        ] = {}
+        for rarity in values.keys():
+            rarity_thresholds = []
+            for threshold in values[rarity].keys():
+                dice_str = values[rarity][threshold]
+                dice_generator = DicesGenerator(show_only_total_=True)
+                dice_generator.parse(dice_str)
+                rarity_thresholds.append((int(threshold), dice_generator))
+            self.values[int(rarity)] = rarity_thresholds
+        self.points: typing.Dict[int, typing.Dict[int, int]] = {}
+        for roll_value in points_info['roll'].keys():
+            roll_dict = {}
+            points_by_rarity = points_info['roll'][roll_value]
+            for rarity in points_by_rarity.keys():
+                points = points_by_rarity[rarity]
+                roll_dict[int(rarity)] = points
+            self.points[int(roll_value)] = roll_dict
+
+    def sample(
+            self, roll_value: int, location: Location,
+    ) -> typing.Tuple[typing.Optional[Component], int]:
+        """ returns component_name, how_much """
+        roll_value = min(30, max(0, roll_value))
+        rarity = self._sample_rarity(roll_value)
+        if rarity is None:
+            return None, 0
+        appropriate_components = self.location_components[location][rarity]
+        if not appropriate_components:
+            return None, 0
+        index = random.randint(0, len(appropriate_components) - 1)
+        component = appropriate_components[index]
+        thresholds = self.values[rarity]
+        current_generator = None
+        for threshold, generator in thresholds:
+            if threshold <= roll_value:
+                current_generator = generator
+        count = current_generator.sample() if current_generator else 0
+        return component, int(count)
+
+    def _sample_rarity(self, roll_value: int) -> typing.Optional[int]:
+        points = self.points[roll_value]
+        random_points = random.randint(1, 100)
+        current_sum = 0
+        for rarity in range(4):
+            current_sum += points[rarity]
+            if current_sum >= random_points:
+                return rarity
+        return None

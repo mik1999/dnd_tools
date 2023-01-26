@@ -1,4 +1,6 @@
-from alchemy.calculation_helper import double_average_to_dices
+import random
+
+from utils.dices import double_average_to_dices
 
 
 class ParameterProcessor:
@@ -28,11 +30,15 @@ class DurationProcessor(ParameterProcessor):
 
     @staticmethod
     def description(value: int, mods: dict, sample=False):
+
+        if value > 0:
+            mods['rounds'] = max(1, mods['rounds'] + value ** 2)
+            mods['days'] = max(1, mods['days'] + value ** 2)
+            mods['hours'] = max(1, mods['hours'] + value ** 2)
+            return 'Увеличена длительность эффектов.'
         mods['rounds'] = max(1, mods['rounds'] + value)
         mods['days'] = max(1, mods['days'] + value)
         mods['hours'] = max(1, mods['hours'] + value)
-        if value > 0:
-            return 'Увеличена длительность эффектов.'
         return 'Снижена длительность эффектов.'
 
 
@@ -44,8 +50,9 @@ class HealingProcessor(ParameterProcessor):
         hits = double_average_to_dices(abs(value), sample=sample)
         if value > 0:
             return 'Живительная сила наполняет ваше тело. Вы восстанавливаете {} хитов.'.format(hits)
+        compl = 13 + (-value) // 15
         return (f'Ваш организм отравлен токсинами. Каждый ход, '
-                f'вплоть до {mods["rounds"]} раундов, вы делаете спасбросок телосложения СЛ 13, '
+                f'вплоть до {mods["rounds"]} раундов, вы делаете спасбросок телосложения СЛ {compl}, '
                 f'и в случае провала остаетесь отравленным и теряете {hits} хитов.')
 
 
@@ -75,10 +82,11 @@ class PressureProcessor(ParameterProcessor):
         else:
             result += 'Ваше лицо заметно побледнело, вы наблюдаете сильное головокружение.'
         value = abs(value)
-        wisdom = value // 3 + 1
-        result += f' На 1к4 часов значение вашей мудрости снижено на {wisdom}.'
+        wisdom = value // 3 + 2
+        hours = random.randint(1, 4) if sample else '1d4'
+        result += f' На {hours} часов значение вашей мудрости (модификатора) снижено на {wisdom}.'
         if value >= 7:
-            result += f' Кроме того, вы получаете психический уров, равный {double_average_to_dices(value - 5, sample=sample)} хитов.'
+            result += f' Кроме того, вы получаете психический урон, равный {double_average_to_dices(value - 5, sample=sample)} хитов.'
         if value >= 10:
             result += f' Наконец, сильное нарушение давления добавляет вам 1 степень истощения.'
         return result
@@ -93,7 +101,7 @@ class AddictiveProcessor(ParameterProcessor):
             return (f'Принимая это вещество, вы чувствуете кратковременную эйфорию, но каждый день без приема '
                     f'такого же вещества вы будете испытывать ломки. У вас помеха к проверкам характеристик: '
                     f'ловкость, мудрость и харизма, если сегодня вы еще не принимали это вещество. Каждое утро, '
-                    f'следующее за днем без приема дозы, приносит {double_average_to_dices(value, sample=sample)} психического '
+                    f'следующее за днем без приема дозы, приносит {double_average_to_dices(5 + 3 * value, sample=sample)} психического '
                     f'урона. Кроме того, каждый день вы можете сделать проверку Харизмы Сл {8 + value}, и в '
                     f'случае успеха вы избавляетесь от зависимости.')
         return (f'От этой смеси исходить жуткая фонь на {-value * 10} футов, прием ее внутрь заставляет вас '
@@ -117,13 +125,37 @@ class AgilityProcessor(ParameterProcessor):
                 f'к мудрости на {mods["rounds"]} раундов.')
 
 
+class CharismaProcessor(ParameterProcessor):
+    parameter_symbol = 'Cha'
+
+    @staticmethod
+    def description(value: int, mods: dict, sample=False):
+        charisma = (abs(value) + 1) // 2
+        dice = min(12, 4 + 2 * (value // 3))
+        sample_info = ''
+        if sample:
+            dice_value = random.randint(1, dice)
+            sample_info = f'({dice_value})'
+        if value > 0:
+            additional_info = ''
+            if value >= 5:
+                additional_info = ' Кроме того, на это время у вас преимущество к броскам убеждения.'
+            return (f'Вы чувствуете воодушевление. У вас +{charisma} к харизме на {mods["rounds"]} раундов. '
+                    f'В это время вы можете использовать один раз кость бардовского вдохновения d{dice}{sample_info} '
+                    f', прибавив ее к броску атаки, проверке характеристики или спасброску. ' + additional_info)
+
+        return (f'Вы смущены. Применивший зелье '
+                f'может вызвать на вас реакцией эффект острого словца барда: вы вычитаете значение броска'
+                f'кости d{dice}{sample_info} от результата броска атаки, проверки характеристики или спасброска. ')
+
+
 class InvisibilityProcessor(ParameterProcessor):
     parameter_symbol = 'Inv'
 
     @staticmethod
     def description(value: int, mods: dict, sample=False):
         if value > 0:
-            return f'Вы становитесь невидимым на {value * 10} минут.'
+            return f'Вы становитесь невидимым на {10 * value * mods["hours"]} минут.'
         return (f'На {mods["rounds"]} раундов от вас исходит свет: яркий в радиусе {value * 10} футов '
                 f'и тусклый в радиусе {value * 20} футов. У врагов преимущество на броски атаки по вам,'
                 f'так как им прекрасно видны ваши движения и местоположение.')
@@ -157,7 +189,7 @@ class StrengthProcessor(ParameterProcessor):
                     f'+{value // 2 + 1} к силе и {double_average_to_dices(5 * value, sample=sample)} '
                     f'временных хитов, но от непривычки '
                     f'у вас -{value // 3 + 1} к ловкости. ')
-        return f'Силы покидают ваше тело. Вы получаете {int((-value) ** 0.5)} уровней истощения.'
+        return f'Силы покидают ваше тело. Вы получаете {-value} уровней истощения.'
 
 
 class GlitchesProcessor(ParameterProcessor):
