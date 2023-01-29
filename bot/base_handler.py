@@ -3,6 +3,7 @@ import telebot.handler_backends as telebot_backends
 from alchemy import components_manager
 from alchemy import parameters_manager
 from bestiary import bestiary
+import caches_context
 import generators
 import messages as msgs
 import logging
@@ -28,6 +29,7 @@ class BaseMessageHandler:
             gm: generators.GeneratorsManager,
             bestiary: bestiary.Bestiary,
             mongo_context: MongoContext,
+            caches: caches_context.CachesContext,
     ):
         if self.STATE is None:
             # do nothing if class is incomplete
@@ -38,6 +40,7 @@ class BaseMessageHandler:
         self.gm = gm
         self.bestiary = bestiary
         self.mongo = mongo_context
+        self.caches = caches
         self.handler_by_state = None
         self.message: typing.Optional[telebot.types.Message] = None
 
@@ -202,14 +205,23 @@ class BaseMessageHandler:
         """
         return self.BUTTONS
 
+    def user_id_bytes(self):
+        return self.message.from_user.id.to_bytes(4, byteorder='big')
+
     def set_user_cache(self, data: str):
+        self.caches.cache.set(self.user_id_bytes(), data)
+
+    def get_user_cache(self) -> typing.Optional[str]:
+        return self.caches.cache.get(self.user_id_bytes())
+
+    def set_user_cache_v2(self, data: str):
         self.mongo.user_info.update_one(
             {'user': self.message.from_user.id},
             {'$set': {'cache': data}},
             upsert=True,
         )
 
-    def get_user_cache(self) -> typing.Optional[str]:
+    def get_user_cache_v2(self) -> typing.Optional[str]:
         doc = self.mongo.user_info.find_one({'user': self.message.from_user.id})
         if not doc:
             return None

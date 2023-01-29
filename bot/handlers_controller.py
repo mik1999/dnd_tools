@@ -4,17 +4,19 @@ from alchemy import components_manager
 from alchemy import parameters_manager
 import base_handler
 from bestiary import bestiary
+import caches_context
 import generators
 import logging
 import messages as msgs
 from mongo_context import MongoContext
 import pymongo
 import pymongo.collection
+import redis
 import states
 import telebot
 from telebot import custom_filters
 import telebot.handler_backends as telebot_backends
-from telebot.storage import StateMemoryStorage
+import telebot.storage as storage
 import typing
 
 
@@ -28,7 +30,10 @@ def all_subclasses(cls):
 
 MONGO_LOGIN = 'dnd_telegram_bot'
 MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
-HOST = '172.20.56.2'
+MONGO_HOST = '172.20.56.2'
+
+REDIS_HOST = '172.20.56.4'
+REDIS_PORT = '6379'
 
 
 class HandlersController:
@@ -36,7 +41,8 @@ class HandlersController:
         logger.info('Start HandlersController initializing')
         with open('token') as file:
             token = file.read()
-        state_storage = StateMemoryStorage()
+        self.current_redis_db = 0
+        state_storage = self.make_state_storage()
         self.bot = telebot.TeleBot(token, state_storage=state_storage)
         self.bot.last_suggestions = {}
         self.bot.add_custom_filter(custom_filters.StateFilter(self.bot))
@@ -52,7 +58,7 @@ class HandlersController:
         else:
             logger.info('Using production environment')
             client = pymongo.MongoClient(
-                host=[f'{HOST}:27017'],
+                host=[f'{MONGO_HOST}:27017'],
                 serverSelectionTimeoutMS=2000,
                 username=MONGO_LOGIN,
                 password=MONGO_PASSWORD,
@@ -61,6 +67,11 @@ class HandlersController:
         self.user_potions = db.get_collection('user_potions')
         self.user_info = db.get_collection('user_info')
         self.mongo_context = MongoContext(self.user_potions, self.user_info)
+
+        if __debug__:
+            self.caches = caches_context.CachesContext(caches_context.StateMemoryCache())
+        else:
+            self.caches = caches_context.CachesContext(self.make_redis_connection())
 
         self.handler_by_state = dict()
         self.init_handlers()
@@ -72,6 +83,23 @@ class HandlersController:
             self.switch_to_state(states.BotStates.main, message, msgs.MISUNDERSTAND)
 
         logger.info('Finished HandlersController initializing successfully')
+
+    def make_state_storage(self):
+        if __debug__:
+            return storage.StateMemoryStorage()
+        try:
+            db = self.current_redis_db
+            self.current_redis_db += 1
+            return storage.StateRedisStorage(host=REDIS_HOST, port=REDIS_PORT, db=db)
+        except Exception as ex:
+            logger.error(f'Error while initiating redis storage {ex}')
+            raise ex
+
+    def make_redis_connection(self) -> redis.Redis:
+        pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=self.current_redis_db)
+        self.current_redis_db += 1
+        return redis.Redis(connection_pool=pool)
+
 
     def switch_to_state(
             self, state: telebot_backends.State,
@@ -124,7 +152,7 @@ class HandlersController:
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
             handler = subclass(
-                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context,
+                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context, self.caches,
             )
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler

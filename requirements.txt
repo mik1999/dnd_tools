@@ -2,3 +2,4 @@ PyTelegramBotAPI
 python-Levenshtein
 pymongo
 requests
+redis
