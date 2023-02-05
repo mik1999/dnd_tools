@@ -23,6 +23,8 @@ class BotStates(telebot_backends.StatesGroup):
     potion_show = telebot_backends.State()
     potions_cooking_doc = telebot_backends.State()
     potions_delete_confirm = telebot_backends.State()
+    potions_common_potions_list = telebot_backends.State()
+    potions_common_potion_show = telebot_backends.State()
 
     generators_menu = telebot_backends.State()
     names_generator = telebot_backends.State()

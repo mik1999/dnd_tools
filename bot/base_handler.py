@@ -4,6 +4,7 @@ from alchemy import components_manager
 from alchemy import parameters_manager
 from bestiary import bestiary
 import caches_context
+import common_potions
 import generators
 import messages as msgs
 import logging
@@ -30,6 +31,7 @@ class BaseMessageHandler:
             bestiary: bestiary.Bestiary,
             mongo_context: MongoContext,
             caches: caches_context.CachesContext,
+            common_potions: common_potions.CommonPotions,
     ):
         if self.STATE is None:
             # do nothing if class is incomplete
@@ -41,8 +43,10 @@ class BaseMessageHandler:
         self.bestiary = bestiary
         self.mongo = mongo_context
         self.caches = caches
+        self.common_potion = common_potions
         self.handler_by_state = None
         self.message: typing.Optional[telebot.types.Message] = None
+        self.user_info = None
 
         @bot.message_handler(state=self.STATE)
         def _(message: telebot.types.Message):
@@ -133,6 +137,8 @@ class BaseMessageHandler:
             )
             return None
         message_text: str = self.message.text
+        if message_text in self.ADMIN_BUTTONS and not self.user_is_admin():
+            return self.try_again(msgs.ACCESS_DENIED)
         state_doc = self.STATE_BY_MESSAGE.get(message_text)
         if state_doc:
             return self.switch_to_state(
@@ -159,6 +165,7 @@ class BaseMessageHandler:
 
     DEFAULT_MESSAGE = None
     BUTTONS: typing.List[typing.List[str]] = [['Назад']]
+    ADMIN_BUTTONS: typing.List[str] = []
     PARSE_MODE = None
 
     def switch_on_me(
@@ -203,16 +210,28 @@ class BaseMessageHandler:
         """
         Makes list of buttons to show on switch to this state
         """
-        return self.BUTTONS
-
-    def user_id_bytes(self):
-        return self.message.from_user.id.to_bytes(4, byteorder='big')
+        if not self.ADMIN_BUTTONS:
+            return self.BUTTONS
+        result_buttons = []
+        for buttons_row in self.BUTTONS:
+            new_buttons_row = []
+            for button in buttons_row:
+                if button not in self.ADMIN_BUTTONS or self.user_is_admin():
+                    new_buttons_row.append(button)
+            if new_buttons_row:
+                result_buttons.append(new_buttons_row)
+        return result_buttons
 
     def set_user_cache(self, data: str):
-        self.caches.cache.set(self.user_id_bytes(), data)
+        with self.caches.cache as conn:
+            conn.set(str(self.message.from_user.id), data.encode(encoding='utf-8'))
 
     def get_user_cache(self) -> typing.Optional[str]:
-        return self.caches.cache.get(self.user_id_bytes())
+        with self.caches.cache as conn:
+            value = conn.get(str(self.message.from_user.id))
+            if value is None:
+                return None
+            return value.decode(encoding='utf-8')
 
     def set_user_cache_v2(self, data: str):
         self.mongo.user_info.update_one(
@@ -226,6 +245,17 @@ class BaseMessageHandler:
         if not doc:
             return None
         return doc.get('cache')
+
+    def user_info_lazy(self) -> typing.Dict[str, typing.Any]:
+        if self.user_info is None:
+            self.user_info = self.mongo.user_info.find_one({'user': self.message.from_user.id})
+            if self.user_info is None:
+                self.user_info = {}
+        return self.user_info
+
+    def user_is_admin(self) -> bool:
+        user_info = self.user_info_lazy()
+        return user_info and user_info.get('is_admin', False)
 
 
 class DocHandler(BaseMessageHandler):

@@ -5,6 +5,7 @@ from alchemy import parameters_manager
 import base_handler
 from bestiary import bestiary
 import caches_context
+import common_potions
 import generators
 import logging
 import messages as msgs
@@ -33,7 +34,7 @@ MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
 MONGO_HOST = '172.20.56.2'
 
 REDIS_HOST = '172.20.56.4'
-REDIS_PORT = '6379'
+REDIS_PORT = 6379
 
 
 class HandlersController:
@@ -67,11 +68,12 @@ class HandlersController:
         self.user_potions = db.get_collection('user_potions')
         self.user_info = db.get_collection('user_info')
         self.mongo_context = MongoContext(self.user_potions, self.user_info)
+        self.common_potions = common_potions.CommonPotions(self.mongo_context, self.pm, self.cm)
 
         if __debug__:
-            self.caches = caches_context.CachesContext(caches_context.StateMemoryCache())
+            self.caches = caches_context.CachesContext(caches_context.StaticCachePool())
         else:
-            self.caches = caches_context.CachesContext(self.make_redis_connection())
+            self.caches = caches_context.CachesContext(self.make_redis_pool())
 
         self.handler_by_state = dict()
         self.init_handlers()
@@ -89,16 +91,16 @@ class HandlersController:
             return storage.StateMemoryStorage()
         try:
             db = self.current_redis_db
-            self.current_redis_db += 1
+            # self.current_redis_db += 1
             return storage.StateRedisStorage(host=REDIS_HOST, port=REDIS_PORT, db=db)
         except Exception as ex:
             logger.error(f'Error while initiating redis storage {ex}')
             raise ex
 
-    def make_redis_connection(self) -> redis.Redis:
+    def make_redis_pool(self) -> redis.ConnectionPool:
         pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=self.current_redis_db)
         self.current_redis_db += 1
-        return redis.Redis(connection_pool=pool)
+        return pool
 
 
     def switch_to_state(
@@ -152,7 +154,7 @@ class HandlersController:
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
             handler = subclass(
-                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context, self.caches,
+                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context, self.caches, self.common_potions,
             )
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler

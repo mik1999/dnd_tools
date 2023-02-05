@@ -3,7 +3,7 @@
     "name": "Ястребинка Шепчущая",
     "name_en": "whisper_hawk",
     "organ": "стебель",
-    "only_forms": ["мазь"],
+    "only_forms": ["salve"],
     "synonyms": [
       "ЯШ",
       "Ястребинка",
@@ -50,7 +50,7 @@
       "листья Харрады",
       "харрады"
     ],
-    "only_forms": ["зелье", "порошок", "благовония"],
+    "only_forms": ["potion", "powder", "incense"],
     "cost": 17,
     "mass": 60,
     "parameters": {
@@ -66,7 +66,7 @@
     "name": "Рог единорога",
     "name_en": "unicorn_horn",
     "organ": "пыль",
-    "only_forms": ["порошок"],
+    "only_forms": ["powder"],
     "synonyms": [
       "пыль рога единорога",
       "единорог",
@@ -87,7 +87,7 @@
     "name": "Петрушка",
     "name_en": "parsley",
     "organ": "ростки",
-    "only_forms": ["порошок", "мазь", "зелье"],
+    "only_forms": ["powder", "salve", "potion"],
     "synonyms": [
       "петр",
       "parsley"
@@ -146,7 +146,7 @@
     "synonyms": [
       "shroomlight"
     ],
-    "only_forms": ["зелье", "порошок", "благовония"],
+    "only_forms": ["potion", "powder", "incense"],
     "cost": 23,
     "mass": 30,
     "parameters": {
@@ -167,7 +167,7 @@
       "creeper",
       "лиана"
     ],
-    "only_forms": ["благовония"],
+    "only_forms": ["incense"],
     "cost": 100,
     "mass": 150,
     "parameters": {
@@ -210,7 +210,7 @@
       "P": 7,
       "D": -8
     },
-    "only_forms": ["зелье", "порошок"],
+    "only_forms": ["potion", "powder"],
     "complexity_mod": 4,
     "rarity": 2,
     "description": "Мало кто видел вживую великана. Еще меньше людей, которым посчастливилось добыть ногти великана. Известно, что эти ногти позволяет ненадолго получить силу своих первоначальных владельцев."
@@ -229,7 +229,7 @@
       "D": 2,
       "G": 2
     },
-    "only_forms": ["зелье", "мазь"],
+    "only_forms": ["potion", "salve"],
     "complexity_mod": 3,
     "rarity": 1,
     "locations": ["Лес", "Луг"],
@@ -247,7 +247,7 @@
       "H": -46,
       "Add": -4
     },
-    "only_forms": ["взрывное зелье", "зелье"],
+    "only_forms": ["explosive_potion", "potion"],
     "complexity_mod": 3,
     "rarity": 2,
     "description": "Эктоплазма, которая остается после поверженного призрака или баньши. Обладает отвратительным запахом и чудовищной губительной силой."
@@ -263,7 +263,7 @@
     "parameters": {
       "Enc": -16
     },
-    "only_forms": ["взрывное зелье"],
+    "only_forms": ["explosive_potion"],
     "complexity_mod": 1,
     "rarity": 1,
     "description": "Изобретенный гномами порошок, секрет изготовления которого они ревностно хранят столетиями. Стоимость порошка, однако, не слишком высока. Может быть, поэтому секрет его приготовления так никто и не раскрыл."
@@ -280,7 +280,7 @@
     "parameters": {
       "P": 3
     },
-    "only_forms": ["порошок", "зелье"],
+    "only_forms": ["powder", "potion"],
     "complexity_mod": 0,
     "rarity": 0,
     "locations": ["Луг"],
@@ -300,7 +300,7 @@
       "P": -2,
       "Cha": 4
     },
-    "only_forms": ["зелье", "мазь"],
+    "only_forms": ["potion", "salve"],
     "complexity_mod": 2,
     "rarity": 2,
     "locations": ["Лес"],
@@ -321,7 +321,7 @@
       "H": 31,
       "Add": 2
     },
-    "only_forms": ["зелье", "порошок", "благовония"],
+    "only_forms": ["potion", "powder", "incense"],
     "complexity_mod": 0,
     "rarity": 1,
     "locations": ["Луг"],

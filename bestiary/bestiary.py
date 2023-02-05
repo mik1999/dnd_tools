@@ -5,7 +5,7 @@ import random
 import typing
 import utils.dices as dices
 
-from utils.words_suggester import WordsSuggesterV2
+from utils.words_suggester import WordsSuggester, WordsSuggesterV2
 
 
 logger = logging.getLogger()
@@ -153,7 +153,7 @@ class Bestiary:
             }
             self.keys = list(self.monsters.keys())
 
-        self.suggester = WordsSuggesterV2([name for name in self.monsters.keys()])
+        self.suggester = WordsSuggester([name for name in self.monsters.keys()])
         logger.info(f'Bestiary successfully loaded {len(self.monsters)} creatures')
 
     @staticmethod

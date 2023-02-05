@@ -43,7 +43,7 @@
 <h2>Как воспроизвести</h2>
 Для установки необходимо иметь Docker Compose, аккаунт в телеграме и доступ в интернет. Существующие сети докера не должны конфликтовать с <code>172.20.56.0/24</code> .
 <ol>
-    <li> Склонировать репозиторий <a href="https://github.com/mik1999/dnd_tools"> github.com/mik1999/dnd_tools </a>;</li>
+    <li> Склонировать репозиторий <a href="https://github.com/mik1999/dndexit_tools"> github.com/mik1999/dnd_tools </a>;</li>
     <li> Написать телеграм-боту <a href="https://t.me/BotFather">@BotFather </a>, создать нового бота и сохранить полученный от BotFather токен как dnd_tools/bot/token ;   </li>
     <li> Из рабочей директории dnd_tools (где лежит docker-compose.yaml) выполнить <code>docker-compose up --build -d</code> ; </li>
 </ol>
@@ -58,3 +58,10 @@
     <li><code>mongo admin -u dnd_telegram_bot -p f249f9Gty2793f20nD2330ry8432</code></li>
     <li><code>use dnd</code></li>
 </ol>
+<h3>Подключение к redis</h3>
+<ol>
+    <li><code>docker exec -it redis-container bash</code></li>
+    <li><code>redis-cli</code></li>
+    <li><code>get key</code></li>
+</ol>
+

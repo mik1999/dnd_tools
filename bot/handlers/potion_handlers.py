@@ -1,4 +1,5 @@
 import copy
+import re
 
 import telebot.types
 
@@ -27,7 +28,7 @@ class PotionsMenuHandler(BaseMessageHandler):
                        'Что будем делать?')
 
     BUTTONS = [
-        ['Мои зелья', 'Готовить'],
+        ['Мои зелья', 'Готовить', 'Примеры зелий'],
         ['Что это такое?', 'Назад'],
         ['Вывести список ингридиентов'],
     ]
@@ -37,6 +38,9 @@ class PotionsMenuHandler(BaseMessageHandler):
     ) -> telebot.types.Message:
         if message.text == 'Вывести список ингридиентов':
             return self.try_again(self.cm.components_list(show_params=True))
+        if message.text == 'Примеры зелий':
+            self.set_user_cache('0')
+            return self.switch_to_state(BotStates.potions_common_potions_list)
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
@@ -79,13 +83,19 @@ MAX_SAVED_POTIONS = 100
 
 class PotionsEnterNameHandler(BaseMessageHandler):
     STATE = BotStates.potions_enter_name
-    STATE_BY_MESSAGE = {
-        'Назад': {'state': BotStates.potions_cooked},
-    }
     DEFAULT_MESSAGE = 'Введите название для нового зелья'
     BUTTONS = [['Отмена']]
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
+        search_filter = {'user': message.from_user.id, 'name': '__cache'}
+        cache_potion_doc = self.mongo.user_potions.find_one(search_filter)
+
+        if self.message.text == 'Отмена':
+            cache_potion = potion.Potion(
+                self.cm, self.pm,
+            )
+            cache_potion.from_dict(cache_potion_doc['potion'])
+            return self.switch_to_state(BotStates.potion_show, cache_potion.overall_description())
         potions_count = self.mongo.user_potions.count_documents(
             {'user': message.from_user.id},
         )
@@ -100,15 +110,13 @@ class PotionsEnterNameHandler(BaseMessageHandler):
         if len(name) > MAX_NAME_LENGTH:
             return self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
 
-        search_filter = {'user': message.from_user.id, 'name': '__cache'}
-        cache_potion = self.mongo.user_potions.find_one(search_filter)
-        cache_potion['potion']['__name'] = name
-        if not cache_potion or not cache_potion.get('potion'):
+        cache_potion_doc['potion']['__name'] = name
+        if not cache_potion_doc or not cache_potion_doc.get('potion'):
             return self.switch_to_state(BotStates.potions_menu, msgs.NOT_FOUND)
         potion_doc = {
             'user': message.from_user.id,
             'name': name,
-            'potion': cache_potion['potion'],
+            'potion': cache_potion_doc['potion'],
             'last_viewed': datetime.datetime.utcnow(),
         }
         try:
@@ -206,8 +214,9 @@ class PotionShowHandler(BaseMessageHandler):
     STATE = BotStates.potion_show
     BUTTONS = [
         ['Сэмплировать', 'Удалить'],
-        ['Назад'],
+        ['[admin] Сделать общедоступным', 'Назад'],
     ]
+    ADMIN_BUTTONS = ['[admin] Сделать общедоступным']
     STATE_BY_MESSAGE = {
         'Назад': {'state': BotStates.potions_menu},
     }
@@ -220,12 +229,17 @@ class PotionShowHandler(BaseMessageHandler):
         )
         if not potion_doc or not potion_doc.get('potion', {}).get('__name'):
             return self.try_again(msgs.NOT_FOUND)
+        potion_name = potion_doc['potion']['__name']
+        if message.text == '[admin] Сделать общедоступным':
+            self.common_potion.add_potion(potion_doc)
+            return self.try_again(msgs.SUCCESS)
+
         cache_potion = potion.Potion(self.cm, self.pm)
         cache_potion.from_dict(potion_doc['potion'])
         if message.text == 'Сэмплировать':
             return self.try_again(cache_potion.overall_description(sample=True))
         if message.text == 'Удалить':
-            reply = msgs.POTION_DELETE_CONFIRM.format(potion_doc['potion']['__name'])
+            reply = msgs.POTION_DELETE_CONFIRM.format(potion_name)
             return self.switch_to_state(BotStates.potions_delete_confirm, reply)
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
@@ -256,3 +270,70 @@ class PotionDeleteHandler(BaseMessageHandler):
         if result.deleted_count == 1:
             reply = 'Успешно удалено'
         return self.switch_to_state(BotStates.potions_list, reply)
+
+
+class CommonPotionsListHandler(BaseMessageHandler):
+    DEFAULT_MESSAGE = 'Страница 1.'
+    STATE = BotStates.potions_common_potions_list
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.potions_menu},
+    }
+
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        page = int(self.get_user_cache())
+        top_buttons = []
+        if page > 0:
+            top_buttons.append(f'Страница {page}')
+        if page + 1 < self.common_potion.pages_count:
+            top_buttons.append(f'Страница {page + 2}')
+        buttons = []
+        if top_buttons:
+            buttons.append(top_buttons)
+        potions = self.common_potion.get_page(page)
+        for i in range(0, len(potions), 2):
+            buttons.append(potions[i:i+2])
+        buttons.append(['Назад'])
+        return buttons
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if self.message.text.startswith('Страница'):
+            number = int(re.findall(r'\d+', self.message.text)[0])
+            self.set_user_cache(str(number - 1))
+            return self.try_again(message=f'Страница {number}.')
+        potion = self.common_potion.suggest_potion(self.message.text)
+        if potion is None:
+            return self.try_again(msgs.NO_SUGGESTIONS)
+        self.set_user_cache(potion.name)
+        return self.switch_to_state(BotStates.potions_common_potion_show, potion.overall_description())
+
+
+class CommonPotionShow(BaseMessageHandler):
+    STATE = BotStates.potions_common_potion_show
+    BUTTONS = [
+        ['Сэмплировать', 'Добавить в свои зелья'],
+        ['Назад'],
+    ]
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        potion = self.common_potion.suggest_potion(self.get_user_cache())
+        if message.text == 'Сэмплировать':
+            return self.try_again(potion.overall_description(sample=True))
+        if message.text == 'Добавить в свои зелья':
+            try:
+                self.mongo.user_potions.insert_one(
+                    {'user': self.message.from_user.id, 'potion': potion.to_dict(), 'name': potion.name}
+                )
+                return self.try_again(msgs.SUCCESS)
+            except mongo_errors.DuplicateKeyError:
+                return self.try_again(msgs.ALREADY_EXISTS_WITH_SAME_NAME)
+        if message.text == 'Назад':
+            self.set_user_cache('0')
+            return self.switch_to_state(BotStates.potions_common_potions_list)
+
+        return self.try_again(msgs.PARSE_BUTTON_ERROR)

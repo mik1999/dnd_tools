@@ -6,7 +6,7 @@ import random
 import typing
 
 from alchemy.calculation_helper import cost_str
-from alchemy.consts import POTION_FORMS
+import alchemy.consts as consts
 from alchemy.parameters_manager import ParametersManager
 from utils.words_suggester import WordsSuggester, WordsSuggesterV2
 from utils.dices import DicesGenerator
@@ -24,6 +24,7 @@ class Location(enum.Enum):
 
 LOCATIONS_LIST = [Location.FOREST, Location.MEADOW, Location.UNDERGROUND]
 
+
 @dataclasses.dataclass
 class Component(object):
     name: str
@@ -38,8 +39,14 @@ class Component(object):
     organ: str = None
     cooking_time_mod: float = 1
     complexity_mod: int = 0
-    only_forms: typing.Tuple[str] = tuple(POTION_FORMS)
+    only_forms: typing.Tuple[consts.PotionForm] = None
     locations: typing.Tuple[str] = tuple()
+
+    def __post_init__(self):
+        if self.only_forms is None:
+            self.only_forms = tuple(consts.ALL_FORMS)
+        else:
+            self.only_forms = tuple(consts.PotionForm(x) for x in self.only_forms)
 
 
 RARITY_NAME_MAP = {
@@ -102,9 +109,9 @@ class ComponentsManager(object):
         if component.organ:
             result += 'В рецептах используется ' + component.organ + '.'
         result += '\n'
-        forms = ', '.join([str(form) for form in component.only_forms])
+        forms = ', '.join([consts.POTION_FORMS_RUS[form] for form in component.only_forms])
         result += f'Возможные формы зелий, которые можно приготовить с этим компонентом: {forms}' \
-                  f'{"(все)" if component.only_forms == POTION_FORMS else ""}\n'
+                  f'{"(все)" if component.only_forms == consts.ALL_FORMS else ""}\n'
         if component.locations:
             result += 'Встречается в: ' + ', '.join(component.locations) + '\n'
         result += 'Редкость: ' + RARITY_NAME_MAP[component.rarity]

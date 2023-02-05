@@ -114,8 +114,6 @@ class ComponentsRollValueEnterHandler(BaseMessageHandler):
     STATE = BotStates.components_enter_roll_value
     DEFAULT_MESSAGE = 'Сколько выпало на кубике?'
 
-
-
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         location = components_manager.Location(self.get_user_cache())
         value = message.text.strip()

@@ -21,7 +21,7 @@ class Potion(object):
     def __init__(self, cm: ComponentsManager, pm: ParametersManager):
         self.parameters_vector = dict()
         self.formula = dict()
-        self.possible_forms = consts.POTION_FORMS
+        self.possible_forms = copy.deepcopy(consts.ALL_FORMS)
         self.name = ''
         self.cm = cm
         self.pm = pm
@@ -238,7 +238,7 @@ class Potion(object):
         else:
             result += f'Кол-во порций: {self.portions} (всего {self.mass} г.)\n'
         if self.possible_forms:
-            forms = ', '.join([str(form) for form in self.possible_forms])
+            forms = ', '.join([consts.POTION_FORMS_RUS[form] for form in self.possible_forms])
             result += f'Возможные формы результата: {forms}.\n'
         else:
             result += (f'Невозможно приготовить это зелье, так как нет ни одной доступной формы. '
