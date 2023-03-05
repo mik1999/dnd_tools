@@ -11,6 +11,7 @@ COPY bestiary/bestiary.json /app/bestiary/bestiary.json
 COPY bestiary/bestiary.py /app/bestiary/bestiary.py
 COPY utils /app/utils
 COPY bot /app/bot
+COPY treasures /app/treasures
 COPY alchemy/parameters.json /app/.
 COPY alchemy/components.json /app/.
 

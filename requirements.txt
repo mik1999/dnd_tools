@@ -1,4 +1,6 @@
+numpy
 PyTelegramBotAPI
+pydantic
 python-Levenshtein
 pymongo
 requests

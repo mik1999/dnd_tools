@@ -2,6 +2,7 @@ import bestiary.bestiary as bestiary
 import copy
 import helpers
 import telebot.types
+from treasures.treasures_generator import explain_treasure
 
 import messages as msgs
 import typing
@@ -17,10 +18,11 @@ class GeneratorsHandler(BaseMessageHandler):
     STATE_BY_MESSAGE = {
         'Имя': {'state': BotStates.names_generator},
         'Бестиарий': {'state': BotStates.bestiary_menu},
+        'Сокровища': {'state': BotStates.treasury_generator},
         'Назад': {'state': BotStates.main},
     }
 
-    BUTTONS = [['Волна дикой магии', 'Имя', 'Бестиарий'], ['Таверна', 'Назад']]
+    BUTTONS = [['Волна дикой магии', 'Имя', 'Бестиарий'], ['Таверна', 'Сокровища', 'Назад']]
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         if message.text == 'Таверна':
@@ -141,6 +143,7 @@ class BestiaryEnterNameHandler(BaseMessageHandler):
             markup=helpers.make_aligned_markup(suggestions, 3)
         )
 
+
 class BestiaryMonsterInfoHandler(BaseMessageHandler):
     STATE = BotStates.bestiary_monster_info
     BUTTONS = [
@@ -181,3 +184,40 @@ class BestiaryMonsterAttackHandler(BaseMessageHandler):
             attack.to_str(sample=True),
             parse_mode='HTML',
         )
+
+
+class TreasuryHandler(BaseMessageHandler):
+    STATE = BotStates.treasury_generator
+    DEFAULT_MESSAGE = 'Выберите один из предложенных вариантов или введите сложность сокрощищницы числом от 1 до 100'
+    BUTTONS = [
+        ['Карманы прохожего', 'Склад гоблинов'],
+        ['Сундук чудовища', 'Сокровищница драконов'],
+        ['Легендарный клад', 'Имущество бога'],
+        ['Назад'],
+    ]
+    COMPLEXITY_BY_NAME = {
+        'Карманы прохожего': 7,
+        'Склад гоблинов': 18,
+        'Сундук чудовища': 30,
+        'Сокровищница драконов': 50,
+        'Легендарный клад': 75,
+        'Имущество бога': 90,
+    }
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.generators_menu},
+    }
+
+    def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
+        if message.text.startswith('/'):
+            try:
+                return self.try_again(self.treasures.explain_magic_item(message.text))
+            except KeyError:
+                return self.try_again(msgs.PARSE_BUTTON_ERROR)
+        if message.text.isdigit():
+            complexity = int(message.text)
+        else:
+            complexity = self.COMPLEXITY_BY_NAME.get(message.text)
+            if not complexity:
+                return self.try_again(msgs.PARSE_BUTTON_ERROR)
+        # ToDo: посылать картинки, если есть (сначала надо скачать)
+        return self.try_again(explain_treasure(self.treasures.generate(complexity)))

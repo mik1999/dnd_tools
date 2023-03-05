@@ -8,6 +8,7 @@ import common_potions
 import generators
 import messages as msgs
 import logging
+from treasures import treasures_generator
 from mongo_context import MongoContext
 
 from states import BotStates, STATE_BY_COMMAND
@@ -32,6 +33,7 @@ class BaseMessageHandler:
             mongo_context: MongoContext,
             caches: caches_context.CachesContext,
             common_potions: common_potions.CommonPotions,
+            treasures: treasures_generator.TreasuresGenerator,
     ):
         if self.STATE is None:
             # do nothing if class is incomplete
@@ -40,6 +42,7 @@ class BaseMessageHandler:
         self.pm = pm
         self.cm = cm
         self.gm = gm
+        self.treasures = treasures
         self.bestiary = bestiary
         self.mongo = mongo_context
         self.caches = caches

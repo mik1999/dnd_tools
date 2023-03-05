@@ -18,6 +18,7 @@ import telebot
 from telebot import custom_filters
 import telebot.handler_backends as telebot_backends
 import telebot.storage as storage
+from treasures import treasures_generator
 import typing
 
 
@@ -52,6 +53,7 @@ class HandlersController:
         self.cm = components_manager.ComponentsManager('../alchemy/')
         self.gm = generators.GeneratorsManager()
         self.bestiary = bestiary.Bestiary('../bestiary/')
+        self.treasures = treasures_generator.TreasuresGenerator('../treasures/data/')
 
         if __debug__:
             logger.warning('Using degub environment')
@@ -71,9 +73,13 @@ class HandlersController:
         self.common_potions = common_potions.CommonPotions(self.mongo_context, self.pm, self.cm)
 
         if __debug__:
-            self.caches = caches_context.CachesContext(caches_context.StaticCachePool())
+            self.caches = caches_context.CachesContext(
+                caches_context.StaticCachePool(),
+            )
         else:
-            self.caches = caches_context.CachesContext(self.make_redis_pool())
+            self.caches = caches_context.CachesContext(
+                self.make_redis_pool(),
+            )
 
         self.handler_by_state = dict()
         self.init_handlers()
@@ -116,7 +122,8 @@ class HandlersController:
         logger.info('Start polling bot')
         while True:
             try:
-                self.bot.polling()
+                self.bot.infinity_polling(timeout=10, long_polling_timeout=5)
+                # self.bot.polling()
                 break
             except requests.exceptions.ReadTimeout as ex:
                 logger.error(f'Caught ReadTimeout error {ex}, restarting polling')
@@ -154,7 +161,15 @@ class HandlersController:
     def init_handlers(self):
         for subclass in all_subclasses(base_handler.BaseMessageHandler):
             handler = subclass(
-                self.bot, self.pm, self.cm, self.gm, self.bestiary, self.mongo_context, self.caches, self.common_potions,
+                self.bot,
+                self.pm,
+                self.cm,
+                self.gm,
+                self.bestiary,
+                self.mongo_context,
+                self.caches,
+                self.common_potions,
+                self.treasures,
             )
             if handler.STATE is not None:
                 self.handler_by_state[handler.STATE] = handler

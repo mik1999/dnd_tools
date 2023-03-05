@@ -1,0 +1,779 @@
+АбракадабрусОр	https://www.dnd.su/items/2337-abracadabrus/
+Адская машина Лума БезумногоНАр	https://www.dnd.su/items/3961-the_infernal_machine_of_lum_the_mad/
+Алхимический сборникНРе	https://www.dnd.su/items/2125-alchemical_compendium/
+Алхимический сосудНе	https://www.dnd.su/items/2-alchemy_jug/
+Алхимический сосуд (оранжевый)Не	https://www.dnd.su/items/2112-alchemy_jug_orange_/
+Алхимический сосуд (синий)Не	https://www.dnd.su/items/2113-alchemy_jug_blue_/
+Аметистовый магнетитНОр	https://www.dnd.su/items/2962-amethyst_lodestone/
+Амулет благочестияН?	https://www.dnd.su/items/2126-amulet_of_the_devout/
+Амулет защиты от изгнанияНРе	https://www.dnd.su/items/2422-amulet_of_protection_from_turning/
+Амулет защиты от обнаружения и поискаННе	https://www.dnd.su/items/3-amulet_of_proof_against_detection_and_location/
+Амулет здоровьяНРе	https://www.dnd.su/items/4-amulet_of_health/
+Амулет командования растениямиНРе	https://www.dnd.su/items/2370-charm_of_plant_command/
+Амулет плановНОр	https://www.dnd.su/items/5-amulet_of_the_planes/
+Амулет пьяницыНе	https://www.dnd.su/items/2283-amulet_of_the_drunkard/
+Амулет тёмного осколкаНОб	https://www.dnd.su/items/392-dark_shard_amulet/
+Амулет чёрного черепаНОр	https://www.dnd.su/items/2344-amulet_of_the_black_skull/
+Амулет ЩитостражаНРе	https://www.dnd.su/items/2333-shield_guardian_amulet/
+Аппарат КвалишаЛе	https://www.dnd.su/items/6-apparatus_of_kwalish/
+Архив астромантииНРе	https://www.dnd.su/items/2127-astromancy_archive/
+Астральный осколокНРе	https://www.dnd.su/items/2128-astral_shard/
+Атлас бесконечных горизонтовНРе	https://www.dnd.su/items/2129-atlas_of_endless_horizons/
+Адамантиновый доспехНе	https://www.dnd.su/items/1-adamantine_armor/
+Адское оружиеНе	https://www.dnd.su/items/2242-hellfire_weapon/
+Акмон, молот ПирфораНАр	https://www.dnd.su/items/2107-akmon_hammer_of_purphoros/
+Барабан задающего ритмН?	https://www.dnd.su/items/2133-rhythm_maker_s_drum/
+Белоснежный кодицилл-	https://www.dnd.su/items/2341-the_codicil_of_white/
+Бесконечный гримуарНЛе	https://www.dnd.su/items/2308-grimoire_infinitus/
+Боевое знамя войск адаНОр	https://www.dnd.su/items/2246-battle_standard_of_infernal_power/
+Браслет каменной магииНОр	https://www.dnd.su/items/2428-bracelet_of_rock_magic/
+Брошь живого существаННе	https://www.dnd.su/items/2284-brooch_of_living_essence/
+Брошь защитыННе	https://www.dnd.su/items/277-brooch_of_shielding/
+Бумажная птицаНе	https://www.dnd.su/items/2435-paper_bird/
+Бусина насыщенияОб	https://www.dnd.su/items/393-bead_of_nourishment/
+Бусина силыРе	https://www.dnd.su/items/10-bead_of_force/
+Бутылка заклинанийНЛе	https://www.dnd.su/items/2309-spell_bottle/
+Бутылка с бесконечным кофеОб	https://www.dnd.su/items/3161-bottle_of_boundless_coffee/
+Бутылка с ифритомОр	https://www.dnd.su/items/11-efreeti_bottle/
+Бутыль лунного светаНе	https://www.dnd.su/items/4681-bottle_of_moonlight/
+Бутилированное дыханиеНе	https://www.dnd.su/items/2378-bottled_breath/
+Бедренная кость красного дракона-	https://www.dnd.su/items/2413-dragon_thighbone_club/
+Бедренная кость Святой МарковииНРе	https://www.dnd.su/items/2205-saint_markovia_s_thighbone/
+Боб-	https://www.dnd.su/items/2346-bob/
+Боеприпасы +1, +2, +3?	https://www.dnd.su/items/278-ammunition_1_2_3/
+Булава карыРе	https://www.dnd.su/items/7-mace_of_smiting/
+Булава распадаНРе	https://www.dnd.su/items/8-mace_of_disruption/
+Булава ужасаНРе	https://www.dnd.su/items/9-mace_of_terror/
+Булава черной короныНАр	https://www.dnd.su/items/2318-mace_of_the_black_crown/
+Веер ветраНе	https://www.dnd.su/items/12-wind_fan/
+Венец совершенного человекаННе	https://www.dnd.su/items/2453-circlet_of_human_perfection/
+Вентилируемые легкиеНРе	https://www.dnd.su/items/2270-ventilating_lungs/
+Верёвка лазанияНе	https://www.dnd.su/items/13-rope_of_climbing/
+Верёвка опутыванияРе	https://www.dnd.su/items/14-rope_of_entanglement/
+Весы гармонииНе	https://www.dnd.su/items/2417-balance_of_harmony/
+Ветвь с колокольчикамиНРе	https://www.dnd.su/items/2134-bell_branch/
+Вечно горящий фонарьОб	https://www.dnd.su/items/2255-everbright_lantern/
+Вечнодымящаяся бутылкаНе	https://www.dnd.su/items/15-eversmoking_bottle/
+Визор ДанотаНЛе	https://www.dnd.su/items/2311-danoth_s_visor/
+Вымпел с руной ВиндНОр	https://www.dnd.su/items/2405-pennant_of_the_vind_rune/
+Вымпел СтриксхейвенаОб	https://www.dnd.su/items/3163-strixhaven_pennant/
+Волшебная палочка боевого мага +1, +2, +3Н?	https://www.dnd.su/items/16-wand_of_the_war_mage_1_2_3/
+Волшебная палочка зимыНРе	https://www.dnd.su/items/300-wand_of_winter/
+Волшебная палочка молнийНРе	https://www.dnd.su/items/17-wand_of_lightning_bolts/
+Волшебная палочка обнаружения враговНРе	https://www.dnd.su/items/18-wand_of_enemy_detection/
+Волшебная палочка обнаружения магииНе	https://www.dnd.su/items/19-wand_of_magic_detection/
+Волшебная палочка огненных шаровНРе	https://www.dnd.su/items/20-wand_of_fireballs/
+Волшебная палочка опутыванияННе	https://www.dnd.su/items/2418-wand_of_entangle/
+Волшебная палочка параличаНРе	https://www.dnd.su/items/21-wand_of_paralysis/
+Волшебная палочка паутиныННе	https://www.dnd.su/items/22-wand_of_web/
+Волшебная палочка превращенияНОр	https://www.dnd.su/items/23-wand_of_polymorph/
+Волшебная палочка секретовНе	https://www.dnd.su/items/24-wand_of_secrets/
+Волшебная палочка сковыванияНРе	https://www.dnd.su/items/25-wand_of_binding/
+Волшебная палочка снарядовНе	https://www.dnd.su/items/26-wand_of_magic_missiles/
+Волшебная палочка страхаНРе	https://www.dnd.su/items/27-wand_of_fear/
+Волшебная палочка чудесНРе	https://www.dnd.su/items/28-wand_of_wonder/
+Взы-взыНЛе	https://www.dnd.su/items/2843-snicker_snack/
+ВолнаНЛе	https://www.dnd.su/items/2230-wave/
+Воля когтяНАр	https://www.dnd.su/items/2319-will_of_the_talon/
+Вор девяти жизнейНОр	https://www.dnd.su/items/29-nine_lives_stealer/
+Высекающий искрыНЛе	https://www.dnd.su/items/2386-tinderstrike/
+ВэйзНЛе	https://www.dnd.su/items/2430-waythe/
+Гамак мировЛе	https://www.dnd.su/items/4310-hammock_of_worlds/
+Глаз и рука ВекныНАр	https://www.dnd.su/items/2223-eye_and_hand_of_vecna/
+Глазная повязка пройдохиНРе	https://www.dnd.su/items/2439-knave_s_eye_patch/
+Говорящая куклаНОб	https://www.dnd.su/items/394-talking_doll/
+Говорящий с камнями кристаллНРе	https://www.dnd.su/items/2371-stonespeaker_crystal/
+Горшок пробужденияОб	https://www.dnd.su/items/395-pot_of_awakening/
+Граната Гномгарда-	https://www.dnd.su/items/2363-gnomengarde_grenade/
+Графин бесконечной водыНе	https://www.dnd.su/items/30-decanter_of_endless_water/
+Гремящий трактатНРе	https://www.dnd.su/items/2135-fulminating_treatise/
+Грузный каменьРе	https://www.dnd.su/items/2423-loadstone/
+Грозовой бумерангНе	https://www.dnd.su/items/2379-storm_boomerang/
+Движимая магией рукаНОр	https://www.dnd.su/items/2275-arcane_propulsion_arm/
+Двойственная рукописьНРе	https://www.dnd.su/items/2136-duplicitous_manuscript/
+Демономикон ИггвилвНАр	https://www.dnd.su/items/2138-demonomicon_of_iggwilv/
+Додекаэдр судьбыРе	https://www.dnd.su/items/2456-dodecahedron_of_doom/
+Дорожный алхимический наборНе	https://www.dnd.su/items/2142-travel_alchemical_kit/
+ДоцентНРе	https://www.dnd.su/items/2271-docent/
+ДраакхорнЛе	https://www.dnd.su/items/302-draakhorn/
+Драгоценность трёх молитвНЛе	https://www.dnd.su/items/3606-jewel_of_three_prayers/
+Драконий сосудН?	https://www.dnd.su/items/3003-dragon_vessel/
+Дымный порохНе	https://www.dnd.su/items/2436-smokepowder/
+Дыхательный пузырьОб	https://www.dnd.su/items/2280-breathing_bubble/
+Дирижёрская палочкаОб	https://www.dnd.su/items/396-wand_of_conducting/
+Драконий посох АгеронаНЛе	https://www.dnd.su/items/2444-dragonstaff_of_ahghairon/
+Демонический доспехНОр	https://www.dnd.su/items/32-demon_armor/
+Доспех +1, +2, +3?	https://www.dnd.su/items/33-armor_1_2_3/
+Доспех быстрого снятияОб	https://www.dnd.su/items/397-cast_off_armor/
+Доспех из драконьей чешуиНОр	https://www.dnd.su/items/34-dragon_scale_mail/
+Доспех из змеиной чешуиНе	https://www.dnd.su/items/2119-serpent_scale_armor/
+Доспех морякаНе	https://www.dnd.su/items/35-mariner_s_armor/
+Доспех неуязвимостиНЛе	https://www.dnd.su/items/36-armor_of_invulnerability/
+Доспех последней битвыОр	https://www.dnd.su/items/2298-last_stand_armor/
+Доспех сопротивленияНРе	https://www.dnd.su/items/37-armor_of_resistance/
+Доспех уязвимостиНРе	https://www.dnd.su/items/38-armor_of_vulnerability/
+Драконий стражРе	https://www.dnd.su/items/274-dragonguard/
+Дымящий доспехОб	https://www.dnd.su/items/398-smoldering_armor/
+Дварфский метательНОр	https://www.dnd.su/items/31-dwarven_thrower/
+Двуручный серебряный мечНЛе	https://www.dnd.su/items/2357-greater_silver_sword/
+Двуручный топор ГуртаНЛе	https://www.dnd.su/items/2410-gurt_s_greataxe/
+Декелла, двузубец ТассыНАр	https://www.dnd.su/items/2108-dekella_bident_of_thassa/
+Драконий длинный меч-	https://www.dnd.su/items/2347-draconic_longsword/
+Драконий луч-	https://www.dnd.su/items/2327-dragongleam/
+Драконье копьёНЛе	https://www.dnd.su/items/2965-dragonlance/
+Древоубийца-	https://www.dnd.su/items/2236-treebane/
+Дротик-искательНе	https://www.dnd.su/items/2380-seeker_dart/
+Жаровня командования огненными элементалямиРе	https://www.dnd.su/items/39-brazier_of_commanding_fire_elementals/
+Железная флягаЛе	https://www.dnd.su/items/48-iron_flask/
+Железные ленты БиларроРе	https://www.dnd.su/items/49-iron_bands_of_bilarro/
+Жемчужина обнаружения нежити-	https://www.dnd.su/items/2471-pearl_of_undead_detection/
+Жемчужина силыННе	https://www.dnd.su/items/50-pearl_of_power/
+Жетон ДозораНРе	https://www.dnd.su/items/2440-badge_of_the_watch/
+Жетон с перышкомОб	https://www.dnd.su/items/2256-feather_token/
+Живая сумка с добычей?	https://www.dnd.su/items/2157-living_loot_satchel/
+Живые перчаткиННе	https://www.dnd.su/items/2266-living_gloves/
+Жезл бдительностиНОр	https://www.dnd.su/items/40-rod_of_alertness/
+Жезл безопасностиОр	https://www.dnd.su/items/41-rod_of_security/
+Жезл величественной мощиНЛе	https://www.dnd.su/items/42-rod_of_lordly_might/
+Жезл возмездияННе	https://www.dnd.su/items/2285-rod_of_retribution/
+Жезл ВониндодаНРе	https://www.dnd.su/items/2398-rod_of_the_vonindod/
+Жезл воскрешенияНЛе	https://www.dnd.su/items/43-rod_of_resurrection/
+Жезл вязких шаровНРе	https://www.dnd.su/items/2372-wand_of_viscid_globs/
+Жезл поглощенияНОр	https://www.dnd.su/items/44-rod_of_absorption/
+Жезл правленияНРе	https://www.dnd.su/items/45-rod_of_rulership/
+Жезл хранителя договораН?	https://www.dnd.su/items/46-rod_of_the_pact_keeper/
+Жезл щупалецНРе	https://www.dnd.su/items/47-tentacle_rod/
+Живой доспехНОр	https://www.dnd.su/items/2272-living_armor/
+Живой щитНОр	https://www.dnd.su/items/52-animated_shield/
+Железный клыкНЛе	https://www.dnd.su/items/2387-ironfang/
+Жестокая рапира +1Ре	https://www.dnd.su/items/2164-_1_vicious_rapier/
+Жестокое оружиеРе	https://www.dnd.su/items/51-vicious_weapon/
+Заводная собака-	https://www.dnd.su/items/2414-clockwork_dog/
+Запасной глазНОб	https://www.dnd.su/items/399-ersatz_eye/
+Заполярные сапогиННе	https://www.dnd.su/items/53-boots_of_the_winterlands/
+Запредельный механизмНОр	https://www.dnd.su/items/2150-far_gear/
+Защитная сфераНОб	https://www.dnd.su/items/2257-orb_of_shielding/
+Звездная шестерняНОр	https://www.dnd.su/items/2151-wheel_of_stars/
+Зеркало похищения жизниОр	https://www.dnd.su/items/75-mirror_of_life_trapping/
+Зеркало прошлогоРе	https://www.dnd.su/items/2424-mirror_of_the_past/
+Знамя руны КригНРе	https://www.dnd.su/items/2399-banner_of_the_krig_rune/
+Зовущий в ночиНе	https://www.dnd.su/items/2419-night_caller/
+Зубы Дальвер-НараНАр	https://www.dnd.su/items/2141-teeth_of_dahlver_nar/
+Зелье бдительного отдыхаОб	https://www.dnd.su/items/2448-potion_of_watchful_rest/
+Зелье величия драконаЛе	https://www.dnd.su/items/2971-potion_of_dragon_s_majesty/
+Зелье водной формыРе	https://www.dnd.su/items/2099-potion_of_aqueous_form/
+Зелье возможностейОр	https://www.dnd.su/items/2299-potion_of_possibility/
+Зелье газообразной формыРе	https://www.dnd.su/items/55-potion_of_gaseous_form/
+Зелье героизмаРе	https://www.dnd.su/items/56-potion_of_heroism/
+Зелье долголетияОр	https://www.dnd.su/items/57-potion_of_longevity/
+Зелье дружбы с животнымиНе	https://www.dnd.su/items/58-potion_of_animal_friendship/
+Зелье живучестиОр	https://www.dnd.su/items/59-potion_of_vitality/
+Зелье контроля разума?	https://www.dnd.su/items/2431-potion_of_mind_control/
+Зелье лазанияОб	https://www.dnd.su/items/60-potion_of_climbing/
+Зелье лечения?	https://www.dnd.su/items/61-potion_of_healing/
+Зелье максимальной мощиРе	https://www.dnd.su/items/2289-potion_of_maximum_power/
+Зелье невидимостиОр	https://www.dnd.su/items/62-potion_of_invisibility/
+Зелье неуязвимостиРе	https://www.dnd.su/items/63-potion_of_invulnerability/
+Зелье огненного дыханияНе	https://www.dnd.su/items/64-potion_of_fire_breath/
+Зелье подводного дыханияНе	https://www.dnd.su/items/65-potion_of_water_breathing/
+Зелье полётаОр	https://www.dnd.su/items/66-potion_of_flying/
+Зелье пониманияОб	https://www.dnd.su/items/2449-potion_of_comprehension/
+Зелье преимуществаНе	https://www.dnd.su/items/2840-potion_of_advantage/
+Зелье размеров великанаЛе	https://www.dnd.su/items/2411-potion_of_giant_size/
+Зелье силы великана?	https://www.dnd.su/items/67-potion_of_giant_strength/
+Зелье скоростиОр	https://www.dnd.su/items/68-potion_of_speed/
+Зелье сопротивленияНе	https://www.dnd.su/items/69-potion_of_resistance/
+Зелье увеличенияНе	https://www.dnd.su/items/70-potion_of_growth/
+Зелье уменьшенияРе	https://www.dnd.su/items/71-potion_of_diminution/
+Зелье чтения мыслейРе	https://www.dnd.su/items/72-potion_of_mind_reading/
+Зелье ядаНе	https://www.dnd.su/items/73-potion_of_poison/
+Зелье ясновиденияРе	https://www.dnd.su/items/74-potion_of_clairvoyance/
+ЗакладкаНЛе	https://www.dnd.su/items/2345-bookmark/
+ЗащитникНЛе	https://www.dnd.su/items/54-defender/
+Змеиный клыкРе	https://www.dnd.su/items/2117-serpent_s_fang/
+Изменяющаяся тканьОб	https://www.dnd.su/items/2258-shiftweave/
+Износостойкая книга заклинанийОб	https://www.dnd.su/items/400-enduring_spellbook/
+Изумрудное пероНе	https://www.dnd.su/items/2967-emerald_pen/
+Инструмент бардовН?	https://www.dnd.su/items/76-instrument_of_the_bards/
+Инструмент иллюзийНОб	https://www.dnd.su/items/401-instrument_of_illusions/
+Инструмент надписейНОб	https://www.dnd.su/items/402-instrument_of_scribing/
+Инфернальная головоломкаНе	https://www.dnd.su/items/2243-infernal_puzzle_box/
+Инфернальный набор для верховой ездыНЛе	https://www.dnd.su/items/2358-infernal_tack/
+Искатель голосаОб	https://www.dnd.su/items/2281-vox_seeker/
+Игла починкиНРе	https://www.dnd.su/items/2290-needle_of_mending/
+Кадило контролирования воздушных элементалейРе	https://www.dnd.su/items/77-censer_of_controlling_air_elementals/
+Камень ГолорраНАр	https://www.dnd.su/items/2447-stone_of_golorr/
+Камень зренияНРе	https://www.dnd.su/items/78-gem_of_seeing/
+Камень ЙоунН?	https://www.dnd.su/items/79-ioun_stone/
+Камень контролирования земляных элементалейРе	https://www.dnd.su/items/80-stone_of_controlling_earth_elementals/
+Камень неудачиННе	https://www.dnd.su/items/2420-stone_of_ill_luck/
+Камень общенияОр	https://www.dnd.su/items/2273-speaking_stone/
+Камень посланияНе	https://www.dnd.su/items/2145-sending_stone/
+Камень рассеиванияОр	https://www.dnd.su/items/2300-dispelling_stone/
+Камень с руной БлодНРе	https://www.dnd.su/items/2400-blod_stone/
+Камень сиянияНе	https://www.dnd.su/items/81-gem_of_brightness/
+Камень удачиННе	https://www.dnd.su/items/82-stone_of_good_luck/
+Камень элементаляНе	https://www.dnd.su/items/83-elemental_gem/
+Камни посланияНе	https://www.dnd.su/items/84-sending_stones/
+Капсула давленияОб	https://www.dnd.su/items/2365-pressure_capsule/
+Ключ лазутчикаНЛе	https://www.dnd.su/items/2312-infiltrator_s_key/
+Ключ-брелокНОб	https://www.dnd.su/items/2259-keycharm/
+Книга восторженных деянийНАр	https://www.dnd.su/items/2224-book_of_exalted_deeds/
+Книга мерзкой тьмыНАр	https://www.dnd.su/items/2225-book_of_vile_darkness/
+Книга начинающего сердцеедаНРе	https://www.dnd.su/items/2144-heart_weaver_s_primer/
+Ковёр-самолётОр	https://www.dnd.su/items/87-carpet_of_flying/
+Коготь с руной ВирмНРе	https://www.dnd.su/items/2401-claw_of_the_wyrm_rune/
+Когти бурого увальняНРе	https://www.dnd.su/items/2381-claws_of_the_umber_hulk/
+Кодекс планологаНРе	https://www.dnd.su/items/2149-planecaller_s_codex/
+Колода иллюзийНе	https://www.dnd.su/items/88-deck_of_illusions/
+Колода многих вещейЛе	https://www.dnd.su/items/89-deck_of_many_things/
+Колодец многих мировЛе	https://www.dnd.su/items/90-well_of_many_worlds/
+Колокольчик открыванияРе	https://www.dnd.su/items/91-chime_of_opening/
+Колчан ЭлонныНе	https://www.dnd.su/items/92-quiver_of_ehlonna/
+Компактный гамак мировЛе	https://www.dnd.su/items/4311-lesser_hammock_of_worlds/
+Комплект одежды ЛордаНОр	https://www.dnd.su/items/2443-lord_s_ensemble/
+КонцертинаРе	https://www.dnd.su/items/2395-concertina/
+Концертина гулякиНРе	https://www.dnd.su/items/2207-reveler_s_concertina/
+Корона бехолдеров БелаширрыНЛе	https://www.dnd.su/items/2277-belashyrra_s_beholder_crown/
+Коррозионный порошокНе	https://www.dnd.su/items/2836-dust_of_corrosion/
+Кость шарлатанаНОб	https://www.dnd.su/items/404-charlatan_s_die/
+Костюм рыбыОр	https://www.dnd.su/items/4388-fish_suit/
+Котел ИггвилвНАр	https://www.dnd.su/items/2847-iggwilv_s_cauldron/
+Котёл изобилияРе	https://www.dnd.su/items/2334-cauldron_of_plenty/
+Котёл перерожденияНОр	https://www.dnd.su/items/2208-cauldron_of_rebirth/
+Краска узоров настроенияОб	https://www.dnd.su/items/2166-moodmark_paint/
+Кристаллическая хроникаНОр	https://www.dnd.su/items/2209-crystalline_chronicle/
+Кружка изобилия-	https://www.dnd.su/items/2328-tankard_of_plenty/
+Кружка трезвостиОб	https://www.dnd.su/items/405-tankard_of_sobriety/
+Крылатые сапогиННе	https://www.dnd.su/items/117-winged_boots/
+Крылья полётаНРе	https://www.dnd.su/items/118-wings_of_flying/
+Крючок рыбацкого восторгаРе	https://www.dnd.su/items/2335-hook_of_fisher_s_delight/
+Куб вратЛе	https://www.dnd.su/items/119-cubic_gate/
+Куб силового поляНРе	https://www.dnd.su/items/120-cube_of_force/
+Кубок красокНе	https://www.dnd.su/items/4680-chalice_of_colors/
+Кувшин зелёной меди-	https://www.dnd.su/items/2237-green_copper_ewer/
+Кольцо влияния на животныхРе	https://www.dnd.su/items/93-ring_of_animal_influence/
+Кольцо временного спасенияНРе	https://www.dnd.su/items/2292-ring_of_temporal_salvation/
+Кольцо затуманиванияННе	https://www.dnd.su/items/2286-ring_of_obscuring/
+Кольцо защитыНРе	https://www.dnd.su/items/94-ring_of_protection/
+Кольцо защиты разумаННе	https://www.dnd.su/items/95-ring_of_mind_shielding/
+Кольцо зимыНАр	https://www.dnd.su/items/2351-ring_of_winter/
+Кольцо командования элементалямиНЛе	https://www.dnd.su/items/96-ring_of_elemental_command/
+Кольцо красной яростиНОр	https://www.dnd.su/items/3614-ring_of_red_fury/
+Кольцо невидимостиНЛе	https://www.dnd.su/items/97-ring_of_invisibility/
+Кольцо отражения заклинанийНЛе	https://www.dnd.su/items/98-ring_of_spell_turning/
+Кольцо падающих звёздНОр	https://www.dnd.su/items/99-ring_of_shooting_stars/
+Кольцо падения пёрышкомНРе	https://www.dnd.su/items/100-ring_of_feather_falling/
+Кольцо плаванияНе	https://www.dnd.su/items/101-ring_of_swimming/
+Кольцо правдыННе	https://www.dnd.su/items/2437-ring_of_truth_telling/
+Кольцо призыва джиннаНЛе	https://www.dnd.su/items/102-ring_of_djinni_summoning/
+Кольцо проникающего зренияНРе	https://www.dnd.su/items/103-ring_of_x_ray_vision/
+Кольцо прыжковННе	https://www.dnd.su/items/104-ring_of_jumping/
+Кольцо регенерацииНОр	https://www.dnd.su/items/105-ring_of_regeneration/
+Кольцо свободных действийНРе	https://www.dnd.su/items/106-ring_of_free_action/
+Кольцо сопротивленияНРе	https://www.dnd.su/items/107-ring_of_resistance/
+Кольцо СтонкиН-	https://www.dnd.su/items/2121-stonky_s_ring/
+Кольцо таранаНРе	https://www.dnd.su/items/108-ring_of_the_ram/
+Кольцо телекинезаНОр	https://www.dnd.su/items/109-ring_of_telekinesis/
+Кольцо теплаННе	https://www.dnd.su/items/110-ring_of_warmth/
+Кольцо трёх желанийЛе	https://www.dnd.su/items/111-ring_of_three_wishes/
+Кольцо уклоненияНРе	https://www.dnd.su/items/112-ring_of_evasion/
+Кольцо хождения по водеНе	https://www.dnd.su/items/113-ring_of_water_walking/
+Кольцо хранения заклинанийНРе	https://www.dnd.su/items/114-ring_of_spell_storing/
+Кольцо-компас Грейвенхоллоу-	https://www.dnd.su/items/2374-gravenhollow_compass_ring/
+Кольчуга ифритовНЛе	https://www.dnd.su/items/115-efreeti_chain/
+Красивый проклёпанный кожаный доспехРе	https://www.dnd.su/items/116-glamoured_studded_leather/
+Кадило фанатикаНРе	https://www.dnd.su/items/2143-devotee_s_censer/
+Кинжал гитарного соло-	https://www.dnd.su/items/2472-dagger_of_guitar_solos/
+Кинжал драконьего зубаРе	https://www.dnd.su/items/303-dragontooth_dagger/
+Кинжал слепого зренияНРе	https://www.dnd.su/items/2458-dagger_of_blindsight/
+Кинжал ядаРе	https://www.dnd.su/items/85-dagger_of_venom/
+Клинок АвернусаНАр	https://www.dnd.su/items/2248-blade_of_avernus/
+Клинок АхеронаНРе	https://www.dnd.su/items/2291-acheron_blade/
+Клинок разбитых зеркалНАр	https://www.dnd.su/items/2320-blade_of_broken_mirrors/
+Клинок разумаНРе	https://www.dnd.su/items/2360-mind_blade/
+Клинок удачиНЛе	https://www.dnd.su/items/86-luck_blade/
+Кнут–щупальце ДиррнаНОр	https://www.dnd.su/items/2274-dyrrn_s_tentacle_whip/
+Копьё злословияНОр	https://www.dnd.su/items/2429-spear_of_backbiting/
+Кровавая смертьНАр	https://www.dnd.su/items/2321-the_bloody_end/
+Кровавое копьёННе	https://www.dnd.su/items/2201-blood_spear/
+Кровавый топорНОр	https://www.dnd.su/items/2301-bloodaxe/
+Крусор, копьё ГелиодаНАр	https://www.dnd.su/items/2110-khrusor_spear_of_heliod/
+Крыло драконаНРе	https://www.dnd.su/items/2966-dragon_wing_bow/
+Летающая колесницаРе	https://www.dnd.su/items/2106-flying_chariot/
+Линзы риск-менеджера?	https://www.dnd.su/items/2158-obviator_s_lenses/
+Лира песни сиренНРе	https://www.dnd.su/items/2100-siren_song_lyre/
+Лира строительстваНРе	https://www.dnd.su/items/2210-lyre_of_building/
+Любина тарокка душНАр	https://www.dnd.su/items/2212-luba_s_tarokka_of_souls/
+Любовное зельеНе	https://www.dnd.su/items/125-philter_of_love/
+Латный доспех эфирностиНЛе	https://www.dnd.su/items/121-plate_armor_of_etherealness/
+Латы дварфовОр	https://www.dnd.su/items/122-dwarven_plate/
+Ловящий стрелы щитНРе	https://www.dnd.su/items/123-arrow_catching_shield/
+Лазурное лезвиеНЛе	https://www.dnd.su/items/2445-azuredge/
+Лук клятвыНОр	https://www.dnd.su/items/124-oathbow/
+Лунный клинокНЛе	https://www.dnd.su/items/2231-moonblade/
+Лунный серпН?	https://www.dnd.su/items/2211-moon_sickle/
+Магическая пушкаОр	https://www.dnd.su/items/2302-arcane_cannon/
+Магический гримуарН?	https://www.dnd.su/items/2213-arcane_grimoire/
+Магический рульНРе	https://www.dnd.su/items/4387-spelljamming_helm/
+Мазь КеогтомаНе	https://www.dnd.su/items/126-keoghtom_s_ointment/
+Мантия архимагаНЛе	https://www.dnd.su/items/127-robe_of_the_archmagi/
+Мантия глазНРе	https://www.dnd.su/items/128-robe_of_eyes/
+Мантия звёздНОр	https://www.dnd.su/items/129-robe_of_stars/
+Мантия змиевННе	https://www.dnd.su/items/2397-robe_of_serpents/
+Мантия летаНРе	https://www.dnd.su/items/2425-robe_of_summer/
+Мантия полезных предметовНе	https://www.dnd.su/items/130-robe_of_useful_items/
+Мантия природыННе	https://www.dnd.su/items/2214-nature_s_mantle/
+Мантия сияющих цветовНОр	https://www.dnd.su/items/131-robe_of_scintillating_colors/
+Мантия сопротивления заклинаниямНРе	https://www.dnd.su/items/132-mantle_of_spell_resistance/
+Маска белого драконаНЛе	https://www.dnd.su/items/2353-white_dragon_mask/
+Маска зверяНе	https://www.dnd.su/items/2342-mask_of_the_beast/
+Маска зеленого драконаНЛе	https://www.dnd.su/items/2354-green_dragon_mask/
+Маска королевы драконовНЛе	https://www.dnd.su/items/301-mask_of_the_dragon_queen/
+Маска красного драконаНЛе	https://www.dnd.su/items/2355-red_dragon_mask/
+Маска синего драконаНЛе	https://www.dnd.su/items/2356-blue_dragon_mask/
+Маска соколаНОр	https://www.dnd.su/items/2193-peregrine_mask/
+Маска черного драконаНЛе	https://www.dnd.su/items/297-black_dragon_mask/
+Махолёт полётаОр	https://www.dnd.su/items/2838-ornithopter_of_flying/
+Маяк ЛюксонаЛе	https://www.dnd.su/items/2313-luxon_beacon/
+Мгновенная крепость ДаэрнаРе	https://www.dnd.su/items/136-daern_s_instant_fortress/
+Медаль болотОб	https://www.dnd.su/items/3612-medal_of_the_wetlands/
+Медаль из ракушкиОб	https://www.dnd.su/items/3608-medal_of_the_conch/
+Медаль лабиринтаОб	https://www.dnd.su/items/3610-medal_of_the_maze/
+Медаль мускулОб	https://www.dnd.su/items/3607-medal_of_muscle/
+Медаль мясного пирогаОб	https://www.dnd.su/items/3611-medal_of_the_meat_pie/
+Медаль небосклонаОб	https://www.dnd.su/items/3609-medal_of_the_horizonback/
+Медаль остроумияОб	https://www.dnd.su/items/3613-medal_of_wit/
+Медальон затягивающихся ранННе	https://www.dnd.su/items/137-periapt_of_wound_closure/
+Медальон защиты от ядаРе	https://www.dnd.su/items/138-periapt_of_proof_against_poison/
+Медальон здоровьяНе	https://www.dnd.su/items/139-periapt_of_health/
+Медальон мыслейННе	https://www.dnd.su/items/140-medallion_of_thoughts/
+Меха ветровНе	https://www.dnd.su/items/4682-bellows_of_breezes/
+Механистический амулетОб	https://www.dnd.su/items/406-clockwork_amulet/
+Миззиевая мортираРе	https://www.dnd.su/items/2184-mizzium_mortar/
+Миззиевый аппаратННе	https://www.dnd.su/items/2167-mizzium_apparatus/
+Мифаллар ИтринаНЛе	https://www.dnd.su/items/2338-ythryn_mythallar/
+Могучий слуга Леук-оНАр	https://www.dnd.su/items/2529-mighty_servant_of_leuk_o/
+Молоток с руной ВеннНРе	https://www.dnd.su/items/2402-gavel_of_the_venn_rune/
+Монета душиНе	https://www.dnd.su/items/2244-soul_coin/
+Монета принятия решений?	https://www.dnd.su/items/2159-coin_of_decisionry/
+Монета спускаОб	https://www.dnd.su/items/2282-coin_of_delving/
+Музыкальная шкатулка арканалота-	https://www.dnd.su/items/2348-arcanaloth_s_music_box/
+Масло остротыОр	https://www.dnd.su/items/133-oil_of_sharpness/
+Масло ускользанияНе	https://www.dnd.su/items/134-oil_of_slipperiness/
+Масло эфирностиРе	https://www.dnd.su/items/135-oil_of_etherealness/
+Мистический посохНОр	https://www.dnd.su/items/2837-eldritch_staff/
+Миззиевый доспехРе	https://www.dnd.su/items/2183-mizzium_armor/
+Мифрильная кольчужная рубаха ВанракаНе	https://www.dnd.su/items/2454-vanrak_s_mithral_shirt/
+Мифрильные полулаты +1Не	https://www.dnd.su/items/2165-_1_mithral_half_plate/
+Мифрильный доспехНе	https://www.dnd.su/items/148-mithral_armor/
+Макуауитль-	https://www.dnd.su/items/2432-macuahuitl/
+Мастикс, кнут ЭребаНАр	https://www.dnd.su/items/2109-mastix_whip_of_erebos/
+МаталотокНЛе	https://www.dnd.su/items/2249-matalotok/
+Метательное копьё молнииНе	https://www.dnd.su/items/141-javelin_of_lightning/
+Меч гибелиНЛе	https://www.dnd.su/items/3794-ruinblade/
+Меч головорубНЛе	https://www.dnd.su/items/142-vorpal_sword/
+Меч ЗариэльНАр	https://www.dnd.su/items/2254-sword_of_zariel/
+Меч КасаНАр	https://www.dnd.su/items/2226-sword_of_kas/
+Меч кражи жизниНРе	https://www.dnd.su/items/143-sword_of_life_stealing/
+Меч местиННе	https://www.dnd.su/items/144-sword_of_vengeance/
+Меч остротыНОр	https://www.dnd.su/items/145-sword_of_sharpness/
+Меч ответаНЛе	https://www.dnd.su/items/146-sword_of_answering/
+Меч отцовНОр	https://www.dnd.su/items/2194-sword_of_the_paruns/
+Меч раненияНРе	https://www.dnd.su/items/147-sword_of_wounding/
+Молот громаЛе	https://www.dnd.su/items/149-hammer_of_thunderbolts/
+Морозный клинокНОр	https://www.dnd.su/items/150-frost_brand/
+Набор для голосованияОб	https://www.dnd.su/items/2137-voting_kit/
+Навигационный шарНОр	https://www.dnd.su/items/2406-navigation_orb/
+Накидка белого дракона-	https://www.dnd.su/items/2433-white_dragon_cape/
+Наручи защитыНРе	https://www.dnd.su/items/151-bracers_of_defense/
+Наручи иллюзионистаНОр	https://www.dnd.su/items/2195-illusionist_s_bracers/
+Наручи летающих кинжаловНРе	https://www.dnd.su/items/2441-bracer_of_flying_daggers/
+Наручи стрельбы из лукаННе	https://www.dnd.su/items/152-bracers_of_archery/
+Ножницы отсекающие тениНРе	https://www.dnd.su/items/2841-scissors_of_shadow_snipping_/
+Ножной браслет хожденияНе	https://www.dnd.su/items/4642-anklet_of_walking/
+Ножны волшебной палочкиНОб	https://www.dnd.su/items/2261-wand_sheath/
+Ночные очкиНе	https://www.dnd.su/items/154-goggles_of_night/
+Нетерильский свиток АзумараЛе	https://www.dnd.su/items/2114-nether_scroll_of_azumar/
+Неподвижный жезлНе	https://www.dnd.su/items/153-immovable_rod/
+Наручный клинокНОб	https://www.dnd.su/items/2260-armblade/
+НепенфНЛе	https://www.dnd.su/items/2235-nepenthe/
+Несломимая стрелаОб	https://www.dnd.su/items/407-unbreakable_arrow/
+Несущая РассветНЛе	https://www.dnd.su/items/2375-dawnbringer/
+Ни для чего не пригодный кинжал-	https://www.dnd.su/items/2434-junky_dagger/
+Обруч сжиганияНе	https://www.dnd.su/items/155-circlet_of_blasting/
+Ожерелье адаптацииННе	https://www.dnd.su/items/156-necklace_of_adaptation/
+Ожерелье молитвенных чётокНРе	https://www.dnd.su/items/157-necklace_of_prayer_beads/
+Ожерелье огненных шаровРе	https://www.dnd.su/items/158-necklace_of_fireballs/
+Окаменевшее яйцо грунгаН-	https://www.dnd.su/items/2349-petrified_grung_egg/
+Око ДраконаНАр	https://www.dnd.su/items/2227-orb_of_dragonkind/
+Оковы измеренийРе	https://www.dnd.su/items/159-dimensional_shackles/
+Опал с руной ИльдНРе	https://www.dnd.su/items/2403-opal_of_the_ild_rune/
+Орлиный свистокРе	https://www.dnd.su/items/2426-eagle_whistle/
+Орочий каменьННе	https://www.dnd.su/items/2331-orc_stone/
+Освежающая бусинаОб	https://www.dnd.su/items/409-bead_of_refreshment/
+Осколок Дальнего ПределаНРе	https://www.dnd.su/items/3468-far_realm_shard/
+Осколок заклинанийОб	https://www.dnd.su/items/2262-spellshard/
+Осколок с руной ИсаНОр	https://www.dnd.su/items/2407-shard_of_the_ise_rune/
+Осколок Страны ФейННе	https://www.dnd.su/items/2215-feywild_shard/
+Осколок Царства ТенейНРе	https://www.dnd.su/items/2216-shadowfell_shard/
+Осколок эссенции Внешних ПлановНРе	https://www.dnd.su/items/2217-outer_essence_shard/
+Осколок эссенции стихийных плановНРе	https://www.dnd.su/items/2218-elemental_essence_shard/
+Очищающий каменьОб	https://www.dnd.su/items/2263-cleansing_stone/
+Очки детального зренияНе	https://www.dnd.su/items/162-eyes_of_minute_seeing/
+Очки искателяННе	https://www.dnd.su/items/2267-finders_goggles/
+Очки орлиного зренияННе	https://www.dnd.su/items/163-eyes_of_the_eagle/
+Очки очарованияННе	https://www.dnd.su/items/164-eyes_of_charming/
+Очки распознавания объектовННе	https://www.dnd.su/items/2287-goggles_of_object_reading/
+Обгоревшая волшебная палочка снарядовНе	https://www.dnd.su/items/2438-charred_wand_of_magic_missiles/
+Обсидианово-кремневые латы драконаЛе	https://www.dnd.su/items/2250-obsidian_flint_dragon_plate/
+Охотничье пальтоНОр	https://www.dnd.su/items/2303-hunter_s_coat/
+Опрокидывающий боеприпасОб	https://www.dnd.su/items/408-walloping_ammunition/
+Оружие +1, +2, +3?	https://www.dnd.su/items/160-weapon_1_2_3/
+Оружие драконьего гневаН?	https://www.dnd.su/items/3001-dragon_s_wrath_weapon/
+Оружие неминуемой гибелиРе	https://www.dnd.su/items/2293-weapon_of_certain_death/
+Оружие предупрежденияННе	https://www.dnd.su/items/161-weapon_of_warning/
+Осенённый луной мечОб	https://www.dnd.su/items/410-moon_touched_sword/
+Ощущающий драконов длинный меч-	https://www.dnd.su/items/2392-dragon_sensing_longsword/
+Парфюм очарованияОб	https://www.dnd.su/items/414-perfume_of_bewitching/
+Парящая сфераНе	https://www.dnd.su/items/165-driftglobe/
+Переносная дыраРе	https://www.dnd.su/items/166-portable_hole/
+Перо КваляРе	https://www.dnd.su/items/167-quaal_s_feather_token/
+Перо призыва диатримыНРе	https://www.dnd.su/items/2442-feather_of_diatryma_summoning/
+Перчатки воровстваНе	https://www.dnd.su/items/168-gloves_of_thievery/
+Перчатки ловли душНЛе	https://www.dnd.su/items/2120-gloves_of_soul_catching/
+Перчатки ловли снарядовННе	https://www.dnd.su/items/169-gloves_of_missile_snaring/
+Перчатки плавания и лазанияННе	https://www.dnd.su/items/170-gloves_of_swimming_and_climbing/
+Перчатки пламенной яростиНРе	https://www.dnd.su/items/2245-gauntlets_of_flaming_fury/
+Пивафви (Эльфийский плащ)ННе	https://www.dnd.su/items/2377-piwafwi_cloak_of_elvenkind_/
+Пивафви сопротивления огнюНРе	https://www.dnd.su/items/2376-piwafwi_of_fire_resistance/
+Пиксида ПандемонияЛе	https://www.dnd.su/items/2105-pyxis_of_pandemonium/
+ПирослияниеННе	https://www.dnd.su/items/2178-pyroconverger/
+Писчее пероНОб	https://www.dnd.su/items/2264-scribes_pen/
+Планетарий странникаНАр	https://www.dnd.su/items/2156-orrery_of_the_wanderer/
+Платиновый шарфНЛе	https://www.dnd.su/items/2970-platinum_scarf/
+Плащ адского псаНРе	https://www.dnd.su/items/2427-hell_hound_cloak/
+Плащ защитыННе	https://www.dnd.su/items/171-cloak_of_protection/
+Плащ летучей мышиНРе	https://www.dnd.su/items/172-cloak_of_the_bat/
+Плащ множества стилейОб	https://www.dnd.su/items/415-cloak_of_many_fashions/
+Плащ невидимостиНЛе	https://www.dnd.su/items/173-cloak_of_invisibility/
+Плащ паукаНОр	https://www.dnd.su/items/174-cloak_of_arachnida/
+Плащ скатаНе	https://www.dnd.su/items/175-cloak_of_the_manta_ray/
+Плащ ускользанияНРе	https://www.dnd.su/items/176-cloak_of_displacement/
+Плащ шарлатанаРе	https://www.dnd.su/items/177-cape_of_the_mountebank/
+Плутовской замокОб	https://www.dnd.su/items/416-lock_of_trickery/
+Плюшевый талисман СтриксхейвенаОб	https://www.dnd.su/items/3162-cuddly_strixhaven_mascot/
+Повязка интеллектаННе	https://www.dnd.su/items/178-headband_of_intellect/
+Подзорная труба ясновиденияОб	https://www.dnd.su/items/2139-spyglass_of_clairvoyance/
+Подковы ветраОр	https://www.dnd.su/items/179-horseshoes_of_a_zephyr/
+Подковы скоростиРе	https://www.dnd.su/items/180-horseshoes_of_speed/
+Покачивающаяся кувшинкаНОр	https://www.dnd.su/items/2834-bobbing_lily_pad/
+Покров вредителейНЛе	https://www.dnd.su/items/2314-verminshroud/
+Полётное одеяниеННе	https://www.dnd.su/items/2382-wingwear/
+Помело полётаНе	https://www.dnd.su/items/181-broom_of_flying/
+Порошок исчезновенияНе	https://www.dnd.su/items/182-dust_of_disappearance/
+Порошок наслажденияНе	https://www.dnd.su/items/2288-dust_of_deliciousness/
+Порошок реинкарнацииОр	https://www.dnd.su/items/2305-reincarnation_dust/
+Порошок сухостиНе	https://www.dnd.su/items/183-dust_of_dryness/
+Порошок чихания и удушьяНе	https://www.dnd.su/items/184-dust_of_sneezing_and_choking/
+Портфель с документами?	https://www.dnd.su/items/2160-documancy_satchel/
+Пояс дварфовНРе	https://www.dnd.su/items/198-belt_of_dwarvenkind/
+Пояс из драконьей кожиН?	https://www.dnd.su/items/2964-dragonhide_belt/
+Пояс силы великанаН?	https://www.dnd.su/items/199-belt_of_giant_strength/
+Превосходный клейЛе	https://www.dnd.su/items/200-sovereign_glue/
+Призрачный фонарьНРе	https://www.dnd.su/items/2343-ghost_lantern/
+Проклятый камень удачиННе	https://www.dnd.su/items/2368-cursed_luckstone/
+Пространственная петляНОр	https://www.dnd.su/items/2152-dimensional_loop/
+ПротезОб	https://www.dnd.su/items/2219-prosthetic_limb/
+Профессор СкантРе	https://www.dnd.su/items/2336-professor_skant/
+Пси-кристаллННе	https://www.dnd.su/items/2332-psi_crystal/
+Пыль пикси-	https://www.dnd.su/items/2415-pixie_dust/
+Пыльца пиксиНе	https://www.dnd.su/items/2839-pixie_dust/
+Противоядие крови ликантропаНе	https://www.dnd.su/items/3788-blood_of_the_lycanthrope_antidote/
+Противоядие пыли мумииНе	https://www.dnd.su/items/3793-mummy_rot_antidote/
+Противоядие фессалтоксинНе	https://www.dnd.su/items/3795-thessaltoxin_antidote/
+Печатка гильдии АзориусННе	https://www.dnd.su/items/2168-azorius_guild_signet/
+Печатка гильдии БоросаННе	https://www.dnd.su/items/2169-boros_guild_signet/
+Печатка гильдии ГолгариННе	https://www.dnd.su/items/2171-golgari_guild_signet/
+Печатка гильдии ГруулННе	https://www.dnd.su/items/2172-gruul_guild_signet/
+Печатка гильдии ДимирННе	https://www.dnd.su/items/2170-dimir_guild_signet/
+Печатка гильдии ИззетННе	https://www.dnd.su/items/2173-izzet_guild_signet/
+Печатка гильдии ОрзоваННе	https://www.dnd.su/items/2174-orzhov_guild_signet/
+Печатка гильдии РакдосаННе	https://www.dnd.su/items/2175-rakdos_guild_signet/
+Печатка гильдии СелезнииННе	https://www.dnd.su/items/2176-selesnya_guild_signet/
+Печатка гильдии СимиковННе	https://www.dnd.su/items/2177-simic_guild_signet/
+Палочка неудачного экспериментаНРе	https://www.dnd.su/items/2147-failed_experiment_wand/
+Палочка ОркусаНАр	https://www.dnd.su/items/2229-wand_of_orcus/
+Палочка пиротехникиОб	https://www.dnd.su/items/411-wand_of_pyrotechnics/
+Палочка улыбокОб	https://www.dnd.su/items/412-wand_of_smiles/
+Палочка хмурых взглядовОб	https://www.dnd.su/items/413-wand_of_scowls/
+Пропитанная древесная фокусировкаНОб	https://www.dnd.su/items/2265-imbued_wood_focus/
+Посох гадюкиННе	https://www.dnd.su/items/185-staff_of_the_adder/
+Посох ГалфиасНРе	https://www.dnd.su/items/2202-gulthias_staff/
+Посох грома и молнииНОр	https://www.dnd.su/items/186-staff_of_thunder_and_lightning/
+Посох дюнамантииНОр	https://www.dnd.su/items/2304-staff_of_dunamancy/
+Посох ЗабытогоНАр	https://www.dnd.su/items/2352-staff_of_the_forgotten_one/
+Посох защитыНРе	https://www.dnd.su/items/266-staff_of_defense/
+Посох иссушенияНРе	https://www.dnd.su/items/187-staff_of_withering/
+Посох костяного когтяНРе	https://www.dnd.su/items/2294-staff_of_the_ivory_claw/
+Посох лесаНРе	https://www.dnd.su/items/188-staff_of_the_woodlands/
+Посох леченияНРе	https://www.dnd.su/items/189-staff_of_healing/
+Посох маговНЛе	https://www.dnd.su/items/190-staff_of_the_magi/
+Посох морозаНОр	https://www.dnd.su/items/191-staff_of_frost/
+Посох нефритового змея-	https://www.dnd.su/items/2473-jade_serpent_staff/
+Посох огняНОр	https://www.dnd.su/items/192-staff_of_fire/
+Посох очарованияНРе	https://www.dnd.su/items/193-staff_of_charming/
+Посох паукаНРе	https://www.dnd.su/items/267-spider_staff/
+Посох питонаННе	https://www.dnd.su/items/194-staff_of_the_python/
+Посох птичьего щебетаОб	https://www.dnd.su/items/417-staff_of_birdcalls/
+Посох путешественникаНОр	https://www.dnd.su/items/2196-voyager_staff/
+Посох роя насекомыхНРе	https://www.dnd.su/items/195-staff_of_swarming_insects/
+Посох силыНОр	https://www.dnd.su/items/196-staff_of_power/
+Посох судьбыНОр	https://www.dnd.su/items/2116-staff_of_fate/
+Посох ударовНОр	https://www.dnd.su/items/197-staff_of_striking/
+Посох украшенияОб	https://www.dnd.su/items/418-staff_of_adornment/
+Посох цветовОб	https://www.dnd.su/items/419-staff_of_flowers/
+Посох цветов ивыНОб	https://www.dnd.su/items/2450-wyllow_s_staff_of_flowers/
+Посох, ослепляющий небесаННе	https://www.dnd.su/items/2179-skyblinder_staff/
+Панцирный доспех разумаННе	https://www.dnd.su/items/2359-mind_carapace_armor/
+Перст ветраНЛе	https://www.dnd.su/items/2388-windvane/
+Плеть разумаНРе	https://www.dnd.su/items/2361-mind_lash/
+Плеть тенейНАр	https://www.dnd.su/items/2322-lash_of_shadows/
+Ползучий молотильщикНАр	https://www.dnd.su/items/2323-grovelthrash/
+Потерянный меч-	https://www.dnd.su/items/2238-lost_sword/
+Праща двух зайцевРе	https://www.dnd.su/items/2101-two_birds_sling/
+ПронзательНРе	https://www.dnd.su/items/2148-piercer/
+Радужный венецНЛе	https://www.dnd.su/items/2310-wreath_of_the_prism/
+Развевающийся плащОб	https://www.dnd.su/items/420-cloak_of_billowing/
+Разноцветная розаРе	https://www.dnd.su/items/2835-chromatic_rose/
+Раковина телепортацииНОр	https://www.dnd.su/items/2408-conch_of_teleportation/
+Резервуар с аномалиейНРе	https://www.dnd.su/items/2383-weird_tank/
+Рог беззвучного сигналаОб	https://www.dnd.su/items/421-horn_of_silent_alarm/
+Рог бесконечного лабиринтаРе	https://www.dnd.su/items/2459-horn_of_the_endless_maze/
+Рог Валгаллы?	https://www.dnd.su/items/201-horn_of_valhalla/
+Рог взрываРе	https://www.dnd.su/items/202-horn_of_blasting/
+Ротор возвратаНОр	https://www.dnd.su/items/2153-rotor_of_return/
+Рубин боевого магаНОб	https://www.dnd.su/items/422-ruby_of_the_war_mage/
+Рубин плетенияНЛе	https://www.dnd.su/items/2972-ruby_weave_gem/
+Рукавицы силы ограННе	https://www.dnd.su/items/203-gauntlets_of_ogre_power/
+Рунный каменьАр	https://www.dnd.su/items/2364-ruinstone/
+Рунный ключ АзориусаНРе	https://www.dnd.su/items/2185-azorius_keyrune/
+Рунный ключ БоросаНРе	https://www.dnd.su/items/2186-boros_keyrune/
+Рунный ключ ГолгариНОр	https://www.dnd.su/items/2198-golgari_keyrune/
+Рунный ключ ГруулНРе	https://www.dnd.su/items/2187-gruul_keyrune/
+Рунный ключ ДимирНОр	https://www.dnd.su/items/2197-dimir_keyrune/
+Рунный ключ ИззетНРе	https://www.dnd.su/items/2188-izzet_keyrune/
+Рунный ключ ОрзоваНРе	https://www.dnd.su/items/2189-orzhov_keyrune/
+Рунный ключ РакдосаННе	https://www.dnd.su/items/2180-rakdos_keyrune/
+Рунный ключ СелезнииНРе	https://www.dnd.su/items/2190-selesnya_keyrune/
+Рунный ключ СимиковННе	https://www.dnd.su/items/2181-simic_keyrune/
+Рюкзак с аэростатомНе	https://www.dnd.su/items/2384-balloon_pack/
+Рогатое кольцоНОр	https://www.dnd.su/items/2463-horned_ring/
+Расплавленная бронзовая кожаНРе	https://www.dnd.su/items/2102-molten_bronze_skin/
+Руидиевый доспехНОр	https://www.dnd.su/items/3615-ruidium_armor/
+Руидиевый щитНОр	https://www.dnd.su/items/3616-ruidium_shield/
+Разрушающее остриёННе	https://www.dnd.su/items/2421-shatterspike/
+РассекательНе	https://www.dnd.su/items/304-hew/
+Рассекатель орковНЛе	https://www.dnd.su/items/2389-orcsplitter/
+РеззурНе	https://www.dnd.su/items/2393-reszur/
+Ритуальный нож РакдосовНЛе	https://www.dnd.su/items/2199-rakdos_riteknife/
+Руидиевое оружиеНОр	https://www.dnd.su/items/3617-ruidium_weapon/
+Самоцвет заклинанийН?	https://www.dnd.su/items/2373-spell_gem/
+Самочинящаяся одеждаОб	https://www.dnd.su/items/423-clothes_of_mending/
+Сапоги левитацииНРе	https://www.dnd.su/items/204-boots_of_levitation/
+Сапоги ложных следовОб	https://www.dnd.su/items/424-boots_of_false_tracks/
+Сапоги скоростиНРе	https://www.dnd.su/items/205-boots_of_speed/
+Сапоги ходьбы и прыжковННе	https://www.dnd.su/items/206-boots_of_striding_and_springing/
+Сборник защитных стиховНРе	https://www.dnd.su/items/2221-protective_verses/
+Свеча глубинОб	https://www.dnd.su/items/426-candle_of_the_deep/
+Свеча мольбыНОр	https://www.dnd.su/items/207-candle_of_invocation/
+Свирель канализацииННе	https://www.dnd.su/items/208-pipes_of_the_sewers/
+Свирель ужасаНе	https://www.dnd.su/items/209-pipes_of_haunting/
+Святой символ РавенкиндНЛе	https://www.dnd.su/items/2203-holy_symbol_of_ravenkind/
+Седло кавалеристаНе	https://www.dnd.su/items/213-saddle_of_the_cavalier/
+Серьга сообщенияОб	https://www.dnd.su/items/3605-earring_of_message/
+Символ РавенлофтаНЛе	https://www.dnd.su/items/2204-icon_of_ravenloft/
+Скарабей защитыНЛе	https://www.dnd.su/items/214-scarab_of_protection/
+Скипетр КоролнораНЛе	https://www.dnd.su/items/2412-korolnor_scepter/
+Складная лодкаРе	https://www.dnd.su/items/216-folding_boat/
+Складной шестОб	https://www.dnd.su/items/427-pole_of_collapsing/
+Слизь КирзинаНОр	https://www.dnd.su/items/2276-kyrzin_s_ooze/
+Слиток с руной СкёльдНОр	https://www.dnd.su/items/2409-ingot_of_the_skold_rune/
+Слуховой рогОб	https://www.dnd.su/items/428-ear_horn_of_hearing/
+Сосуд шепотовН?	https://www.dnd.su/items/2161-whisper_jar/
+Справочник быстроты действийОр	https://www.dnd.su/items/218-manual_of_quickness_of_action/
+Справочник по големамОр	https://www.dnd.su/items/219-manual_of_golems/
+Справочник полезных упражненийОр	https://www.dnd.su/items/220-manual_of_gainful_exercise/
+Справочник старшего картографаНе	https://www.dnd.su/items/2146-elder_cartographers_glossography/
+Справочник телесного здоровьяОр	https://www.dnd.su/items/221-manual_of_bodily_health/
+Срастающаяся верёвкаОб	https://www.dnd.su/items/429-rope_of_mending/
+Статуэтка для поклонения СеколахуОб	https://www.dnd.su/items/2366-sekolahian_worshiping_statuette/
+Статуэтка Оркуса-	https://www.dnd.su/items/2123-orcus_figurine/
+Статуэтка святой Марковии-	https://www.dnd.su/items/2239-statuette_of_saint_markovia/
+Статуэтка чудесной силы?	https://www.dnd.su/items/222-figurine_of_wondrous_power/
+Статуэтка чудесной силы золотой канарейкиЛе	https://www.dnd.su/items/2969-gold_canary_figurine_of_wondrous_power/
+Ступа и пест Бабы-ягиНАр	https://www.dnd.su/items/2222-baba_yaga_s_mortar_and_pestle/
+Сумка пожиранияОр	https://www.dnd.su/items/224-bag_of_devouring/
+Сумка с бобамиРе	https://www.dnd.su/items/225-bag_of_beans/
+Сумка фокусовНе	https://www.dnd.su/items/226-bag_of_tricks/
+Сумка храненияНе	https://www.dnd.su/items/227-bag_of_holding/
+Сумрачная жемчужинаНЛе	https://www.dnd.su/items/2315-nightfall_pearl/
+Сундук консервацииОб	https://www.dnd.su/items/2451-chest_of_preserving/
+Сфера аннигиляцииЛе	https://www.dnd.su/items/228-sphere_of_annihilation/
+Сфера времениОб	https://www.dnd.su/items/430-orb_of_time/
+Сфера вуалиНОр	https://www.dnd.su/items/2307-orb_of_the_veil/
+Сфера МургаксораНЛе	https://www.dnd.su/items/3169-murgaxor_s_orb/
+Сфера направленияОб	https://www.dnd.su/items/431-orb_of_direction/
+Сфера опустошенияОр	https://www.dnd.su/items/2385-devastation_orb/
+Сфера профессораРе	https://www.dnd.su/items/2460-professor_orb/
+Счёты оккультистаН?	https://www.dnd.su/items/2162-occultant_abacus/
+Свиток заклинания?	https://www.dnd.su/items/210-spell_scroll/
+Свиток защитыРе	https://www.dnd.su/items/211-scroll_of_protection/
+Свиток кометыЛе	https://www.dnd.su/items/2339-scroll_of_the_comet/
+Свиток призыва тараскаЛе	https://www.dnd.su/items/2340-scroll_of_tarrasque_summoning/
+СияниеН-	https://www.dnd.su/items/2122-radiance/
+Скипетр взрываНОр	https://www.dnd.su/items/2465-blast_scepter/
+Сапфировый баклерНОр	https://www.dnd.su/items/2973-sapphire_buckler/
+Сверкающий доспехОб	https://www.dnd.su/items/425-armor_of_gleaming/
+СветоноснаяНе	https://www.dnd.su/items/273-lightbringer/
+Светящаяся булова	https://www.dnd.su/items/2253-candle_mace/
+Святой мстительНЛе	https://www.dnd.su/items/212-holy_avenger/
+Секира землепроходца-	https://www.dnd.su/items/2394-pathfinder_s_greataxe/
+Сеющий разорениеНАр	https://www.dnd.su/items/2324-ruin_s_wake/
+Скимитар скоростиНОр	https://www.dnd.su/items/215-scimitar_of_speed/
+Снаряды Альтемоны для пращиОр	https://www.dnd.su/items/2104-sling_bullets_of_althemone/
+СокрушительНЛе	https://www.dnd.su/items/2232-whelm/
+Сокрушитель сумерекНОр	https://www.dnd.su/items/2306-duskcrusher/
+Солнечный клинокНРе	https://www.dnd.su/items/217-sun_blade/
+Солнечный мечНЛе	https://www.dnd.su/items/2206-sunsword/
+Солнечный молотНРе	https://www.dnd.su/items/2191-sunforger/
+СтальНОр	https://www.dnd.su/items/2844-steel/
+Стрела убийстваОр	https://www.dnd.su/items/223-arrow_of_slaying/
+Счётчик костейРе	https://www.dnd.su/items/2396-bonecounter/
+Табличка телепортацииРе	https://www.dnd.su/items/3618-teleportation_tablet/
+Таинственный ключОб	https://www.dnd.su/items/432-mystery_key/
+Талисман абсолютного злаНЛе	https://www.dnd.su/items/229-talisman_of_ultimate_evil/
+Талисман сферыНЛе	https://www.dnd.su/items/230-talisman_of_the_sphere/
+Талисман чистого добраНЛе	https://www.dnd.su/items/231-talisman_of_pure_good/
+Татуировка жизненной энергииНОр	https://www.dnd.su/items/2476-lifewell_tattoo/
+Татуировка жутких когтейННе	https://www.dnd.su/items/2477-eldritch_claw_tattoo/
+Татуировка заклинания?	https://www.dnd.su/items/2478-spellwrought_tattoo/
+Татуировка защитыН?	https://www.dnd.su/items/2479-barrier_tattoo/
+Татуировка кровавой яростиНЛе	https://www.dnd.su/items/2480-blood_fury_tattoo/
+Татуировка маскарадаНОб	https://www.dnd.su/items/2481-masquerade_tattoo/
+Татуировка обвивающей хваткиННе	https://www.dnd.su/items/2482-coiling_grasp_tattoo/
+Татуировка поглощенияНОр	https://www.dnd.su/items/2483-absorbing_tattoo/
+Татуировка призрачных шаговНОр	https://www.dnd.su/items/2484-ghost_step_tattoo/
+Татуировка просветителяНОб	https://www.dnd.su/items/2485-illuminator_s_tattoo/
+Татуировка с клеймом Царства ТенейНРе	https://www.dnd.su/items/2486-shadowfell_brand_tattoo/
+Теллурий Дикого космосаНе	https://www.dnd.su/items/4389-wildspace_orrery/
+Тепловой кубОб	https://www.dnd.su/items/2329-thermal_cube/
+Том лидерства и влиянияОр	https://www.dnd.su/items/233-tome_of_leadership_and_influence/
+Том молчаливого языкаНЛе	https://www.dnd.su/items/234-tome_of_the_stilled_tongue/
+Том пониманияОр	https://www.dnd.su/items/235-tome_of_understanding/
+Том чистых мыслейОр	https://www.dnd.su/items/236-tome_of_clear_thought/
+Треснувшая парящая сфераНе	https://www.dnd.su/items/2118-cracked_driftglobe/
+Трон драконьих череповАр	https://www.dnd.su/items/2416-wyrmskull_throne/
+Трость ветеранаОб	https://www.dnd.su/items/433-veteran_s_cane/
+Трость РаоНАр	https://www.dnd.su/items/2487-crook_of_rao/
+Трубка воспоминанийОб	https://www.dnd.su/items/2367-pipe_of_remembrance/
+Трубка дымных монстровОб	https://www.dnd.su/items/434-pipe_of_smoke_monsters/
+Туфли паукаННе	https://www.dnd.su/items/239-slippers_of_spider_climbing/
+ТаларитЛе	https://www.dnd.su/items/4501-talarith/
+Таранный щитНРе	https://www.dnd.su/items/2295-battering_shield/
+Танцующий мечНОр	https://www.dnd.su/items/232-dancing_sword/
+Тёмный укус зимыНе	https://www.dnd.su/items/2326-winter_s_dark_bite/
+ТиарулайНОр	https://www.dnd.su/items/2466-tearulai/
+Топазовый аннигиляторНЛе	https://www.dnd.su/items/2974-topaz_annihilator/
+ТопительНЛе	https://www.dnd.su/items/2390-drown/
+Топор берсеркаНРе	https://www.dnd.su/items/237-berserker_axe/
+Топор владык дварфовНАр	https://www.dnd.su/items/2228-axe_of_the_dwarvish_lords/
+Топор дровосекаРе	https://www.dnd.su/items/2845-woodcutter_s_axe/
+Трезубец командования рыбамиННе	https://www.dnd.su/items/238-trident_of_fish_command/
+Удобный мешочек специй ХевардаОб	https://www.dnd.su/items/435-heward_s_handy_spice_pouch/
+Удобный рюкзак ХевардаРе	https://www.dnd.su/items/242-heward_s_handy_haversack/
+Уздечка захватаРе	https://www.dnd.su/items/3789-bridle_of_capturing/
+Укус ХарконаННе	https://www.dnd.su/items/2234-harkon_s_bite/
+Универсальный инструментН?	https://www.dnd.su/items/2488-all_purpose_tool/
+Универсальный растворительЛе	https://www.dnd.su/items/243-universal_solvent/
+Утерянная корона БезилмеровНЛе	https://www.dnd.su/items/2391-lost_crown_of_besilmer/
+Учебник ВизерблумаННе	https://www.dnd.su/items/3168-witherbloom_primer/
+Учебник КвандриксаННе	https://www.dnd.su/items/3166-quandrix_primer/
+Учебник ЛорхолдаННе	https://www.dnd.su/items/3164-lorehold_primer/
+Учебник ПризмариННе	https://www.dnd.su/items/3165-prismari_primer/
+Учебник СильверквиллаННе	https://www.dnd.su/items/3167-silverquill_primer/
+Ушной червьННе	https://www.dnd.su/items/2268-earworm/
+Убийца великановРе	https://www.dnd.su/items/240-giant_slayer/
+Убийца драконовРе	https://www.dnd.su/items/241-dragon_slayer/
+Убийца мертвецовНРе	https://www.dnd.su/items/2296-corpse_slayer/
+Фартук мясникаНРе	https://www.dnd.su/items/2297-butcher_s_bib/
+Флакон с кровьюН?	https://www.dnd.su/items/2489-bloodwell_vial/
+Флюгер Сумеречного светаНЛе	https://www.dnd.su/items/2833-witchlight_vane/
+Фокусировка, затронутая дракономН?	https://www.dnd.su/items/3002-dragon_touched_focus/
+Фолиант души и плотиНРе	https://www.dnd.su/items/2490-libram_of_souls_and_flesh/
+Фонарь обнаруженияНе	https://www.dnd.su/items/244-lantern_of_revealing/
+Фонарь отслеживанияОб	https://www.dnd.su/items/2330-lantern_of_tracking/
+Фрукт танцующей обезьяны-	https://www.dnd.su/items/2350-dancing_monkey_fruit/
+Футляр картографаОб	https://www.dnd.su/items/2140-cartographer_s_map_case/
+Хитиновая броняНе	https://www.dnd.su/items/4644-chitinous_armor/
+Хранитель портфолио?	https://www.dnd.su/items/2163-portfolio_keeper/
+ХронолометрНОр	https://www.dnd.su/items/2154-chronolometer/
+Хрустальный шарН?	https://www.dnd.su/items/245-crystal_ball/
+ХазирунНЛе	https://www.dnd.su/items/298-hazirawn/
+Храмовый пожирательНЛе	https://www.dnd.su/items/2251-fane_eater/
+Хрустальный клинокНРе	https://www.dnd.su/items/2963-crystal_blade/
+Цеп ТиаматНЛе	https://www.dnd.su/items/2968-flail_of_tiamat/
+Чароткань?	https://www.dnd.su/items/2278-glamerweave/
+Часы путешествияНОр	https://www.dnd.su/items/2155-timepiece_of_travel/
+Часы Сумеречного светаНЛе	https://www.dnd.su/items/2832-witchlight_watch/
+Чаша командования водяными элементалямиРе	https://www.dnd.su/items/246-bowl_of_commanding_water_elementals/
+Череп пожирателя разума-	https://www.dnd.su/items/2474-mind_flayer_skull/
+Чёрная кристаллическая табличкаНЛе	https://www.dnd.su/items/2469-black_crystal_tablet/
+Чешуйчатый орнаментН?	https://www.dnd.su/items/3004-scaled_ornament/
+Чудесные краски НолзураОр	https://www.dnd.su/items/247-nolzur_s_marvelous_pigments/
+Чёрный посохНЛе	https://www.dnd.su/items/2446-blackstaff/
+Чёрный клинокНЛе	https://www.dnd.su/items/2233-blackrazor/
+Шапка маскировкиННе	https://www.dnd.su/items/248-hat_of_disguise/
+Шапка подводного дыханияНе	https://www.dnd.su/items/249-cap_of_water_breathing/
+Шар с гонгомОб	https://www.dnd.su/items/2452-orb_of_gonging/
+Шар с руной СтейнНРе	https://www.dnd.su/items/2404-orb_of_the_stein_rune/
+Шест рыболовстваОб	https://www.dnd.su/items/436-pole_of_angling/
+Шлем бдительностиНОр	https://www.dnd.su/items/2115-watchful_helm/
+Шлем блескаНОр	https://www.dnd.su/items/250-helm_of_brilliance/
+Шлем боговНРе	https://www.dnd.su/items/2103-helm_of_the_gods/
+Шлем командования дьяволамиНОр	https://www.dnd.su/items/2247-helm_of_devil_command/
+Шлем МэдготаНОр	https://www.dnd.su/items/2467-maddgoth_s_helm/
+Шлем подводных действийННе	https://www.dnd.su/items/2369-helm_of_underwater_action/
+Шлем понимания языковНе	https://www.dnd.su/items/251-helm_of_comprehending_languages/
+Шлем твердолобости Фалкира-	https://www.dnd.su/items/2475-falkir_s_helm_of_pigheadedness/
+Шлем телепатииННе	https://www.dnd.su/items/252-helm_of_telepathy/
+Шлем телепортацииНРе	https://www.dnd.su/items/253-helm_of_teleportation/
+Шлем ужасаОб	https://www.dnd.su/items/437-dread_helm/
+Шлем-пропеллерННе	https://www.dnd.su/items/2455-propeller_helm/
+Шляпа волшебстваНОб	https://www.dnd.su/items/438-hat_of_wizardry/
+Шляпа вредителейОб	https://www.dnd.su/items/439-hat_of_vermin/
+Шпионский шёпотННе	https://www.dnd.su/items/2182-spies_murmur/
+Штормовой поясНЛе	https://www.dnd.su/items/2317-stormgirdle/
+Штурвал ветра и водыНе	https://www.dnd.su/items/2269-wheel_of_wind_and_water/
+Штурвал мародераНЛе	https://www.dnd.su/items/2470-helm_of_the_scavenger/
+Шкура дикого стражаНЛе	https://www.dnd.su/items/2316-hide_of_the_feral_guardian/
+Шелковая ненавистьНАр	https://www.dnd.su/items/2325-silken_spite/
+Щит +1, +2, +3?	https://www.dnd.su/items/254-shield_1_2_3/
+Щит Дальнего ВзораРе	https://www.dnd.su/items/2362-shield_of_far_sight/
+Щит ордена Серебряного драконаРе	https://www.dnd.su/items/2240-order_of_the_silver_dragon_shield/
+Щит от заклинанийНОр	https://www.dnd.su/items/255-spellguard_shield/
+Щит ПарииНРе	https://www.dnd.su/items/2192-pariahs_shield/
+Щит притягивания снарядовНРе	https://www.dnd.su/items/256-shield_of_missile_attraction/
+Щит с руной УвенНОр	https://www.dnd.su/items/2468-shield_of_the_uven_rune/
+Щит скрытого лордаНЛе	https://www.dnd.su/items/2252-shield_of_the_hidden_lord/
+Щит часовогоНе	https://www.dnd.su/items/257-sentinel_shield/
+Щит экспрессииОб	https://www.dnd.su/items/440-shield_of_expression/
+Эльфийские сапогиНе	https://www.dnd.su/items/260-boots_of_elvenkind/
+Эльфийский плащННе	https://www.dnd.su/items/261-cloak_of_elvenkind/
+Эмблема КогтейНе	https://www.dnd.su/items/299-insignia_of_claws/
+Эмблема стражаННе	https://www.dnd.su/items/2491-guardian_emblem/
+Эликсир здоровьяРе	https://www.dnd.su/items/258-elixir_of_health/
+Эльфийская кольчугаРе	https://www.dnd.su/items/259-elven_chain/
+Эфиксида, лук НилеиНАр	https://www.dnd.su/items/2111-ephixis_bow_of_nylea/
+Якорь мореходстваНе	https://www.dnd.su/items/4683-anchor_of_seafaring/
+Язык пламениНРе	https://www.dnd.su/items/262-flame_tongue/
