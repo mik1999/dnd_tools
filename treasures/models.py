@@ -61,10 +61,24 @@ class MagicItem:
     cost: typing.Optional[typing.Tuple[int, int]]
     description: str
     url: str
-    image_url: str
+    image_filename: typing.Optional[str]
 
     def command(self):
         return '/' + re.sub(r'[`’!\-\'\":*,.\\/]', '', self.name_en.replace(' ', '_').lower())
+
+    def explain(self):
+        rarity_str = (f'{self.rarity.value} предмет'
+                      if self.rarity in [Rarity.ARTIFACT, Rarity.MARVELOUS]
+                      else self.rarity.value)
+        return (f'{self.name_rus}, {rarity_str}, '
+                f'{self.cost_str}\n{self.description}')
+
+    def form_filename(self) -> str:
+        if not self.image_filename:
+            return ''
+        if __debug__:
+            return '../treasures/data/img/' + self.image_filename
+        return '/data/magic_items_img/' + self.image_filename
 
 
 @dataclasses.dataclass

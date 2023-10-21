@@ -66,6 +66,7 @@ class DicesStateHandler(BaseMessageHandler):
                 buttons = copy.deepcopy(self.BUTTONS)
                 buttons[2].append(message.text)
                 markup = self.make_markup(buttons)
+            # ToDo: add dice emoji if dice == d6
             if generator_warnings:
                 self.send_message(generator.sample())
                 return self.switch_to_state(BotStates.dices, generator_warnings, markup=markup)

@@ -39,13 +39,14 @@ class MagicItem(pydantic.BaseModel):
     description: typing.Optional[str]
     url: str
     image_url: typing.Optional[str]
+    image_filename: typing.Optional[str]
 
 
 def parse_page(url):
     r = requests.get(url)
     text = r.text
 
-    names = re.findall(r'<h2 class="card-title" itemprop="name"><span data-copy="(.+?)">', text)
+    names = re.findall(r'<h2 class="card-title" itemprop="name"><a href=".+?" itemprop="url" class="item-link">(.+?)</a>', text)
     if names:
         name_rus, name_en = names[0].split('[')
         name_en = name_en[:-1]
@@ -75,13 +76,22 @@ def parse_page(url):
     else:
         description = None
     images = re.findall(r'<img src=\'(.+?\.jpeg)\'', text)
+    image_filename = None
     if images:
         image_url = 'https://www.dnd.su' + images[0]
+        image_filename = name_en.replace(' ', '_') + '.jpeg'
+        try:
+            img_data = requests.get(image_url).content
+            with open('./data/img/' + image_filename, 'wb') as file:
+                file.write(img_data)
+        except requests.exceptions.RequestException as ex:
+            print(f'Failed to get image for {name_rus}. Error: {ex}')
     else:
         image_url = None
     return MagicItem(
         url=url, name_en=name_en, name_rus=name_rus,
-        cost=cost, rarity=rarity, description=description, image_url=image_url,
+        cost=cost, rarity=rarity, description=description,
+        image_url=image_url, image_filename=image_filename,
     )
 
 
@@ -93,7 +103,7 @@ magic_items = []
 for i, link in enumerate(tqdm.tqdm(links)):
     item = parse_page(link[:-1])
     magic_items.append(item.dict())
-    time.sleep(random.randint(1, 5))
+    time.sleep(1)
 
 
 with open('./data/magic_items.json', 'w', encoding='utf-8') as file:

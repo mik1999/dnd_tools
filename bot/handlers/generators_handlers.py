@@ -148,7 +148,7 @@ class BestiaryMonsterInfoHandler(BaseMessageHandler):
     STATE = BotStates.bestiary_monster_info
     BUTTONS = [
         ['Прислать картинку', 'Сэмплировать атаки'],
-        ['Назад'],
+        ['Сгенерировать лут', 'Назад'],
     ]
     STATE_BY_MESSAGE = {
         'Назад': {'state': BotStates.bestiary_menu},
@@ -159,6 +159,10 @@ class BestiaryMonsterInfoHandler(BaseMessageHandler):
         monster = self.bestiary.get(monster_name)
         if message.text == 'Прислать картинку':
             return self.send_photo(self.bestiary.image_filename(monster))
+        if message.text == 'Сгенерировать лут':
+            complexity = int(monster.challenge_number() * 4) + 6
+            treasury = self.treasures.generate(complexity)
+            return self.try_again(explain_treasure(treasury))
         if message.text == 'Сэмплировать атаки':
             if not monster.attacks:
                 return self.try_again(msgs.BESTIARY_NO_ACTIONS)
@@ -210,7 +214,12 @@ class TreasuryHandler(BaseMessageHandler):
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         if message.text.startswith('/'):
             try:
-                return self.try_again(self.treasures.explain_magic_item(message.text))
+                magic_item = self.treasures.find_magic_item_by_command(message.text)
+                if magic_item.image_filename is not None:
+                    self.send_message(magic_item.explain())
+                    return self.send_photo(magic_item.form_filename())
+                else:
+                    return self.try_again(magic_item.explain())
             except KeyError:
                 return self.try_again(msgs.PARSE_BUTTON_ERROR)
         if message.text.isdigit():
@@ -219,5 +228,4 @@ class TreasuryHandler(BaseMessageHandler):
             complexity = self.COMPLEXITY_BY_NAME.get(message.text)
             if not complexity:
                 return self.try_again(msgs.PARSE_BUTTON_ERROR)
-        # ToDo: посылать картинки, если есть (сначала надо скачать)
         return self.try_again(explain_treasure(self.treasures.generate(complexity)))

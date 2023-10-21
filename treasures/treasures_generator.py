@@ -34,8 +34,8 @@ class TreasuresGenerator:
         self.artworks_generator = ArtworksGenerator(base_path)
         self.magic_items_generator = MagicItemsGenerator(base_path)
 
-    def explain_magic_item(self, command: str) -> str:
-        return self.magic_items_generator.find_and_explain(command)
+    def find_magic_item_by_command(self, command: str) -> models.MagicItem:
+        return self.magic_items_generator.items_by_command[command]
 
     def generate(self, complexity: int) -> models.Treasury:
         complexity = min(100, max(1, complexity))
@@ -236,7 +236,7 @@ class MagicItemsGenerator:
                     cost=cost_bounds,
                     description=item_doc['description'],
                     url=item_doc['url'],
-                    image_url=item_doc.get('image_url')
+                    image_filename=item_doc.get('image_filename')
                 )
                 self.magic_items.append(magic_item)
                 if rarity == models.Rarity.MARVELOUS:
@@ -246,9 +246,9 @@ class MagicItemsGenerator:
 
     RARITY_BY_COMPLEXITY = {
         26: models.Rarity.USUAL,
-        # 38: models.Rarity.UNUSUAL, TODO: заново распарсить правильно и вернуть два типа
+        38: models.Rarity.UNUSUAL,
         50: models.Rarity.RARE,
-        # 62: models.Rarity.VARY_RARE,
+        62: models.Rarity.VARY_RARE,
         74: models.Rarity.LEGENDARY,
         86: models.Rarity.ARTIFACT,
     }
@@ -273,12 +273,6 @@ class MagicItemsGenerator:
     def explain_magic_item(magic_item: models.MagicItem) -> str:
         return (f'{magic_item.name_rus}, {magic_item.rarity.value} предмет, '
                 f'{magic_item.cost_str}\n{magic_item.description}')
-
-    def find_and_explain(self, command: str) -> str:
-        item = self.items_by_command.get(command)
-        if not item:
-            raise KeyError
-        return self.explain_magic_item(item)
 
 
 def explain_treasure(treasury: models.Treasury) -> str:

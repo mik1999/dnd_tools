@@ -35,6 +35,7 @@ MONGO_PASSWORD = 'f249f9Gty2793f20nD2330ry8432'
 MONGO_HOST = '172.20.56.2'
 
 REDIS_HOST = '172.20.56.4'
+REDIS_PASSWORD = 'mutvi5ey3nMtvi3qcYy47658rvFi4tvnjv3w5Ptc3'
 REDIS_PORT = 6379
 
 
@@ -98,13 +99,13 @@ class HandlersController:
         try:
             db = self.current_redis_db
             # self.current_redis_db += 1
-            return storage.StateRedisStorage(host=REDIS_HOST, port=REDIS_PORT, db=db)
+            return storage.StateRedisStorage(host=REDIS_HOST, port=REDIS_PORT, db=db, password=REDIS_PASSWORD)
         except Exception as ex:
             logger.error(f'Error while initiating redis storage {ex}')
             raise ex
 
     def make_redis_pool(self) -> redis.ConnectionPool:
-        pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=self.current_redis_db)
+        pool = redis.ConnectionPool(host=REDIS_HOST, port=REDIS_PORT, db=self.current_redis_db, password=REDIS_PASSWORD)
         self.current_redis_db += 1
         return pool
 

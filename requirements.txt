@@ -5,3 +5,4 @@ python-Levenshtein
 pymongo
 requests
 redis
+pytorch-lightning

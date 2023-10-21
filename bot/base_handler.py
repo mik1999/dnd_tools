@@ -153,12 +153,24 @@ class BaseMessageHandler:
             return self.send_message(msgs.PARSE_BUTTON_ERROR, reply_markup=markup)
         return None
 
+    MAX_MESSAGE_LENGTH = 4000
+
     def send_message(
             self, message: str, reply_markup=None, parse_mode=None,
     ) -> telebot.types.Message:
-        return self.bot.send_message(
-            self.message.chat.id, message, parse_mode=parse_mode, reply_markup=reply_markup,
-        )
+        max_iter = len(message) // self.MAX_MESSAGE_LENGTH + 1
+        for i in range(max_iter):
+            if i + 1 != max_iter:
+                self.bot.send_message(
+                    self.message.chat.id,
+                    message[i * self.MAX_MESSAGE_LENGTH:(i + 1) * self.MAX_MESSAGE_LENGTH],
+                    parse_mode=parse_mode, reply_markup=reply_markup,
+                )
+                continue
+            return self.bot.send_message(
+                self.message.chat.id, message[i * self.MAX_MESSAGE_LENGTH:],
+                parse_mode=parse_mode, reply_markup=reply_markup,
+            )
 
     def send_photo(
             self, photo_path: str,

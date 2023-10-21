@@ -59,7 +59,7 @@ class MonsterData:
     name_rus: str
     characteristics: typing.Dict[str, int]
     saving_throws: typing.Dict[str, int]
-    challenge: int
+    challenge: str
     armor: int
     speed: int
     hits: dices.DicesGenerator
@@ -102,6 +102,12 @@ class Monster(MonsterData):
         '24': 62000,
         '30': 155000,
     }
+
+    def challenge_number(self):
+        if self.challenge.find('/') != -1:
+            slash_pos = self.challenge.find('/')
+            return int(self.challenge[:slash_pos]) / int(self.challenge[slash_pos + 1:])
+        return int(self.challenge)
 
     def find_attack(self, name):
         for a in self.attacks:

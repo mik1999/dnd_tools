@@ -16,6 +16,7 @@ services:
         ipv4_address: 172.20.56.3
     volumes:
       - ./bestiary/img:/data/img
+      - ./treasures/data/img:/data/magic_items_img
   mongo:
     image: mongo:4.0.8
     container_name: mongodb-container
@@ -41,6 +42,9 @@ services:
     restart: unless-stopped
     ports:
       - '6379:6379'
+    command: '--requirepass mutvi5ey3nMtvi3qcYy47658rvFi4tvnjv3w5Ptc3'
+    environment:
+      - REDIS_REPLICATION_MODE=master
     volumes:
       - ./redis/data:/data
     networks:
