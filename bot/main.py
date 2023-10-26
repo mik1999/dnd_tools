@@ -11,6 +11,7 @@ from handlers import common_alchemy_handlers
 from handlers import component_handlers
 from handlers import generators_handlers
 from handlers import potion_handlers
+from handlers import npc
 
 import logging
 import messages as msgs
@@ -29,7 +30,17 @@ class MainStateHandler(BaseMessageHandler):
         'Алхимия': {'state': BotStates.alchemy},
     }
     DEFAULT_MESSAGE = msgs.MAIN_MENU
-    BUTTONS = [['Алхимия'], ['Генераторы', 'Кинуть кости']]
+    BUTTONS = [['Алхимия', 'NPC (new!)'], ['Генераторы', 'Кинуть кости']]
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text == 'NPC (new!)':
+            npcs_count = self.mongo.user_npcs.count_documents({'user': message.from_user.id})
+            if npcs_count > 0:
+                return self.switch_to_state(BotStates.npc_start_menu)
+            return self.switch_to_state(BotStates.npc_create_race, msgs.NPCS_ONBOARDING)
+        return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
 class DicesStateHandler(BaseMessageHandler):

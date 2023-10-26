@@ -10,6 +10,7 @@ from states import BotStates
 
 from base_handler import BaseMessageHandler
 import utils.words_suggester as suggester
+from utils import consts
 
 
 class GeneratorsHandler(BaseMessageHandler):
@@ -36,12 +37,7 @@ class NamesGeneratorHandler(BaseMessageHandler):
     DEFAULT_MESSAGE = 'Выберите расу'
     STATE = BotStates.names_generator
 
-    BUTTONS = [
-        ['Случайная раса', 'Человек'],
-        ['Дварф', 'Полурослик', 'Эльф'],
-        ['Гном', 'Полуорк', 'Полуэльф'],
-        ['Драконорождённый', 'Сатир', 'Тифлинг'],
-    ]
+    BUTTONS = consts.races_buttons(include_random=True)
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         if message.text == 'Случайная раса':
@@ -58,7 +54,7 @@ class SexGeneratorHandler(BaseMessageHandler):
     STATE = BotStates.names_generator_sex_choice
 
     BUTTONS = [['Мужчина', 'Женщина'], ['Ребёнок', 'Случайно']]
-    SEX_MAP = {
+    GENDER_MAP = {
         'Мужчина': 'male',
         'Женщина': 'female',
         'Ребёнок': 'child',
@@ -68,10 +64,18 @@ class SexGeneratorHandler(BaseMessageHandler):
         race = self.get_user_cache()
         if message.text == 'Случайно':
             return self.switch_to_state(BotStates.generators_menu, self.gm.sample_name(race=race))
-        if message.text not in self.SEX_MAP.keys():
+        if message.text not in self.GENDER_MAP.keys():
             return self.try_again(msgs.PARSE_BUTTON_ERROR)
-        sex = self.SEX_MAP[message.text]
-        return self.switch_to_state(BotStates.generators_menu, self.gm.sample_name(race=race, sex=sex))
+        gender = None
+        is_child = False
+        if message.text == 'child':
+            is_child = True
+        else:
+            gender = self.GENDER_MAP[message.text]
+        return self.switch_to_state(
+            BotStates.generators_menu,
+            self.gm.sample_name(race=race, gender=gender, is_child=is_child),
+        )
 
 
 class BestiaryMenuHandler(BaseMessageHandler):

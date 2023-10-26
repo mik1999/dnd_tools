@@ -36,6 +36,23 @@ class BotStates(telebot_backends.StatesGroup):
     bestiary_monster_info = telebot_backends.State()
     bestiary_monster_attacks = telebot_backends.State()
 
+    npc_start_menu = telebot_backends.State()
+    npc_create_race = telebot_backends.State()
+    npc_create_gender = telebot_backends.State()
+    npc_create_age = telebot_backends.State()
+    npc_create_name = telebot_backends.State()
+    npc_edit = telebot_backends.State()
+    npc_search = telebot_backends.State()
+    npc_view = telebot_backends.State()
+    npc_remove_note = telebot_backends.State()
+    npc_remove_npc = telebot_backends.State()
+    npc_edit_appearance = telebot_backends.State()
+    npc_edit_race = telebot_backends.State()
+    npc_edit_gender = telebot_backends.State()
+    npc_edit_name = telebot_backends.State()
+    npc_edit_features = telebot_backends.State()
+    npc_edit_age = telebot_backends.State()
+
 
 STATE_BY_COMMAND = {
     '/start': BotStates.main,

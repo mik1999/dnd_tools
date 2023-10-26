@@ -7,6 +7,7 @@ from bestiary import bestiary
 import caches_context
 import common_potions
 import generators
+import resources_manager
 import logging
 import messages as msgs
 from mongo_context import MongoContext
@@ -52,7 +53,6 @@ class HandlersController:
 
         self.pm = parameters_manager.ParametersManager('../alchemy/parameters.json')
         self.cm = components_manager.ComponentsManager('../alchemy/')
-        self.gm = generators.GeneratorsManager()
         self.bestiary = bestiary.Bestiary('../bestiary/')
         self.treasures = treasures_generator.TreasuresGenerator('../treasures/data/')
 
@@ -70,7 +70,15 @@ class HandlersController:
         db = client.get_database('dnd')
         self.user_potions = db.get_collection('user_potions')
         self.user_info = db.get_collection('user_info')
-        self.mongo_context = MongoContext(self.user_potions, self.user_info)
+        self.user_npcs = db.get_collection('user_npcs')
+        self.user_npc_notes = db.get_collection('user_npc_notes')
+        self.resources_usage = db.get_collection('resources_usage')
+        self.mongo_context = MongoContext(
+            self.user_potions, self.user_info, self.user_npcs, self.user_npc_notes,
+        )
+        self.resources_manager = resources_manager.ResourcesManager(self.resources_usage)
+        self.gm = generators.GeneratorsManager(self.resources_manager)
+
         self.common_potions = common_potions.CommonPotions(self.mongo_context, self.pm, self.cm)
 
         if __debug__:

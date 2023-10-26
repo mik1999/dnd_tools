@@ -1,3 +1,5 @@
+import dataclasses
+
 import telebot
 import telebot.handler_backends as telebot_backends
 from alchemy import components_manager
@@ -6,6 +8,7 @@ from bestiary import bestiary
 import caches_context
 import common_potions
 import generators
+import resources_manager as rm
 import messages as msgs
 import logging
 from treasures import treasures_generator
@@ -63,6 +66,26 @@ class BaseMessageHandler:
                              f'{message} from user {message.from_user.username}'
                              f'(id={message.from_user.id})')
 
+    @dataclasses.dataclass
+    class MessageValidation:
+        empty_message_enabled: bool = False
+        prohibited_symbols: typing.Optional[typing.Set[str]] = None
+        max_length: typing.Optional[int] = None
+
+    validation = MessageValidation()
+
+    def validate_message(self, message: telebot.types.Message) -> typing.Optional[telebot.types.Message]:
+        if not self.validation.empty_message_enabled and not self.message:
+            return self.try_again(msgs.EMPTY_TEXT_ERROR)
+        if self.validation.prohibited_symbols is not None:
+            if self.validation.prohibited_symbols & set(message.text):
+                prohibited_symbol = list(self.validation.prohibited_symbols & set(message.text))[0]
+                return self.try_again(msgs.PROHIBITED_CHARACTER.format(prohibited_symbol))
+        if self.validation.max_length:
+            if len(message.text) > self.validation.max_length:
+                return self.try_again(msgs.TOO_LONG_NAME.format(self.validation.max_length))
+        return None
+
     def set_handler_by_state(self, handler_by_state):
         self.handler_by_state = handler_by_state
 
@@ -78,6 +101,8 @@ class BaseMessageHandler:
             reply_message = self.check_and_switch_by_command()
             if reply_message is not None:
                 return
+        if reply_message is None:
+            reply_message = self.validate_message(message)
         if reply_message is None:
             reply_message = self.process_state_by_message(unknown_pass_enabled=True)
         if reply_message is None:
@@ -271,6 +296,10 @@ class BaseMessageHandler:
     def user_is_admin(self) -> bool:
         user_info = self.user_info_lazy()
         return user_info and user_info.get('is_admin', False)
+
+    def account(self) -> rm.Account:
+        account_type = rm.AccountType.ADMIN if self.user_is_admin() else rm.AccountType.USER
+        return rm.Account(type=account_type, id=str(self.message.from_user.id))
 
 
 class DocHandler(BaseMessageHandler):

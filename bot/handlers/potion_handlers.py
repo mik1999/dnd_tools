@@ -85,6 +85,9 @@ class PotionsEnterNameHandler(BaseMessageHandler):
     STATE = BotStates.potions_enter_name
     DEFAULT_MESSAGE = 'Введите название для нового зелья'
     BUTTONS = [['Отмена']]
+    validation = BaseMessageHandler.MessageValidation(
+        max_length=MAX_NAME_LENGTH,
+    )
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         search_filter = {'user': message.from_user.id, 'name': '__cache'}
@@ -104,11 +107,6 @@ class PotionsEnterNameHandler(BaseMessageHandler):
             return self.switch_to_state(BotStates.potions_menu, msgs.TOO_MUCH_POTIONS.format(MAX_SAVED_POTIONS))
 
         name = message.text
-        if not name:
-            return self.try_again(msgs.EMPTY_TEXT_ERROR)
-
-        if len(name) > MAX_NAME_LENGTH:
-            return self.try_again(msgs.TOO_LONG_NAME.format(MAX_NAME_LENGTH))
 
         cache_potion_doc['potion']['__name'] = name
         if not cache_potion_doc or not cache_potion_doc.get('potion'):
@@ -122,7 +120,7 @@ class PotionsEnterNameHandler(BaseMessageHandler):
         try:
             self.mongo.user_potions.insert_one(potion_doc)
         except mongo_errors.DuplicateKeyError:
-            return self.try_again(msgs.DUPLICATE_NAME_ERROR)
+            return self.try_again(msgs.DUPLICATE_POTION_NAME_ERROR)
         return self.switch_to_state(BotStates.potions_menu, msgs.SAVE_SUCCESS)
 
 

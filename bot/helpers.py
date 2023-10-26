@@ -14,3 +14,11 @@ def make_aligned_markup(
     if len(buttons) % width != 0:
         markup.add(*buttons[full_rows * width:])
     return markup
+
+
+def inflect_years(years: int) -> str:
+    if years % 10 == 1:
+        return 'год'
+    if 1 < years % 10 < 5:
+        return 'года'
+    return 'лет'

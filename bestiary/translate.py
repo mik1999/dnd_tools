@@ -3,7 +3,7 @@ import typing
 
 
 def get_token():
-    with open('oauth_token.txt') as file:
+    with open('../bot/oauth_token.txt') as file:
         return file.read().strip()
 
 
