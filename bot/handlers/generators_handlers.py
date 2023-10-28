@@ -66,15 +66,10 @@ class SexGeneratorHandler(BaseMessageHandler):
             return self.switch_to_state(BotStates.generators_menu, self.gm.sample_name(race=race))
         if message.text not in self.GENDER_MAP.keys():
             return self.try_again(msgs.PARSE_BUTTON_ERROR)
-        gender = None
-        is_child = False
-        if message.text == 'child':
-            is_child = True
-        else:
-            gender = self.GENDER_MAP[message.text]
+        gender = self.GENDER_MAP[message.text]
         return self.switch_to_state(
             BotStates.generators_menu,
-            self.gm.sample_name(race=race, gender=gender, is_child=is_child),
+            self.gm.sample_name(race=race, gender=gender),
         )
 
 

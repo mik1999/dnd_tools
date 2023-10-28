@@ -39,6 +39,10 @@ class LimitIsOver(Exception):
         self.is_total = is_total
 
 
+class YandexGPTNetworkError(Exception):
+    pass
+
+
 class ResourcesManager:
     resource_limits = {
         Resource.YANDEX_GPT: ResourceConfig(

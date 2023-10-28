@@ -1,4 +1,6 @@
+import copy
 import datetime
+import random
 import uuid
 
 import generators
@@ -8,19 +10,64 @@ import helpers
 import pymongo
 import pymongo.errors as mongo_errors
 import telebot.types
-from treasures.treasures_generator import explain_treasure
 
 import messages as msgs
 import typing
 from states import BotStates
 
 from base_handler import BaseMessageHandler
-import utils.words_suggester as suggester
 from utils import consts
+import yandex_gpt
 
 
 MAX_USER_NPCS = 100
 MAX_USER_NPC_NOTES = 500
+
+INTERACTION_FEATURES = [
+        'Спорит',
+        'Честен',
+        'Высокомерен',
+        'Вспыльчив',
+        'Хвастается',
+        'Раздражителен',
+        'Груб',
+        'Нудный',
+        'Любознателен',
+        'Тихий',
+        'Дружелюбен',
+        'Подозрителен',
+    ]
+MANNERS = [
+        'Склонен тихо петь',
+        'Что-то насвистывает',
+        'Мычит',
+        'Говорит рифмами',
+        'Причудливо разговариает',
+        'Тихий голос',
+        'Громкий голос',
+        'Проглатывает слова',
+        'Шепелявит',
+        'Заикается',
+        'Чрезвычайно чётко проговаривает слова',
+        'Говорит очень громко',
+        'Шепчет',
+        'Использует помпезную речь',
+        'Использует длинные слова',
+        'Часто использует неправильные слова',
+        'Часто клянётся',
+        'Произносит пафосные фразы',
+        'Постоянно шутит или каламбурит',
+        'Часто предрекает неудачи',
+        'Нервно дёргается',
+        'Косоглазие',
+        'Глядит вдаль',
+        'Что-то жуёт',
+        'Ходит из угла в угол',
+        'Барабанит пальцами',
+        'Кусает ногти',
+        'Накручивает на палец волосы',
+        'Дёргает бороду',
+    ]
 
 
 class NpcMessageHandler(BaseMessageHandler):
@@ -74,6 +121,18 @@ class NpcMessageHandler(BaseMessageHandler):
         self.set_user_cache(npc['_id'])
         return self.switch_to_state(BotStates.npc_edit, self.make_npc_description(npc, remind_new_notice=False))
 
+    def switch_to_interaction_edit(self) -> telebot.types.Message:
+        npc_id = self.get_user_cache()
+        npc = self.mongo.user_npcs.find_one({'_id': npc_id}, {'interaction_features': 1, 'manners': 1})
+        interaction_features = npc.get('interaction_features')
+        manners = npc.get('manners')
+        result_message = 'Здесь можно отредактировать взаимодействие с NPC, которое учитывается при общении с вашим персонажем.'
+        if interaction_features:
+            result_message += '\nОсобенности взаимодействия: ' + interaction_features
+        if manners:
+            result_message += '\nМанеры: ' + manners
+        return self.switch_to_state(BotStates.npc_edit_interaction, result_message)
+
     @staticmethod
     def make_note_description(note: dict) -> str:
         created = note['created'].strftime('%d.%m.%Y')
@@ -106,6 +165,24 @@ class NpcMessageHandler(BaseMessageHandler):
                 continue
             options.append(name)
         return options
+
+
+def make_initial_chat_message(npc: dict):
+    if npc.get('interaction_features'):
+        interaction_features = npc['interaction_features']
+    else:
+        interaction_features = generators.sample(INTERACTION_FEATURES)
+    if npc.get('manners'):
+        manners = npc['manners']
+    else:
+        manners = generators.sample(MANNERS)
+    return f"""Мы находимся в фэнтези-мире Dungeon&Dragons. Ты - {npc['race']} по имени {npc['name']}, 
+    тебе {npc['age']} лет. Про твою внешноть можно сказать следующее: {npc.get('appearance', '(не задано)')}, 
+    а твои особенности: {npc.get('features', '(не задано)')},
+    Особенности общения с тобой: {interaction_features},
+    Твои манеры: {manners}
+    Общайся с пользователем от имени этого персонажа, учитывая перечисленные особенности
+    """
 
 
 class NpcStartMenuHandler(NpcMessageHandler):
@@ -269,11 +346,11 @@ class NpcView(NpcMessageHandler):
     def make_buttons_list(
             self,
     ) -> typing.List[typing.List[str]]:
-        first_row = ['Редактировать']
+        first_row = ['Редактировать', 'Поговорить']
         npc_id, note_id = self.get_user_cache().split(';')
         first_note = self.mongo.user_npc_notes.find({'npc_id': npc_id}).sort('created').limit(1)
         if first_note and note_id and note_id != first_note[0]['_id']:
-            first_row += ['Дальше']
+            first_row += ['Следующая заметка']
         second_row = ['Удалить NPC']
         if note_id:
             second_row += ['Удалить запись']
@@ -291,13 +368,24 @@ class NpcView(NpcMessageHandler):
             self.set_user_cache(npc_id)
             npc = self.mongo.user_npcs.find_one({'_id': npc_id})
             return self.switch_to_npc_edit(npc)
-        elif message.text == 'Дальше':
+        elif message.text == 'Следующая заметка':
             current_note = self.mongo.user_npc_notes.find_one({'_id': note_id})
             next_note = self.mongo.user_npc_notes.find(
                 {'npc_id': npc_id, 'created': {'$lt': current_note['created']}}
             ).sort('created', pymongo.DESCENDING).limit(1)[0]
             self.set_user_cache(f'{npc_id};{next_note["_id"]}')
             return self.try_again(self.make_note_description(next_note))
+        elif message.text == 'Поговорить':
+            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+            npc_message = {
+                'text': make_initial_chat_message(npc),
+                'role': yandex_gpt.MessageRole.SYSTEM.value,
+            }
+            self.mongo.user_info.update_one(
+                {'user': message.from_user.id},
+                {'$set': {'npc_chat_messages': [npc_message]}},
+            )
+            return self.switch_to_state(BotStates.npc_chat)
         user_note_count = self.mongo.user_npc_notes.count_documents(
             {'user': message.from_user.id},
         )
@@ -370,8 +458,8 @@ class NpcEdit(NpcMessageHandler):
     BUTTONS = [
         ['Раса', 'Пол', 'Возраст'],
         ['Имя', 'Внешость'],
-        ['Особенности'],
-        ['Добавить запись', 'К списку NPC']
+        ['Особенности', 'Взаимодействие'],
+        ['Карточка персонажа', 'К списку NPC']
     ]
 
     def handle_message(
@@ -381,10 +469,12 @@ class NpcEdit(NpcMessageHandler):
             return self.switch_to_state(
                 BotStates.npc_search, None, self.last_view_markup(),
             )
-        if message.text == 'Добавить запись':
+        if message.text == 'Карточка персонажа':
             npc_id = self.get_user_cache()
             npc = self.mongo.user_npcs.find_one({'_id': npc_id})
             return self.switch_to_npc_view(npc)
+        if message.text == 'Взаимодействие':
+            return self.switch_to_interaction_edit()
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
@@ -421,6 +511,8 @@ class NpcEditAppearance(NpcMessageHandler):
                 if limit_over.period == 'day':
                     return self.switch_to_state(BotStates.npc_edit, msgs.DAY_LIMIT_IS_OVER)
                 return self.switch_to_state(BotStates.npc_edit, msgs.MONTH_LIMIT_IS_OVER)
+            except yandex_gpt.YandexGPTNetworkError:
+                return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
         else:
             appearance = message.text
         return self.update_field_and_return('appearance', appearance, npc_id)
@@ -503,3 +595,110 @@ class NpcEditFeatures(NpcMessageHandler):
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
         return self.update_field_and_return('features', message.text)
+
+
+class NpcChat(NpcMessageHandler):
+    DEFAULT_MESSAGE = 'В этом чате можно общаться с вашим NPC. Ответы генерирует YandexGPT'
+    STATE = BotStates.npc_chat
+    BUTTONS = [['Прекратить общение']]
+    MAX_CHAT_MESSAGE_HISTORY = 50
+    INSTRUCTION_TEXT = 'Ты общаешься с собеседником в фэнтези мире'
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message.text == 'Прекратить общение':
+            npc_id, _ = self.get_user_cache().split(';')
+            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+            self.mongo.user_info.update_one({'user': message.from_user.id}, {'$set': {'npc_chat_messages': []}})
+            return self.switch_to_npc_view(npc)
+        message_docs = self.mongo.user_info.find_one(
+            {'user': message.from_user.id}, {'npc_chat_messages': 1},
+        )['npc_chat_messages']
+        messages_to_send = [
+            yandex_gpt.YandexGPTMessage(
+                text=doc['text'],
+                role=yandex_gpt.MessageRole(doc['role']),
+            )
+            for doc in message_docs
+        ]
+        messages_to_send.append(messages_to_send[0])  # system message
+        messages_to_send = messages_to_send[1:]  # remove first message to send
+        messages_to_send.append(yandex_gpt.YandexGPTMessage(message.text, yandex_gpt.MessageRole.USER))
+        account = self.account()
+        try:
+            answer_message = self.gm.gpt.chat(self.INSTRUCTION_TEXT, messages_to_send, account)
+        except resources_manager.YandexGPTNetworkError:
+            return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
+        except resources_manager.LimitIsOver as limit_over:
+            if limit_over.period == 'day':
+                return self.switch_to_state(BotStates.npc_start_menu, msgs.DAY_LIMIT_IS_OVER)
+            return self.switch_to_state(BotStates.npc_start_menu, msgs.MONTH_LIMIT_IS_OVER)
+        message_docs += [
+            {
+                'text': message.text,
+                'role': yandex_gpt.MessageRole.USER.value,
+            },
+            {
+                'text': answer_message.text,
+                'role': answer_message.role.value,
+            },
+        ]
+        if len(message_docs) > self.MAX_CHAT_MESSAGE_HISTORY:
+            message_docs = message_docs[:1] + message_docs[3:]
+
+        self.mongo.user_info.update_one(
+            {'user': message.from_user.id},
+            {'$set': {'npc_chat_messages': message_docs}},
+        )
+        return self.try_again(answer_message.text)
+
+
+class NpcEditInteraction(NpcMessageHandler):
+    STATE = BotStates.npc_edit_interaction
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.npc_edit},
+        'Особенности взаимодействия': {'state': BotStates.npc_edit_interaction_features},
+        'Манеры': {'state': BotStates.npc_edit_interaction_manners},
+    }
+    BUTTONS = [['Особенности взаимодействия', 'Манеры'], ['Назад']]
+
+
+class BaseNpcInteractionEdit(NpcMessageHandler):
+    FIELD = None
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        if message == 'Назад':
+            self.send_message(msgs.CANCELLED)
+            return self.switch_to_interaction_edit()
+        npc_id = self.get_user_cache()
+        self.mongo.user_npcs.update_one({'_id': npc_id}, {'$set': {self.FIELD: message.text}})
+        return self.switch_to_interaction_edit()
+
+
+class NpcEditInteractionFeatures(BaseNpcInteractionEdit):
+    STATE = BotStates.npc_edit_interaction_features
+    FIELD = 'interaction_features'
+    DEFAULT_MESSAGE = 'Выберите особенность взаимодействие или напишите сой вариант'
+
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        suggestions = copy.deepcopy(INTERACTION_FEATURES)
+        random.shuffle(suggestions)
+        return [suggestions[:3], suggestions[3:6], ['Назад']]
+
+
+class NpcEditInteractionManners(BaseNpcInteractionEdit):
+    STATE = BotStates.npc_edit_interaction_manners
+    FIELD = 'manners'
+    DEFAULT_MESSAGE = 'Выберите манеру общения NPC или напишите свой вариант'
+
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        suggestions = copy.deepcopy(MANNERS)
+        random.shuffle(suggestions)
+        return [suggestions[:2], suggestions[2:4], ['Назад']]
