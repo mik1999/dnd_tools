@@ -179,8 +179,9 @@ def make_initial_chat_message(npc: dict):
     return f"""Мы находимся в фэнтези-мире Dungeon&Dragons. Ты - {npc['race']} по имени {npc['name']}, 
     тебе {npc['age']} лет. Про твою внешноть можно сказать следующее: {npc.get('appearance', '(не задано)')}, 
     а твои особенности: {npc.get('features', '(не задано)')},
-    Особенности общения с тобой: {interaction_features}, ты должен им соответствовать при общении
-    При общении обыгрывай манеры: {manners}
+    Особенности общения с тобой: {interaction_features},
+    Твои манеры: {manners}
+    Общайся с пользователем от имени этого персонажа, учитывая перечисленные особенности
     """
 
 
@@ -510,7 +511,7 @@ class NpcEditAppearance(NpcMessageHandler):
                 if limit_over.period == 'day':
                     return self.switch_to_state(BotStates.npc_edit, msgs.DAY_LIMIT_IS_OVER)
                 return self.switch_to_state(BotStates.npc_edit, msgs.MONTH_LIMIT_IS_OVER)
-            except resources_manager.YandexGPTNetworkError:
+            except yandex_gpt.YandexGPTNetworkError:
                 return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
         else:
             appearance = message.text
@@ -601,7 +602,7 @@ class NpcChat(NpcMessageHandler):
     STATE = BotStates.npc_chat
     BUTTONS = [['Прекратить общение']]
     MAX_CHAT_MESSAGE_HISTORY = 50
-    INSTRUCTION_TEXT = 'Ты общаешься с собеседником в фэнтези мире от лица персонажа по имени {}'
+    INSTRUCTION_TEXT = 'Ты общаешься с собеседником в фэнтези мире'
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -622,12 +623,11 @@ class NpcChat(NpcMessageHandler):
             for doc in message_docs
         ]
         messages_to_send.append(messages_to_send[0])  # system message
+        messages_to_send = messages_to_send[1:]  # remove first message to send
         messages_to_send.append(yandex_gpt.YandexGPTMessage(message.text, yandex_gpt.MessageRole.USER))
         account = self.account()
-        npc_id, _ = self.get_user_cache().split(';')
-        npc = self.mongo.user_npcs.find_one({'_id': npc_id})
         try:
-            answer_message = self.gm.gpt.chat(self.INSTRUCTION_TEXT.format(npc['name']), messages_to_send, account)
+            answer_message = self.gm.gpt.chat(self.INSTRUCTION_TEXT, messages_to_send, account)
         except resources_manager.YandexGPTNetworkError:
             return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
         except resources_manager.LimitIsOver as limit_over:
@@ -681,7 +681,7 @@ class BaseNpcInteractionEdit(NpcMessageHandler):
 class NpcEditInteractionFeatures(BaseNpcInteractionEdit):
     STATE = BotStates.npc_edit_interaction_features
     FIELD = 'interaction_features'
-    DEFAULT_MESSAGE = 'Выберите особенность взаимодействие или напишите свой вариант'
+    DEFAULT_MESSAGE = 'Выберите особенность взаимодействие или напишите сой вариант'
 
     def make_buttons_list(
             self,

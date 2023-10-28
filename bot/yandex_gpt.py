@@ -44,7 +44,7 @@ class YandexGptHelper:
         body = {
             'model': 'general',
             'generation_options': {
-                'partial_results': True,
+                'partial_results': False,
                 'temperature': 0.7,
                 'max_tokens': 1000,
             },
