@@ -176,12 +176,11 @@ def make_initial_chat_message(npc: dict):
         manners = npc['manners']
     else:
         manners = generators.sample(MANNERS)
-    return f"""Мы находимся в фэнтези-мире Dungeon&Dragons. Ты - {npc['race']} по имени {npc['name']}, 
+    return f"""Мы находимся в фэнтези-мире Dungeon&Dragons. Ассистент, ты - {npc['race']} по имени {npc['name']}, 
     тебе {npc['age']} лет. Про твою внешноть можно сказать следующее: {npc.get('appearance', '(не задано)')}, 
     а твои особенности: {npc.get('features', '(не задано)')},
     Особенности общения с тобой: {interaction_features},
     Твои манеры: {manners}
-    Общайся с пользователем от имени этого персонажа, учитывая перечисленные особенности
     """
 
 
@@ -198,6 +197,7 @@ class NpcStartMenuHandler(NpcMessageHandler):
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
+        self.ensure_user_exists()
         if message.text == 'Ваши NPC':
             return self.switch_to_state(
                 BotStates.npc_search, None, self.last_view_markup(),
@@ -342,6 +342,11 @@ class NpcView(NpcMessageHandler):
         'Удалить NPC': {'state': BotStates.npc_remove_npc},
         'Назад': {'state': BotStates.npc_start_menu},
     }
+    PREHISTORY_INSTRUCTION = """Сгенерируй предысторию персонажа из фэнтези мира в dungeon&dragons на основе следующих данных о персонаже.
+    В предыстории укажи, где родился персонаж, кто его родители, каким образом получил свои особенности. Должно получиться примерно 500 символов"""
+    NEXT_NOTE_INSTRUCTION = """Сгенерируй историю о персонаже из фэнтези мира в dungeon&dragons, которая продолжает предыдущую историю:
+    Также нужно принять во внимание данные о персонаже:
+    Расскажи историю кратко, примерно на 500 символов"""
 
     def make_buttons_list(
             self,
@@ -354,6 +359,7 @@ class NpcView(NpcMessageHandler):
         second_row = ['Удалить NPC']
         if note_id:
             second_row += ['Удалить запись']
+        second_row += ['Сгенерировать заметку']
         return [
             first_row,
             second_row,
@@ -381,28 +387,63 @@ class NpcView(NpcMessageHandler):
                 'text': make_initial_chat_message(npc),
                 'role': yandex_gpt.MessageRole.SYSTEM.value,
             }
+            fake_user_message = {
+                'text': 'Привет!',
+                'role': yandex_gpt.MessageRole.USER.value,
+            }
+            fake_server_message = {
+                'text': f'Привет! Меня зовут {npc["name"]}',
+                'role': yandex_gpt.MessageRole.SERVER.value,
+            }
             self.mongo.user_info.update_one(
                 {'user': message.from_user.id},
-                {'$set': {'npc_chat_messages': [npc_message]}},
+                {'$set': {'npc_chat_messages': [npc_message, fake_user_message, fake_server_message]}},
             )
             return self.switch_to_state(BotStates.npc_chat)
+        elif message.text == 'Сгенерировать заметку':
+            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+            npc_description = self.make_npc_description(npc, remind_new_notice=False)
+            if note_id:
+                last_note = self.mongo.user_npc_notes.find(
+                    {'npc_id': npc_id}
+                ).sort('created', pymongo.DESCENDING).limit(1)[0]
+                instruction = self.NEXT_NOTE_INSTRUCTION
+                request_text = f'Предыдущая история: {last_note["text"]}\nДанные о персонаже: {npc_description}'
+            else:
+                instruction = self.PREHISTORY_INSTRUCTION
+                request_text = f'Данные о персонаже: {npc_description}'
+            try:
+                next_note = self.gm.gpt.generate(
+                    instruction,
+                    request_text,
+                    self.account(),
+                )
+            except resources_manager.LimitIsOver as limit_over:
+                if limit_over.period == 'day':
+                    return self.try_again(msgs.DAY_LIMIT_IS_OVER)
+                return self.try_again(msgs.MONTH_LIMIT_IS_OVER)
+            except resources_manager.YandexGPTNetworkError:
+                return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
+            return self.insert_note(next_note, npc)
+        npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+        return self.insert_note(message.text, npc)
+
+    def insert_note(self, text: str, npc: dict):
         user_note_count = self.mongo.user_npc_notes.count_documents(
-            {'user': message.from_user.id},
+            {'user': self.message.from_user.id},
         )
         if user_note_count >= MAX_USER_NPC_NOTES:
             return self.try_again(msgs.TOO_MUCH_NPC_NOTES.format(MAX_USER_NPC_NOTES))
         new_note = {
             '_id': uuid.uuid4().hex,
-            'user': message.from_user.id,
-            'npc_id': npc_id,
+            'user': self.message.from_user.id,
+            'npc_id': npc['_id'],
             'created': datetime.datetime.utcnow(),
-            'text': message.text,
+            'text': text,
         }
         self.mongo.user_npc_notes.insert_one(new_note)
-        self.set_user_cache(f'{npc_id};{new_note["_id"]}')
-        npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+        self.set_user_cache(f'{npc["_id"]};{new_note["_id"]}')
         return self.try_again(self.make_npc_description(npc, new_note))
-
 
 class NpcRemoveNpc(BaseMessageHandler):
     STATE = BotStates.npc_remove_npc
@@ -511,7 +552,7 @@ class NpcEditAppearance(NpcMessageHandler):
                 if limit_over.period == 'day':
                     return self.switch_to_state(BotStates.npc_edit, msgs.DAY_LIMIT_IS_OVER)
                 return self.switch_to_state(BotStates.npc_edit, msgs.MONTH_LIMIT_IS_OVER)
-            except yandex_gpt.YandexGPTNetworkError:
+            except resources_manager.YandexGPTNetworkError:
                 return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
         else:
             appearance = message.text
@@ -602,14 +643,16 @@ class NpcChat(NpcMessageHandler):
     STATE = BotStates.npc_chat
     BUTTONS = [['Прекратить общение']]
     MAX_CHAT_MESSAGE_HISTORY = 50
-    INSTRUCTION_TEXT = 'Ты общаешься с собеседником в фэнтези мире'
+    INSTRUCTION_TEXT = 'Ассистент, тебя зовут {}. Ты общаешься с Пользователь в фэнтези мире от лица выдуманного персонажа. ' \
+                       'Сообщения от Система дают данные о твоем персонаже.' \
+                       'Отвечай на вопросы, как будто ты персонаж из фэнтези мира'
 
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
+        npc_id, _ = self.get_user_cache().split(';')
+        npc = self.mongo.user_npcs.find_one({'_id': npc_id})
         if message.text == 'Прекратить общение':
-            npc_id, _ = self.get_user_cache().split(';')
-            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
             self.mongo.user_info.update_one({'user': message.from_user.id}, {'$set': {'npc_chat_messages': []}})
             return self.switch_to_npc_view(npc)
         message_docs = self.mongo.user_info.find_one(
@@ -627,7 +670,7 @@ class NpcChat(NpcMessageHandler):
         messages_to_send.append(yandex_gpt.YandexGPTMessage(message.text, yandex_gpt.MessageRole.USER))
         account = self.account()
         try:
-            answer_message = self.gm.gpt.chat(self.INSTRUCTION_TEXT, messages_to_send, account)
+            answer_message = self.gm.gpt.chat(self.INSTRUCTION_TEXT.format(npc['name']), messages_to_send, account)
         except resources_manager.YandexGPTNetworkError:
             return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
         except resources_manager.LimitIsOver as limit_over:

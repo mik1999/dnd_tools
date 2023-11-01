@@ -153,6 +153,6 @@ class GeneratorsManager:
             adulthood_age,
             (3 * adulthood_age + max_age) // 4,
             (adulthood_age + max_age) // 2,
-            (max_age + adulthood_age * 3) // 4,
+            (adulthood_age + max_age * 3) // 4,
             max_age,
         ]

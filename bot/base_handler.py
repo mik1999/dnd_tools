@@ -1,4 +1,5 @@
 import dataclasses
+import datetime
 
 import telebot
 import telebot.handler_backends as telebot_backends
@@ -300,6 +301,19 @@ class BaseMessageHandler:
     def account(self) -> rm.Account:
         account_type = rm.AccountType.ADMIN if self.user_is_admin() else rm.AccountType.USER
         return rm.Account(type=account_type, id=str(self.message.from_user.id))
+
+    def ensure_user_exists(self):
+        self.mongo.user_info.update_one(
+            {'user': self.message.from_user.id},
+            {
+                '$set': {'last_visited_main': datetime.datetime.utcnow()},
+                '$setOnInsert': {
+                    'user': self.message.from_user.id,
+                    'created': datetime.datetime.utcnow(),
+                }
+            },
+            upsert=True,
+        )
 
 
 class DocHandler(BaseMessageHandler):
