@@ -241,7 +241,7 @@ class NpcSearch(NpcMessageHandler):
 class NpcView(NpcMessageHandler):
     STATE = BotStates.npc_view
     STATE_BY_MESSAGE = {
-        'Удалить запись': {'state': BotStates.npc_remove_note},
+        'Удалить заметку': {'state': BotStates.npc_remove_note},
         'Удалить NPC': {'state': BotStates.npc_remove_npc},
         'Назад': {'state': BotStates.npc_start_menu},
     }
@@ -261,7 +261,7 @@ class NpcView(NpcMessageHandler):
             first_row += ['Следующая заметка']
         second_row = ['Удалить NPC']
         if note_id:
-            second_row += ['Удалить запись']
+            second_row += ['Удалить заметку']
         second_row += ['Сгенерировать заметку']
         return [
             first_row,
@@ -372,7 +372,7 @@ class NpcRemoveNpc(BaseMessageHandler):
 class NpcRemoveNpcNote(NpcMessageHandler):
     STATE = BotStates.npc_remove_note
     BUTTONS = [['Да'], ['Нет']]
-    DEFAULT_MESSAGE = 'Удалить запись?'
+    DEFAULT_MESSAGE = 'Удалить заметку?'
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -522,12 +522,25 @@ class NpcEditFeatures(NpcMessageHandler):
     DEFAULT_MESSAGE = msgs.FEATURES_DESCRIPTION
     STATE = BotStates.npc_edit_features
     STATE_BY_MESSAGE = {'Назад': {'state': BotStates.npc_edit}}
-    BUTTONS = [['Назад']]
+    BUTTONS = [['Сгенерировать', 'Назад']]
 
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
-        return self.update_field_and_return('features', message.text)
+        npc_id = self.get_user_cache()
+        if message.text == 'Сгенерировать':
+            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+            try:
+                features = self.generate_features(npc['name'], npc['gender'])
+            except resources_manager.LimitIsOver as limit_over:
+                if limit_over.period == 'day':
+                    return self.switch_to_state(BotStates.npc_edit, msgs.DAY_LIMIT_IS_OVER)
+                return self.switch_to_state(BotStates.npc_edit, msgs.MONTH_LIMIT_IS_OVER)
+            except resources_manager.YandexGPTNetworkError:
+                return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
+        else:
+            features = message.text
+        return self.update_field_and_return('features', features)
 
 
 class NpcChat(NpcMessageHandler):
