@@ -18,6 +18,7 @@ from states import BotStates
 from base_handler import BaseMessageHandler
 from utils import consts
 import yandex_gpt
+from npc_utils import NpcMessageHandler
 
 
 MAX_USER_NPCS = 100
@@ -70,103 +71,6 @@ MANNERS = [
     ]
 
 
-class NpcMessageHandler(BaseMessageHandler):
-    GENDERS = ['Женский', 'Мужской']
-    MAX_NAME_LENGTH = 40
-
-    @staticmethod
-    def map_gender(gender_name: str):
-        GENDER_BY_ANSWER = {
-            'Женский': 'female',
-            'Мужской': 'male',
-        }
-        return GENDER_BY_ANSWER.get(gender_name, 'Женский')
-
-    def last_view_markup(self) -> telebot.types.ReplyKeyboardMarkup:
-        saved_npcs = self.mongo.user_npcs.find(
-            {'user': self.message.from_user.id},
-            projection={'name': True, 'last_viewed': True},
-        ).sort('last_viewed', pymongo.DESCENDING).limit(5)
-        return helpers.make_aligned_markup(
-            [npc['name'] for npc in saved_npcs] + ['Назад'], 2,
-        )
-
-    def make_npc_description(
-            self, npc: dict, note: typing.Optional[dict] = None, remind_new_notice: bool = True):
-        result = f"{npc['name']}\n{npc['race']}, {npc['age']} {helpers.inflect_years(npc['age'])}"
-        appearance = npc.get('appearance')
-        features = npc.get('features')
-        if appearance:
-            result += '\n' + appearance
-        if features:
-            result += '\n' + features
-        if note:
-            result += '\n' + self.make_note_description(note)
-        elif remind_new_notice:
-            result += '\n' + msgs.REMIND_NEW_NOTICE
-        return result
-
-    def switch_to_npc_view(self, npc: dict, update_last_viewed: bool = False) -> telebot.types.Message:
-        if update_last_viewed:
-            self.mongo.user_npcs.update_one({'_id': npc['_id']}, {'$set': {'last_viewed': datetime.datetime.utcnow()}})
-        last_notes = list(self.mongo.user_npc_notes.find(
-            {'npc_id': npc['_id']}
-        ).sort('created', pymongo.DESCENDING).limit(1))
-        last_note = last_notes[0] if last_notes else None
-        note_id = last_note['_id'] if last_note else ''
-        self.set_user_cache(f'{npc["_id"]};{note_id}')
-        return self.switch_to_state(BotStates.npc_view, self.make_npc_description(npc, last_note))
-
-    def switch_to_npc_edit(self, npc: dict) -> telebot.types.Message:
-        self.set_user_cache(npc['_id'])
-        return self.switch_to_state(BotStates.npc_edit, self.make_npc_description(npc, remind_new_notice=False))
-
-    def switch_to_interaction_edit(self) -> telebot.types.Message:
-        npc_id = self.get_user_cache()
-        npc = self.mongo.user_npcs.find_one({'_id': npc_id}, {'interaction_features': 1, 'manners': 1})
-        interaction_features = npc.get('interaction_features')
-        manners = npc.get('manners')
-        result_message = 'Здесь можно отредактировать взаимодействие с NPC, которое учитывается при общении с вашим персонажем.'
-        if interaction_features:
-            result_message += '\nОсобенности взаимодействия: ' + interaction_features
-        if manners:
-            result_message += '\nМанеры: ' + manners
-        return self.switch_to_state(BotStates.npc_edit_interaction, result_message)
-
-    @staticmethod
-    def make_note_description(note: dict) -> str:
-        created = note['created'].strftime('%d.%m.%Y')
-        return f'Заметка {created}\n{note["text"]}'
-
-    def update_field_and_return(
-            self, field: str, value, npc_id=None,
-    ) -> telebot.types.Message:
-        if not npc_id:
-            npc_id = self.get_user_cache()
-        updated_npc = self.mongo.user_npcs.find_one_and_update(
-            {'_id': npc_id},
-            {'$set': {field: value}},
-            return_document=pymongo.ReturnDocument.AFTER,
-        )
-        return self.switch_to_state(
-            BotStates.npc_edit,
-            self.make_npc_description(updated_npc, remind_new_notice=False),
-        )
-
-    def make_names_options(self, race: str, gender: str, age: int, count: int):
-        if race not in self.gm.RACES:
-            return []
-        if age == self.gm.race_age_levels(race)[0]:
-            gender = 'child'
-        options = []
-        while len(options) < count:
-            name = self.gm.sample_name(race, gender)
-            if len(name) > self.MAX_NAME_LENGTH:
-                continue
-            options.append(name)
-        return options
-
-
 def make_initial_chat_message(npc: dict):
     if npc.get('interaction_features'):
         interaction_features = npc['interaction_features']
@@ -197,7 +101,6 @@ class NpcStartMenuHandler(NpcMessageHandler):
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
-        self.ensure_user_exists()
         if message.text == 'Ваши NPC':
             return self.switch_to_state(
                 BotStates.npc_search, None, self.last_view_markup(),
@@ -219,7 +122,7 @@ class NpcCreateRace(BaseMessageHandler):
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         if message.text == consts.RANDOM_RACE:
-            race = generators.sample(self.gm.RACES)
+            race = generators.sample(generators.RACES)
             self.send_message(msgs.RACE_CHOOSED.format(race))
         else:
             race = message.text
@@ -398,6 +301,7 @@ class NpcView(NpcMessageHandler):
             self.mongo.user_info.update_one(
                 {'user': message.from_user.id},
                 {'$set': {'npc_chat_messages': [npc_message, fake_user_message, fake_server_message]}},
+                upsert=True,
             )
             return self.switch_to_state(BotStates.npc_chat)
         elif message.text == 'Сгенерировать заметку':
@@ -444,6 +348,7 @@ class NpcView(NpcMessageHandler):
         self.mongo.user_npc_notes.insert_one(new_note)
         self.set_user_cache(f'{npc["_id"]};{new_note["_id"]}')
         return self.try_again(self.make_npc_description(npc, new_note))
+
 
 class NpcRemoveNpc(BaseMessageHandler):
     STATE = BotStates.npc_remove_npc
@@ -526,14 +431,6 @@ class NpcEditAppearance(NpcMessageHandler):
     BUTTONS = [
         ['Сгенерировать', 'Назад'],
     ]
-    INSTRUCTIONS = """Сгенерируй описание внешности персонажа для фэнтези мира так, 
-    чтобы оно соответствовало расе, полу, возрасту и имени, которые заданы в тексте.
-    В ответе должно быть не более трех предложений и не более 200 символов."""
-    TEMPLATE = """Раса: {},
-    Пол: {},
-    Возраст: {} лет,
-    Имя: {}.
-    """
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -541,13 +438,8 @@ class NpcEditAppearance(NpcMessageHandler):
         npc_id = self.get_user_cache()
         if message.text == 'Сгенерировать':
             npc = self.mongo.user_npcs.find_one({'_id': npc_id})
-            gender = self.gm.SEX_TO_SEX_NAME[npc['gender']]
             try:
-                appearance = self.gm.gpt.generate(
-                    self.INSTRUCTIONS,
-                    self.TEMPLATE.format(npc['race'], gender, npc['age'], npc['name']),
-                    self.account(),
-                )
+                appearance = self.generate_appearance(npc['race'], npc['gender'], npc['age'], npc['name'])
             except resources_manager.LimitIsOver as limit_over:
                 if limit_over.period == 'day':
                     return self.switch_to_state(BotStates.npc_edit, msgs.DAY_LIMIT_IS_OVER)

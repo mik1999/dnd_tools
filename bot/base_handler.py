@@ -274,14 +274,14 @@ class BaseMessageHandler:
                 return None
             return value.decode(encoding='utf-8')
 
-    def set_user_cache_v2(self, data: str):
+    def set_user_cache_v2(self, data: typing.Any):
         self.mongo.user_info.update_one(
             {'user': self.message.from_user.id},
             {'$set': {'cache': data}},
             upsert=True,
         )
 
-    def get_user_cache_v2(self) -> typing.Optional[str]:
+    def get_user_cache_v2(self) -> typing.Any:
         doc = self.mongo.user_info.find_one({'user': self.message.from_user.id})
         if not doc:
             return None
@@ -301,19 +301,6 @@ class BaseMessageHandler:
     def account(self) -> rm.Account:
         account_type = rm.AccountType.ADMIN if self.user_is_admin() else rm.AccountType.USER
         return rm.Account(type=account_type, id=str(self.message.from_user.id))
-
-    def ensure_user_exists(self):
-        self.mongo.user_info.update_one(
-            {'user': self.message.from_user.id},
-            {
-                '$set': {'last_visited_main': datetime.datetime.utcnow()},
-                '$setOnInsert': {
-                    'user': self.message.from_user.id,
-                    'created': datetime.datetime.utcnow(),
-                }
-            },
-            upsert=True,
-        )
 
 
 class DocHandler(BaseMessageHandler):

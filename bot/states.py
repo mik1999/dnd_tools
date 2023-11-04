@@ -29,6 +29,7 @@ class BotStates(telebot_backends.StatesGroup):
     generators_menu = telebot_backends.State()
     names_generator = telebot_backends.State()
     names_generator_sex_choice = telebot_backends.State()
+    names_generator_result = telebot_backends.State()
     treasury_generator = telebot_backends.State()
 
     bestiary_menu = telebot_backends.State()

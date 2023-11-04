@@ -1,7 +1,14 @@
+import datetime
+import random
+import uuid
+
 import bestiary.bestiary as bestiary
 import copy
+import generators
 import helpers
 import telebot.types
+
+import resources_manager
 from treasures.treasures_generator import explain_treasure
 
 import messages as msgs
@@ -11,6 +18,7 @@ from states import BotStates
 from base_handler import BaseMessageHandler
 import utils.words_suggester as suggester
 from utils import consts
+from npc_utils import NpcMessageHandler
 
 
 class GeneratorsHandler(BaseMessageHandler):
@@ -33,44 +41,87 @@ class GeneratorsHandler(BaseMessageHandler):
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
 
-class NamesGeneratorHandler(BaseMessageHandler):
+class NamesGeneratorHandler(NpcMessageHandler):
     DEFAULT_MESSAGE = 'Выберите расу'
     STATE = BotStates.names_generator
 
     BUTTONS = consts.races_buttons(include_random=True)
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
-        if message.text == 'Случайная раса':
-            return self.switch_to_state(BotStates.generators_menu, self.gm.sample_name())
-        race = message.text
-        if race not in self.gm.RACES:
-            return self.try_again(msgs.PARSE_BUTTON_ERROR)
         self.set_user_cache(message.text)
+        if message.text == 'Случайная раса':
+            person = self.generate_name(message.text, message.text)
+            return self.switch_to_state(BotStates.names_generator_result, person.full_name)
+        race = message.text
+        if race not in generators.RACES:
+            return self.try_again(msgs.PARSE_BUTTON_ERROR)
         return self.switch_to_state(BotStates.names_generator_sex_choice)
 
 
-class SexGeneratorHandler(BaseMessageHandler):
+class SexGeneratorHandler(NpcMessageHandler):
     DEFAULT_MESSAGE = 'Кто это будет?'
     STATE = BotStates.names_generator_sex_choice
 
-    BUTTONS = [['Мужчина', 'Женщина'], ['Ребёнок', 'Случайно']]
-    GENDER_MAP = {
-        'Мужчина': 'male',
-        'Женщина': 'female',
-        'Ребёнок': 'child',
-    }
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        race = self.get_user_cache()
+        if self.gm.race_has_child_names(race):
+            return [['Мужчина', 'Женщина'], ['Ребёнок', 'Случайно']]
+        return [['Мужчина', 'Женщина'], ['Случайно']]
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         race = self.get_user_cache()
-        if message.text == 'Случайно':
-            return self.switch_to_state(BotStates.generators_menu, self.gm.sample_name(race=race))
-        if message.text not in self.GENDER_MAP.keys():
-            return self.try_again(msgs.PARSE_BUTTON_ERROR)
-        gender = self.GENDER_MAP[message.text]
+        person = self.generate_name(race, message.text)
         return self.switch_to_state(
-            BotStates.generators_menu,
-            self.gm.sample_name(race=race, gender=gender),
+            BotStates.names_generator_result,
+            person.full_name,
         )
+
+
+class NameGeneratorResult(NpcMessageHandler):
+    STATE = BotStates.names_generator_result
+
+    BUTTONS = [['Ещё раз', 'Создать NPC'], ['Назад']]
+
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.generators_menu},
+    }
+
+    def generate_age(self, race: str, is_child: bool):
+        age_levels = self.gm.race_age_levels(race)
+        if is_child:
+            return random.randint(6, age_levels[1])
+        return random.randint(age_levels[1], age_levels[-1])
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        race, gender = self.get_user_cache().split(';')
+        if message.text == 'Ещё раз':
+            person = self.generate_name(race, gender)
+            return self.try_again(person.full_name)
+        elif message.text == 'Создать NPC':
+            person = self.load_person()
+            age = self.generate_age(person.race, person.is_child)
+            npc_doc = {
+                '_id': uuid.uuid4().hex,
+                'user': self.message.from_user.id,
+                'last_viewed': datetime.datetime.utcnow(),
+                'race': person.race,
+                'gender': person.gender,
+                'age': age,
+                'name': person.name,
+            }
+            try:
+                features = self.generate_features(person.name, person.gender)
+                npc_doc.update({'features': features})
+                appearance = self.generate_appearance(person.race, person.gender, age, person.name)
+                npc_doc.update({'appearance': appearance})
+            except (resources_manager.LimitIsOver, resources_manager.YandexGPTNetworkError):
+                pass
+            self.mongo.user_npcs.insert_one(npc_doc)
+            return self.switch_to_npc_view(npc_doc, update_last_viewed=True)
 
 
 class BestiaryMenuHandler(BaseMessageHandler):
