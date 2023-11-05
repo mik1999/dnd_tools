@@ -50,7 +50,7 @@ class YandexGptHelper:
             'x-folder-id': 'b1g6tu9asaapckafplet',
         }
 
-    def generate(self, instruction_text: str, request_text: str, account: rm.Account):
+    def generate(self, instruction_text: str, request_text: str, account: rm.Account) -> str:
         self.resources_manager.acquire(rm.Resource.YANDEX_GPT, account)
         body = {
             'model': 'general',

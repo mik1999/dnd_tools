@@ -37,13 +37,20 @@ class NpcMessageHandler(BaseMessageHandler):
 
     def make_npc_description(
             self, npc: dict, note: typing.Optional[dict] = None, remind_new_notice: bool = True):
-        result = f"{npc['name']}\n{npc['race']}, {npc['age']} {helpers.inflect_years(npc['age'])}"
+        tags = npc.get('tags', [])
+        if not tags:
+            tags_appendix = ''
+        elif len(tags) <= 3:
+            tags_appendix = '  [' + ', '.join([f'<code>#{tag}</code>' for tag in tags]) + ']'
+        else:
+            tags_appendix = '  [' + ', '.join([f'<code>#{tag}</code>' for tag in tags[:3]]) + ', ...]'
+        result = f"<b>{npc['name']}</b>{tags_appendix}\n<i>{npc['race']}, {npc['age']} {helpers.inflect_years(npc['age'])}.</i>"
         appearance = npc.get('appearance')
         features = npc.get('features')
         if appearance:
-            result += '\n' + appearance
+            result += f'\n<b>Внешность:</b> {appearance}'
         if features:
-            result += '\n' + features
+            result += f'\n<b>Особенности:</b> {features}'
         if note:
             result += '\n' + self.make_note_description(note)
         elif remind_new_notice:
@@ -80,7 +87,9 @@ class NpcMessageHandler(BaseMessageHandler):
     @staticmethod
     def make_note_description(note: dict) -> str:
         created = note['created'].strftime('%d.%m.%Y')
-        return f'Заметка {created}\n{note["text"]}'
+        note_title = note.get('title')
+        title = f'{note_title} ({created})' if note_title else f'Заметка {created}'
+        return f'<b>{title}</b>\n{note["text"]}'
 
     def update_field_and_return(
             self, field: str, value, npc_id=None,
@@ -139,7 +148,7 @@ class NpcMessageHandler(BaseMessageHandler):
             INSTRUCTIONS,
             TEMPLATE.format(race, gender, age, name),
             self.account(),
-        )
+        ).replace('<', '')
 
     def generate_features(self, name: str, gender: str):
         INSTRUCTIONS = """Сгенерируй информацию о персонаже из фэнтези мира так, 
@@ -152,7 +161,7 @@ class NpcMessageHandler(BaseMessageHandler):
             INSTRUCTIONS,
             TEMPLATE.format(name, gender),
             self.account(),
-        )
+        ).replace('<', '')
 
     def save_person(self, person: generators.Person):
         self.set_user_cache_v2(dataclasses.asdict(person))
@@ -160,3 +169,12 @@ class NpcMessageHandler(BaseMessageHandler):
     def load_person(self) -> generators.Person:
         person_doc: dict = self.get_user_cache_v2()
         return generators.Person(**person_doc)
+
+    @staticmethod
+    def make_tags_markup(tags: typing.List[str]):
+        tags = [f'#{tag}' for tag in tags]
+        if not tags:
+            return helpers.make_aligned_markup(['Назад'], 1)
+        markup = helpers.make_aligned_markup(tags, 3)
+        markup.add('Назад')
+        return markup

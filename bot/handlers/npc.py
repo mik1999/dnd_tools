@@ -103,7 +103,7 @@ class NpcStartMenuHandler(NpcMessageHandler):
     ) -> telebot.types.Message:
         if message.text == 'Ваши NPC':
             return self.switch_to_state(
-                BotStates.npc_search, None, self.last_view_markup(),
+                BotStates.npc_search, msgs.NPC_SEARCH_DESCRIPTION, self.last_view_markup(), parse_mode='MarkdownV2',
             )
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
 
@@ -116,7 +116,7 @@ class NpcCreateRace(BaseMessageHandler):
     BUTTONS = consts.races_buttons()
 
     validation = BaseMessageHandler.MessageValidation(
-        prohibited_symbols={';'},
+        prohibited_symbols={';', '<'},
         max_length=20,
     )
 
@@ -174,7 +174,7 @@ class NpcCreateName(NpcMessageHandler):
 
     validation = BaseMessageHandler.MessageValidation(
         max_length=NpcMessageHandler.MAX_NAME_LENGTH,
-        prohibited_symbols={';'},
+        prohibited_symbols={';', '<'},
     )
 
     def make_buttons_list(
@@ -213,22 +213,50 @@ class NpcCreateName(NpcMessageHandler):
 
 
 class NpcSearch(NpcMessageHandler):
-    DEFAULT_MESSAGE = 'Выберите из списка или наберите имя для поиска'
     STATE = BotStates.npc_search
     STATE_BY_MESSAGE = {
         'Назад': {'state': BotStates.npc_start_menu},
     }
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
+        search_query = {'user': message.from_user.id}
+        message = message.text
+        while message.startswith('#'):
+            token_end = message.find(' ')
+            if token_end == -1:
+                tag = message
+                message = ''
+            else:
+                tag = message[:token_end]
+                message = message[token_end + 1:].strip()
+            tag = tag.replace('#', '')
+            GENDERS_MAP = {
+                'Мужчина': 'male',
+                'Мужчины': 'male',
+                'Мальчик': 'male',
+                'Парень': 'male',
+                'Женщина': 'female',
+                'Женщины': 'female',
+                'Девочка': 'female',
+                'Девушка': 'female',
+            }
+            if tag.capitalize() in generators.RACES:
+                search_query.update({'race': tag.capitalize()})
+            elif tag.capitalize() in GENDERS_MAP.keys():
+                search_query.update({'gender': GENDERS_MAP[tag]})
+            else:
+                search_query.update({'tags': {'$elemMatch': {'$eq': tag}}})
+        if message:
+            search_query.update({'$text': {'$search': f'{message}'}})
         user_npcs = list(
             self.mongo.user_npcs.find(
-                {'user': message.from_user.id, '$text': {'$search': f'"{message.text}"'}},
-            ).limit(5)
+                search_query,
+            ).sort('last_viewed', pymongo.DESCENDING).limit(5)
         )
         if not user_npcs:
             return self.try_again(msgs.NO_SUGGESTIONS, markup=self.last_view_markup())
         for npc in user_npcs:
-            if npc['name'] == message.text:
+            if npc['name'] == message:
                 return self.switch_to_npc_view(npc, update_last_viewed=True)
         if len(user_npcs) == 1:
             return self.switch_to_npc_view(user_npcs[0], update_last_viewed=True)
@@ -245,11 +273,13 @@ class NpcView(NpcMessageHandler):
         'Удалить NPC': {'state': BotStates.npc_remove_npc},
         'Назад': {'state': BotStates.npc_start_menu},
     }
+    PARSE_MODE = 'HTML'
     PREHISTORY_INSTRUCTION = """Сгенерируй предысторию персонажа из фэнтези мира в dungeon&dragons на основе следующих данных о персонаже.
     В предыстории укажи, где родился персонаж, кто его родители, каким образом получил свои особенности. Должно получиться примерно 500 символов"""
     NEXT_NOTE_INSTRUCTION = """Сгенерируй историю о персонаже из фэнтези мира в dungeon&dragons, которая продолжает предыдущую историю:
     Также нужно принять во внимание данные о персонаже:
     Расскажи историю кратко, примерно на 500 символов"""
+    MAX_TITLE_LENGHT = 35
 
     def make_buttons_list(
             self,
@@ -308,12 +338,14 @@ class NpcView(NpcMessageHandler):
             npc = self.mongo.user_npcs.find_one({'_id': npc_id})
             npc_description = self.make_npc_description(npc, remind_new_notice=False)
             if note_id:
+                title = 'Сгенерированная заметка'
                 last_note = self.mongo.user_npc_notes.find(
                     {'npc_id': npc_id}
                 ).sort('created', pymongo.DESCENDING).limit(1)[0]
                 instruction = self.NEXT_NOTE_INSTRUCTION
                 request_text = f'Предыдущая история: {last_note["text"]}\nДанные о персонаже: {npc_description}'
             else:
+                title = 'Сгенерированная предыстория'
                 instruction = self.PREHISTORY_INSTRUCTION
                 request_text = f'Данные о персонаже: {npc_description}'
             try:
@@ -328,11 +360,15 @@ class NpcView(NpcMessageHandler):
                 return self.try_again(msgs.MONTH_LIMIT_IS_OVER)
             except resources_manager.YandexGPTNetworkError:
                 return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
-            return self.insert_note(next_note, npc)
+            return self.insert_note(next_note, npc, title)
         npc = self.mongo.user_npcs.find_one({'_id': npc_id})
-        return self.insert_note(message.text, npc)
+        note = message.text
+        title = None
+        if 0 < note.find('\n') < self.MAX_TITLE_LENGHT:
+            title, note = note.split('\n', 1)
+        return self.insert_note(note, npc, title)
 
-    def insert_note(self, text: str, npc: dict):
+    def insert_note(self, text: str, npc: dict, title: typing.Optional[str] = None):
         user_note_count = self.mongo.user_npc_notes.count_documents(
             {'user': self.message.from_user.id},
         )
@@ -345,6 +381,8 @@ class NpcView(NpcMessageHandler):
             'created': datetime.datetime.utcnow(),
             'text': text,
         }
+        if title is not None:
+            new_note.update({'title': title})
         self.mongo.user_npc_notes.insert_one(new_note)
         self.set_user_cache(f'{npc["_id"]};{new_note["_id"]}')
         return self.try_again(self.make_npc_description(npc, new_note))
@@ -393,6 +431,7 @@ class NpcRemoveNpcNote(NpcMessageHandler):
 class NpcEdit(NpcMessageHandler):
     DEFAULT_MESSAGE = 'Какой параметр желаете отредактировать?'
     STATE = BotStates.npc_edit
+    PARSE_MODE = 'HTML'
     STATE_BY_MESSAGE = {
         'Внешость': {'state': BotStates.npc_edit_appearance},
         'Раса': {'state': BotStates.npc_edit_race},
@@ -402,10 +441,10 @@ class NpcEdit(NpcMessageHandler):
         'Особенности': {'state': BotStates.npc_edit_features},
     }
     BUTTONS = [
+        ['Карточка персонажа', 'К списку NPC'],
         ['Раса', 'Пол', 'Возраст'],
-        ['Имя', 'Внешость'],
+        ['Имя', 'Внешость', 'Теги'],
         ['Особенности', 'Взаимодействие'],
-        ['Карточка персонажа', 'К списку NPC']
     ]
 
     def handle_message(
@@ -413,12 +452,17 @@ class NpcEdit(NpcMessageHandler):
     ) -> telebot.types.Message:
         if message.text == 'К списку NPC':
             return self.switch_to_state(
-                BotStates.npc_search, None, self.last_view_markup(),
+                BotStates.npc_search, msgs.NPC_SEARCH_DESCRIPTION, self.last_view_markup(), parse_mode='MarkdownV2',
             )
-        if message.text == 'Карточка персонажа':
+        elif message.text == 'Карточка персонажа':
             npc_id = self.get_user_cache()
             npc = self.mongo.user_npcs.find_one({'_id': npc_id})
             return self.switch_to_npc_view(npc)
+        elif message.text == 'Теги':
+            npc_id = self.get_user_cache()
+            npc = self.mongo.user_npcs.find_one({'_id': npc_id})
+            markup = self.make_tags_markup(npc.get('tags', []))
+            return self.switch_to_state(BotStates.npc_edit_tags, markup=markup)
         if message.text == 'Взаимодействие':
             return self.switch_to_interaction_edit()
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
@@ -431,6 +475,9 @@ class NpcEditAppearance(NpcMessageHandler):
     BUTTONS = [
         ['Сгенерировать', 'Назад'],
     ]
+    validation = BaseMessageHandler.MessageValidation(
+        prohibited_symbols={'<'},
+    )
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -456,6 +503,9 @@ class NpcEditRace(NpcMessageHandler):
     STATE = BotStates.npc_edit_race
     STATE_BY_MESSAGE = {'Назад': {'state': BotStates.npc_edit}}
     BUTTONS = consts.races_buttons(include_back=True)
+    validation = BaseMessageHandler.MessageValidation(
+        prohibited_symbols={'<'},
+    )
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -495,7 +545,40 @@ class NpcEditAge(NpcMessageHandler):
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
+        if not self.message.text.isdigit():
+            return self.try_again(msgs.MUST_BY_COMPOSED_BY_DIGITS)
         return self.update_field_and_return('age', int(message.text))
+
+
+class NpcEditTags(NpcMessageHandler):
+    DEFAULT_MESSAGE = ('Нажмите на кнопку с существующим тегом, чтобы удалить его, или введите новый, чтобы добавить. '
+                       'Теги позволяют группировать ваших NPC, например, по кампании, в которых они участвуют. '
+                       'Кроме того, вы можете фильтровать по вашим тегам, когда ищите NPC')
+    STATE = BotStates.npc_edit_tags
+    STATE_BY_MESSAGE = {'Назад': {'state': BotStates.npc_edit}}
+    validation = BaseMessageHandler.MessageValidation(
+        prohibited_symbols={'<'},
+    )
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        npc_id = self.get_user_cache()
+        npc = self.mongo.user_npcs.find_one({'_id': npc_id}, {'tags': 1})
+        npc_tags = npc.get('tags', [])
+        tag = message.text.replace('#', '')
+        if ' ' in tag:
+            return self.try_again('Тег не должен содержать пробелов', markup=self.make_tags_markup(npc_tags))
+        if tag in npc_tags:
+            reply_message = 'Тег удален'
+            npc_tags.remove(tag)
+            self.mongo.user_npcs.update_one({'_id': npc_id}, {'$pull': {'tags': tag}})
+        else:
+            reply_message = 'Тег добавлен'
+            npc_tags.append(tag)
+            self.mongo.user_npcs.update_one({'_id': npc_id}, {'$push': {'tags': tag}})
+        markup = self.make_tags_markup(npc_tags)
+        return self.try_again(reply_message, markup=markup)
 
 
 class NpcEditName(NpcMessageHandler):
@@ -503,6 +586,9 @@ class NpcEditName(NpcMessageHandler):
     STATE = BotStates.npc_edit_name
     STATE_BY_MESSAGE = {'Назад': {'state': BotStates.npc_edit}}
     BUTTONS = [NpcMessageHandler.GENDERS, ['Назад']]
+    validation = BaseMessageHandler.MessageValidation(
+        prohibited_symbols={'<'},
+    )
 
     def make_buttons_list(
             self,
@@ -523,6 +609,9 @@ class NpcEditFeatures(NpcMessageHandler):
     STATE = BotStates.npc_edit_features
     STATE_BY_MESSAGE = {'Назад': {'state': BotStates.npc_edit}}
     BUTTONS = [['Сгенерировать', 'Назад']]
+    validation = BaseMessageHandler.MessageValidation(
+        prohibited_symbols={'<'},
+    )
 
     def handle_message(
             self, message: telebot.types.Message,

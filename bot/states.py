@@ -54,6 +54,7 @@ class BotStates(telebot_backends.StatesGroup):
     npc_edit_name = telebot_backends.State()
     npc_edit_features = telebot_backends.State()
     npc_edit_age = telebot_backends.State()
+    npc_edit_tags = telebot_backends.State()
     npc_chat = telebot_backends.State()
     npc_edit_interaction_features = telebot_backends.State()
     npc_edit_interaction_manners = telebot_backends.State()

@@ -170,7 +170,7 @@ class GeneratorsManager:
         adj = adj[noun['gender']]
         noun = noun['word']
         tavern_name = f'{adj} {noun}'
-        host_name = self.sample_name()
+        host_name = self.sample_name().full_name
         return f'Таверна "{tavern_name}"\nХозяин: {host_name}'
 
     def race_age_levels(self, race: str) -> typing.List[int]:
