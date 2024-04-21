@@ -59,6 +59,15 @@ class BotStates(telebot_backends.StatesGroup):
     npc_edit_interaction_features = telebot_backends.State()
     npc_edit_interaction_manners = telebot_backends.State()
 
+    casino_main = telebot_backends.State()
+    casino_twenty_one_start = telebot_backends.State()
+    casino_twenty_one_restart = telebot_backends.State()
+    casino_twenty_one_info = telebot_backends.State()
+    casino_twenty_one_change_bet = telebot_backends.State()
+    casino_twenty_one_step_1 = telebot_backends.State()
+    casino_twenty_one_step_2 = telebot_backends.State()
+    casino_twenty_one_other_steps = telebot_backends.State()
+
 STATE_BY_COMMAND = {
     '/start': BotStates.main,
     '/dices': BotStates.dices,

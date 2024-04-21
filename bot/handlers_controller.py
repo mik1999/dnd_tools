@@ -73,8 +73,9 @@ class HandlersController:
         self.user_npcs = db.get_collection('user_npcs')
         self.user_npc_notes = db.get_collection('user_npc_notes')
         self.resources_usage = db.get_collection('resources_usage')
+        self.games_collection = db.get_collection('games')
         self.mongo_context = MongoContext(
-            self.user_potions, self.user_info, self.user_npcs, self.user_npc_notes,
+            self.user_potions, self.user_info, self.user_npcs, self.user_npc_notes, self.games_collection,
         )
         self.resources_manager = resources_manager.ResourcesManager(self.resources_usage)
         self.gm = generators.GeneratorsManager(self.resources_manager)

@@ -13,6 +13,7 @@ from handlers import component_handlers
 from handlers import generators_handlers
 from handlers import potion_handlers
 from handlers import npc
+from handlers import casino
 
 import logging
 import messages as msgs
@@ -29,14 +30,15 @@ class MainStateHandler(BaseMessageHandler):
         'Кинуть кости': {'state': BotStates.dices},
         'Генераторы': {'state': BotStates.generators_menu},
         'Алхимия': {'state': BotStates.alchemy},
+        'Казино': {'state': BotStates.casino_main},
     }
     DEFAULT_MESSAGE = msgs.MAIN_MENU
-    BUTTONS = [['Алхимия', 'NPC (new!)'], ['Генераторы', 'Кинуть кости']]
+    BUTTONS = [['Алхимия', 'Казино', 'NPC'], ['Генераторы', 'Кинуть кости']]
 
     def handle_message(
             self, message: telebot.types.Message,
     ) -> telebot.types.Message:
-        if message.text == 'NPC (new!)':
+        if message.text == 'NPC':
             npcs_count = self.mongo.user_npcs.count_documents({'user': message.from_user.id})
             if npcs_count > 0:
                 return self.switch_to_state(BotStates.npc_start_menu)

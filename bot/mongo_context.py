@@ -8,3 +8,4 @@ class MongoContext:
     user_info: pymongo.collection.Collection
     user_npcs: pymongo.collection.Collection
     user_npc_notes: pymongo.collection.Collection
+    games: pymongo.collection.Collection

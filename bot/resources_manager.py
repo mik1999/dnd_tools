@@ -49,7 +49,7 @@ class ResourcesManager:
             total=Limits(month_limit=1000000),
             by_account_type={
                 AccountType.ADMIN: Limits(),
-                AccountType.USER: Limits(day_limit=250, month_limit=5000),
+                AccountType.USER: Limits(day_limit=2000, month_limit=10000),
             },
         ),
     }

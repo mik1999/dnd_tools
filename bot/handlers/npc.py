@@ -361,6 +361,9 @@ class NpcView(NpcMessageHandler):
             except resources_manager.YandexGPTNetworkError:
                 return self.try_again(msgs.YANDEX_GPT_NETWORK_ERROR)
             return self.insert_note(next_note, npc, title)
+        if message.photo:
+            self.mongo.user_npcs.update_one({'_id': npc_id}, {'$set': {'photo_id': message.photo[-1].file_id}})
+            return self.try_again(msgs.NPC_PHOTO_SAVED)
         npc = self.mongo.user_npcs.find_one({'_id': npc_id})
         note = message.text
         title = None

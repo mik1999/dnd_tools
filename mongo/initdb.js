@@ -15,4 +15,6 @@ db.createCollection('resources_usage');
 
 db.createCollection('user_info');
 
+db.createCollection('games');
+
 print('MongoDB: finished initializing');
