@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class MessageRole(enum.Enum):
-    SYSTEM = 'Система'
-    USER = 'Пользователь'
-    SERVER = 'Ассистент'
+    SYSTEM = 'system'
+    USER = 'user'
+    SERVER = 'assistant'
 
 
 @dataclasses.dataclass
@@ -28,8 +28,9 @@ def get_token():
 
 class YandexGptHelper:
     OAUTH_TOKEN = get_token()
-    INSTRUCT_HOST = 'https://llm.api.cloud.yandex.net/llm/v1alpha/instruct'
-    CHAT_HOST = 'https://llm.api.cloud.yandex.net/llm/v1alpha/chat'
+    INSTRUCT_HOST = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
+    CHAT_HOST = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
+    FOLDER_ID = 'b1g6tu9asaapckafplet'
 
     def __init__(self, resources_manager: rm.ResourcesManager):
         self.resources_manager = resources_manager
@@ -47,46 +48,50 @@ class YandexGptHelper:
     def headers(self):
         return {
             'Authorization': f'Bearer {self.iam_token}',
-            'x-folder-id': 'b1g6tu9asaapckafplet',
+            'Accept': 'application/json',
         }
 
     def generate(self, instruction_text: str, request_text: str, account: rm.Account) -> str:
         self.resources_manager.acquire(rm.Resource.YANDEX_GPT, account)
         body = {
-            'model': 'general',
-            'generation_options': {
-                'partial_results': False,
+            'modelUri': f'gpt://{self.FOLDER_ID}/yandexgpt',
+            'completionOptions': {
+                'stream': False,
                 'temperature': 0.7,
-                'max_tokens': 5000,
+                'maxTokens': 5000,
             },
-            'request_text': request_text,
-            'instruction_text': instruction_text,
+            'messages': [
+                {'role': 'system', 'text': instruction_text},
+                {'role': 'user', 'text': request_text},
+            ]
         }
         response = requests.post(url=self.INSTRUCT_HOST, headers=self.headers, json=body)
         self._handle_response(response)
-        return response.json()['result']['alternatives'][0]['text']
+        return response.json()['result']['alternatives'][0]['message']['text']
 
     def chat(self, instruction_text: str, messages: typing.List[YandexGPTMessage], account: rm.Account):
         self.resources_manager.acquire(rm.Resource.YANDEX_GPT, account)
+        messages = [
+            {'role': 'system', 'text': instruction_text},
+        ] + [
+            {
+                'text': message.text,
+                'role': message.role.value,
+            }
+            for message in messages
+        ]
         body = {
-            'model': 'general',
-            'generation_options': {
-                'partial_results': False,
-                'temperature': 0.5,
-                'max_tokens': 5000,
+            'modelUri': f'gpt://{self.FOLDER_ID}/yandexgpt',
+            'completionOptions': {
+                'stream': False,
+                'temperature': 0.7,
+                'maxTokens': 5000,
             },
-            'messages': [
-                {
-                    'text': message.text,
-                    'role': message.role.value,
-                }
-                for message in messages
-            ],
-            'instruction_text': instruction_text,
+            'messages': messages,
         }
         response = requests.post(url=self.CHAT_HOST, headers=self.headers, json=body)
         self._handle_response(response)
-        response_message = response.json()['result']['message']
+        response_message = response.json()['result']['alternatives'][0]['message']
         return YandexGPTMessage(
             text=response_message['text'],
             role=MessageRole(response_message['role']),

@@ -27,6 +27,7 @@ class BotStates(telebot_backends.StatesGroup):
     potions_common_potion_show = telebot_backends.State()
 
     generators_menu = telebot_backends.State()
+    news_generator = telebot_backends.State()
     names_generator = telebot_backends.State()
     names_generator_sex_choice = telebot_backends.State()
     names_generator_result = telebot_backends.State()
@@ -67,6 +68,16 @@ class BotStates(telebot_backends.StatesGroup):
     casino_twenty_one_step_1 = telebot_backends.State()
     casino_twenty_one_step_2 = telebot_backends.State()
     casino_twenty_one_other_steps = telebot_backends.State()
+
+    unlucky_roulette_start = telebot_backends.State()
+    unlucky_roulette_choose = telebot_backends.State()
+
+    poker_start = telebot_backends.State()
+    poker_restart = telebot_backends.State()
+    poker_dice1 = telebot_backends.State()
+    poker_dice2 = telebot_backends.State()
+    poker_play = telebot_backends.State()
+    poker_info = telebot_backends.State()
 
 STATE_BY_COMMAND = {
     '/start': BotStates.main,

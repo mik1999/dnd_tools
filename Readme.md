@@ -45,7 +45,7 @@
 <ol>
     <li> Склонировать репозиторий <a href="https://github.com/mik1999/dndexit_tools"> github.com/mik1999/dnd_tools </a>;</li>
     <li> Написать телеграм-боту <a href="https://t.me/BotFather">@BotFather </a>, создать нового бота и сохранить полученный от BotFather токен как dnd_tools/bot/token ;   </li>
-    <li> Из рабочей директории dnd_tools (где лежит docker-compose.yaml) выполнить <code>docker-compose up --build -d</code> ; </li>
+    <li> Из рабочей директории dnd_tools (где лежит docker- .yaml) выполнить <code>docker-compose up --build -d</code> ; </li>
 </ol>
 
 <h2> Пара слов об архитектуре </h2>

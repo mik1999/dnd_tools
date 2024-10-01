@@ -1,3 +1,5 @@
+import re
+
 import telebot.types
 import typing
 
@@ -22,3 +24,7 @@ def inflect_years(years: int) -> str:
     if 1 < years % 10 < 5:
         return 'года'
     return 'лет'
+
+
+def prepare_for_markdown(text: str):
+    return re.sub(r'([!#\.])', '\\\1', text)

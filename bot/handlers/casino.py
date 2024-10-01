@@ -26,6 +26,8 @@ from npc_utils import NpcMessageHandler
 
 
 EVERYDAY_COINS = 100
+SAFE_COINS = 1000
+MAX_BET = 1000000
 
 
 def suggest_bet(user_coins: int):
@@ -35,13 +37,14 @@ def suggest_bet(user_coins: int):
         return 2
     log_10 = math.log10(user_coins)
     rest = log_10 - int(log_10)
-    if rest >= 0.78: # log(6)
+    if rest >= 0.78:  # log(6)
         multiplier = 2
-    elif rest >= 0.48: # log(3)
+    elif rest >= 0.48:  # log(3)
         multiplier = 1
     else:
         multiplier = 0.5
-    return int((10 ** int(log_10)) * multiplier)
+    result = int((10 ** int(log_10)) * multiplier)
+    return min(result, MAX_BET)
 
 
 def pretty_list(items: typing.List[str]) -> str:
@@ -56,40 +59,53 @@ class CasinoMainHandler(BaseMessageHandler):
     STATE = BotStates.casino_main
     STATE_BY_MESSAGE = {
         'Двадцать одно': {'state': BotStates.casino_twenty_one_start},
+        'Колесо неудачи': {'state': BotStates.unlucky_roulette_start},
         'Назад': {'state': BotStates.main},
     }
     PARSE_MODE = 'MarkdownV2'
 
-    BUTTONS = [['Двадцать одно'], ['Назад']]
+    BUTTONS = [['Двадцать одно', 'Колесо неудачи'], ['Назад']]
 
     def get_default_message(self):
         user_info = self.mongo.user_info.find_one({'user': self.message.from_user.id})
         current_date = datetime.datetime.now().strftime('%Y-%m-%d')
-        if (
-            not user_info
-            or not user_info.get('last_coins_raise')
-            or (
-                user_info['last_coins_raise'].strftime('%Y-%m-%d') < current_date
-                and user_info['coins'] < EVERYDAY_COINS
-            )
-        ):
-            coins = EVERYDAY_COINS
+        updated_coins = None
+        if not user_info or not user_info.get('last_coins_raise'):
+            updated_coins = EVERYDAY_COINS
+            response_message = msgs.CASINO_RAISE.format(updated_coins)
+        elif user_info['last_coins_raise'].strftime('%Y-%m-%d') < current_date:
+            coins = user_info['coins']
+            if coins < EVERYDAY_COINS:
+                updated_coins = EVERYDAY_COINS
+                response_message = msgs.CASINO_RAISE.format(updated_coins)
+            elif coins > SAFE_COINS:
+                last_day_start = user_info['last_coins_raise'].replace(hour=0, minute=0, second=0)
+                days_changed = (datetime.datetime.now() - last_day_start).days
+                updated_coins = max(int(coins * (0.87 ** min(days_changed, 50))), SAFE_COINS)
+                response_message = (
+                        generators.sample(msgs.TAXES_MESSAGES).format(coins - updated_coins)
+                        + ' '
+                        + msgs.REST_COINS.format(updated_coins)
+                )
+            else:
+                response_message = msgs.CASINO_BALANCE.format(user_info['coins'])
+        else:
+            if user_info['coins'] <= 0:
+                response_message = msgs.CASINO_NO_COINS
+            else:
+                response_message = msgs.CASINO_BALANCE.format(user_info['coins'])
+        if updated_coins is not None:
             self.mongo.user_info.update_one(
                 {'user': self.message.from_user.id},
                 {
                     '$set': {
                         'last_coins_raise': datetime.datetime.now(),
-                        'coins': coins,
+                        'coins': updated_coins,
                     },
                 },
                 upsert=True,
             )
-            return msgs.CASINO_RAISE.format(coins)
-
-        coins = user_info['coins']
-        if coins <= 0:
-            return msgs.CASINO_NO_COINS
-        return msgs.CASINO_BALANCE.format(coins)
+        return response_message
 
     def handle_message(
             self, message: telebot.types.Message,
@@ -101,6 +117,81 @@ class CasinoMainHandler(BaseMessageHandler):
         if user['coins'] <= 0:
             return self.switch_to_state(BotStates.main, 'Сказано же: у вас кончились золотые) Приходите завтра')
         return self.process_state_by_message(unknown_pass_enabled=False)
+
+
+
+class BaseChooseBetHandler(BaseMessageHandler):
+    DEFAULT_MESSAGE = 'Какую ставку вы хотите предложить? Можете выбрать вариант или ввести свой'
+
+    COEFFICIENT = 1.0
+
+    RETURN_STATE: telebot.State = None
+    SAME_PREFIX = ''
+
+    def get_user_coins(self):
+        return self.mongo.user_info.find_one(
+            {'user': self.message.from_user.id},
+            {'coins': 1},
+        )['coins']
+
+
+    @abc.abstractmethod
+    def handle_bet(self, bet: int) -> typing.Optional[telebot.types.Message]:
+        ...
+
+    def make_buttons_list(
+            self,
+    ) -> typing.List[typing.List[str]]:
+        user_coins = self.get_user_coins()
+        upper_bound = min(user_coins, MAX_BET)
+        bet = suggest_bet(int(user_coins * self.COEFFICIENT))
+        bets_to_suggest = []
+        if bet >= 10:
+            bets_to_suggest.append(bet // 10)
+        if bet >= 5:
+            bets_to_suggest.append(bet // 5)
+        if bet >= 2:
+            bets_to_suggest.append(bet // 2)
+        if bet * 2 <= upper_bound:
+            bets_to_suggest.append(bet * 2)
+        if bet * 5 <= upper_bound:
+            bets_to_suggest.append(bet * 5)
+        if bet * 10 <= upper_bound:
+            bets_to_suggest.append(bet * 10)
+        same_bet = self.SAME_PREFIX + str(bet)
+        if len(bets_to_suggest) < 5:
+            return [
+                [same_bet],
+                [str(bet) for bet in bets_to_suggest],
+            ]
+        return [
+            [same_bet],
+            [str(bet) for bet in bets_to_suggest[:3]],
+            [str(bet) for bet in bets_to_suggest[3:]],
+        ]
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        message_text = message.text
+
+        if message.text.startswith(self.SAME_PREFIX):
+            message_text = message_text[len(self.SAME_PREFIX):]
+        try:
+            bet = int(message_text)
+        except ValueError:
+            return self.try_again(msgs.NOT_A_NUMBER_ENTERED)
+        user_coins = self.get_user_coins()
+        if bet > user_coins:
+            return self.try_again(f'У вас осталось только {user_coins} зм, вы не можете предлагать ставку больше этой суммы')
+        if bet > MAX_BET:
+            return self.try_again(f'Указ №23 Его Величества Пупподулло Первого запрещает делать ставки, превышающие {MAX_BET} зм.')
+        if bet <= 0:
+            return self.try_again('Сумма должна быть больше нуля')
+        message = self.handle_bet(bet)
+        if message:
+            return message
+        return self.switch_to_state(self.RETURN_STATE)
 
 
 TWENTY_ONE_DICES = [20, 12, 10, 8, 6, 4]
@@ -120,11 +211,21 @@ class GreedyStrategy(BaseStrategy):
     # maximize expected dices sum (>21 is treated as 0)
     @staticmethod
     def play() -> typing.Tuple[typing.List[str], typing.List[int]]:
-        rest_dices = set(TWENTY_ONE_DICES)
-        current_sum = 0
-        dices = []
-        realizations = []
-        for _ in range(6):
+        rest_dices = set(TWENTY_ONE_DICES) - {20}
+        dices = ['d20']
+        realizations = [random.randint(1, 20)]
+        if random.randint(1, 2) == 1:
+            rest_dices -= {8}
+            dices.append('d8')
+            realizations.append(random.randint(1, 8))
+        else:
+            rest_dices -= {6}
+            dices.append('d6')
+            realizations.append(random.randint(1, 6))
+        current_sum = sum(realizations)
+        if current_sum >= 21:
+            return dices, realizations
+        for _ in range(5):
             max_expected_sum = float(current_sum)
             dice_that_maximize = None
             for dice in rest_dices:
@@ -140,6 +241,7 @@ class GreedyStrategy(BaseStrategy):
                 dices.append(f'd{dice_that_maximize}')
                 rest_dices.remove(dice_that_maximize)
                 realization = random.randint(1, dice_that_maximize)
+                current_sum += realization
                 realizations.append(realization)
                 if sum(realizations) >= 21:
                     break
@@ -233,56 +335,14 @@ class TwentyOneDoc(DocHandler):
     DEFAULT_MESSAGE = msgs.TWENTY_ONE_INFO
 
 
-class TwentyOneChangeBetHandler(BaseMessageHandler):
+class TwentyOneChangeBetHandler(BaseChooseBetHandler):
     STATE = BotStates.casino_twenty_one_change_bet
-    DEFAULT_MESSAGE = 'Какую ставку вы хотите предложить? Можете выбрать вариант или ввести свой'
+    RETURN_STATE = BotStates.casino_twenty_one_restart
 
-    def make_buttons_list(
-            self,
-    ) -> typing.List[typing.List[str]]:
+    def handle_bet(self, bet: int) -> typing.Optional[telebot.types.Message]:
         game_id = self.get_user_cache()
         game = self.mongo.games.find_one({'_id': game_id})
-        user_coins = game['user_coins']
-        bet = game['bet']
-        bets_to_suggest = []
-        if bet >= 10:
-            bets_to_suggest.append(bet // 10)
-        if bet >= 5:
-            bets_to_suggest.append(bet // 5)
-        if bet >= 2:
-            bets_to_suggest.append(bet // 2)
-        if bet * 2 <= user_coins:
-            bets_to_suggest.append(bet * 2)
-        if bet * 5 <= user_coins:
-            bets_to_suggest.append(bet * 5)
-        if bet * 10 <= user_coins:
-            bets_to_suggest.append(bet * 10)
-        same_bet = 'Оставить ' + str(bet)
-        if len(bets_to_suggest) < 5:
-            return [
-                [same_bet],
-                [str(bet) for bet in bets_to_suggest],
-            ]
-        return [
-            [same_bet],
-            [str(bet) for bet in bets_to_suggest[:3]],
-            [str(bet) for bet in bets_to_suggest[3:]],
-        ]
 
-    def handle_message(
-            self, message: telebot.types.Message,
-    ) -> telebot.types.Message:
-        if message.text.startswith('Оставить'):
-            return self.switch_to_state(BotStates.casino_twenty_one_restart)
-        try:
-            bet = int(message.text)
-        except ValueError:
-            return self.try_again(msgs.NOT_A_NUMBER_ENTERED)
-        game_id = self.get_user_cache()
-        game = self.mongo.games.find_one({'_id': game_id})
-        user_coins = game['user_coins']
-        if bet > user_coins:
-            return self.try_again(f'У вас осталось только {bet} зм, вы не можете предлагать ставку больше этой суммы')
         players_leaved = []
         rest_players = []
         for player in game['players']:
@@ -293,7 +353,10 @@ class TwentyOneChangeBetHandler(BaseMessageHandler):
         if players_leaved:
             self.send_message(pretty_list([p['name'] for p in players_leaved]) + ' больше не играют(-ет) с вами')
         if not rest_players:
-            return self.switch_to_state(BotStates.casino_main, 'Никто из игроков не смог поддержать такую ставку. Вам придется искать новую компанию')
+            return self.switch_to_state(
+                BotStates.casino_main,
+                'Никто из игроков не смог поддержать такую ставку. Вам придется искать новую компанию',
+            )
         self.mongo.games.update_one(
             {'_id': game_id},
             {
@@ -303,7 +366,7 @@ class TwentyOneChangeBetHandler(BaseMessageHandler):
                 },
             },
         )
-        return self.switch_to_state(BotStates.casino_twenty_one_restart)
+        return None
 
 
 class TwentyOneStep1Handler(BaseMessageHandler):
@@ -386,10 +449,14 @@ class BaseFinalState(BaseMessageHandler):
             # Все остались при своем
             user_coins_to_be = game['user_coins']
             final_message += 'Перебор у всех игроков! Каждый остался при своём'
+        elif len(win_players) == 1 + len(game['players']):
+            user_coins_to_be = game['user_coins']
+            final_message += 'Ничья! Каждый остался при своём'
         else:
             win_sum = (1 + len(game['players'])) * game['bet']
             win_value = win_sum // len(win_players)
             rest = win_sum % len(win_players)
+            win_value -= game['bet']
             if 'user' in win_players:
                 final_message += f'Вы выиграли {win_value} зм.'
                 user_coins_to_be = game['user_coins'] + win_value
@@ -440,7 +507,11 @@ class BaseFinalState(BaseMessageHandler):
         )
 
         if not rest_players:
-            return self.switch_to_state(BotStates.casino_main, 'Вы победили всех за этим столом! Больше никто не может поддерживать ставку')
+            self.send_message('Вы победили всех за этим столом! Больше никто не может поддерживать ставку')
+            return self.switch_to_state(BotStates.casino_main)
+        if user_coins_to_be < game['bet']:
+            self.send_message('Вы больше не можете поддерживать ставку, и вам приходится покинуть этот стол')
+            return self.switch_to_state(BotStates.casino_main)
         return self.switch_to_state(BotStates.casino_twenty_one_restart)
 
     def handle_message(
@@ -488,6 +559,7 @@ class BaseFinalState(BaseMessageHandler):
         )
         return self.switch_to_state(BotStates.casino_twenty_one_other_steps, message=message)
 
+
 class TwentyOneStep2Handler(BaseFinalState):
     STATE = BotStates.casino_twenty_one_step_2
     DEFAULT_MESSAGE = 'Выберите вторую кость'
@@ -518,3 +590,106 @@ class TwentyOneOtherStepsHandler(BaseFinalState):
         game_id = self.get_user_cache()
         game = self.mongo.games.find_one({'_id': game_id})
         return [[f'd{d}' for d in game['rest_dices']], ['Хватит']]
+
+
+class UnluckyRouletteHandler(BaseChooseBetHandler):
+    STATE = BotStates.unlucky_roulette_start
+
+    DEFAULT_MESSAGE = msgs.UNLUCKY_ROULETTE
+
+    RETURN_STATE = BotStates.unlucky_roulette_choose
+
+    def handle_bet(self, bet: int) -> typing.Optional[telebot.types.Message]:
+        self.set_user_cache(str(bet))
+        return None
+
+
+class UnluckyRouletteChooseHandler(BaseMessageHandler):
+    STATE = BotStates.unlucky_roulette_choose
+    DEFAULT_MESSAGE = 'На что будете ставить? Напоминаю, вы также можете ввести число и попытаться увеличить свою ставку в 20 раз'
+
+    BUTTONS = [['Чётное', 'Нечётное'], ['Уйти']]
+
+    STATE_BY_MESSAGE = {
+        'Уйти': {'state': BotStates.casino_main},
+    }
+
+    def handle_message(
+            self, message: telebot.types.Message,
+    ) -> telebot.types.Message:
+        bet = int(self.get_user_cache())
+        if message.text == 'Чётное':
+            dice = random.randint(1, 10) * 2 - 1
+            return self.try_again(f'На костях выпало {dice}. Вы проиграли {bet} зм.')
+        if message.text == 'Нечётное':
+            dice = random.randint(1, 10) * 2
+            return self.try_again(f'На костях выпало {dice}. Вы проиграли {bet} зм.')
+        try:
+            section = int(message.text)
+        except ValueError:
+            return self.try_again('Нужно выбрать один из вариантов по кнопке или ввести чило от 1 до 20')
+        if not (1 <= section <= 20):
+            return self.try_again('Нужно выбрать один из вариантов по кнопке или ввести чило от 1 до 20')
+        dice = random.randint(1, 19)
+        if dice >= section:
+            dice += 1
+        return self.try_again(f'На костях выпало {dice}. Вы проиграли {bet} зм.')
+
+
+class PokerStartHandler(BaseMessageHandler):
+    STATE = BotStates.poker_start
+    STATE_BY_MESSAGE = {
+        'Играть!': {'state': BotStates.poker_start},
+        'Правила': {'state': BotStates.poker_info},
+        'Уйти': {'state': BotStates.casino_main},
+    }
+
+    BUTTONS = [['Играть!'], ['Правила', 'Уйти']]
+
+    def generate_players(self, bet):
+        num_players = random.randint(0, 2) + random.randint(0, 2) + random.randint(0, 2) + 1
+        players = []
+        for i in range(num_players):
+            coins = bet * (10 + numpy.random.poisson(90))
+            wanted = None
+            if random.randint(1, 3) != 1:
+                wanted = int(coins * numpy.random.uniform(1.5, 10))
+            players.append(
+                {
+                    'id': i,
+                    'name': self.gm.sample_name().name,
+                    'coins': bet * (10 + numpy.random.poisson(90)),
+                    'wanted': wanted,
+                    'strategy': {'type': 'standard', 'params': {}},
+                    'status': 'active',
+                    'current_bet': 0,
+                }
+            )
+        return players
+
+    def make_game(self) -> dict:
+        user_coins = self.mongo.user_info.find_one({'user': self.message.from_user.id}, {'coins': 1})['coins']
+        bet = suggest_bet(user_coins // 10)
+        game_id = uuid.uuid4().hex
+        players = self.generate_players(bet)
+        return {
+            '_id': game_id,
+            'user': self.message.from_user.id,
+            'user_coins': user_coins,
+            'bet': bet,
+            'players': players,
+            'created': datetime.datetime.now(),
+            'status': 'init',
+            'round': 1,
+            'turn': 1,
+        }
+
+    def get_default_message(self):
+        game = self.make_game()
+        players = game['players']
+        if len(players) == 1:
+            about_players = '{} ожидает соперника для игры в Покер на костях'.format(players[0]['name'])
+        else:
+            players_joined = pretty_list([p['name'] for p in players])
+            about_players = '{} приглашают вас присоединиться к игре в Покер на костях'.format(players_joined)
+        return f'{about_players}\nТекущая ставка {game["bet"]} зм. У вас в наличие {game["user_coins"]} зм.'

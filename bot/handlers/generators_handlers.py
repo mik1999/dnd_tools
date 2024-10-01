@@ -19,6 +19,7 @@ from base_handler import BaseMessageHandler
 import utils.words_suggester as suggester
 from utils import consts
 from npc_utils import NpcMessageHandler
+import helpers
 
 
 class GeneratorsHandler(BaseMessageHandler):
@@ -26,12 +27,13 @@ class GeneratorsHandler(BaseMessageHandler):
     STATE = BotStates.generators_menu
     STATE_BY_MESSAGE = {
         'Имя': {'state': BotStates.names_generator},
+        'Новость': {'state': BotStates.news_generator},
         'Бестиарий': {'state': BotStates.bestiary_menu},
         'Сокровища': {'state': BotStates.treasury_generator},
         'Назад': {'state': BotStates.main},
     }
 
-    BUTTONS = [['Волна дикой магии', 'Имя', 'Бестиарий'], ['Таверна', 'Сокровища', 'Назад']]
+    BUTTONS = [['Волна дикой магии', 'Новость', 'Имя', 'Бестиарий'], ['Таверна', 'Сокровища', 'Назад']]
 
     def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
         if message.text == 'Таверна':
@@ -39,6 +41,27 @@ class GeneratorsHandler(BaseMessageHandler):
         if message.text == 'Волна дикой магии':
             return self.try_again(self.gm.sample_wild_magic())
         return self.try_again(msgs.PARSE_BUTTON_ERROR)
+
+
+class NewsGeneratorHandler(NpcMessageHandler):
+    DEFAULT_MESSAGE = msgs.ABOUT_NEWS
+    STATE = BotStates.news_generator
+    STATE_BY_MESSAGE = {
+        'Назад': {'state': BotStates.generators_menu},
+    }
+    BUTTONS = [['Назад']]
+
+    def handle_message(self, message: telebot.types.Message) -> telebot.types.Message:
+        news = self.gm.gpt.generate(
+            msgs.NEWS_INSTRUCTION,
+            message.text,
+            self.account(),
+        ).replace('*', '')
+        title, body = news.split('\n', maxsplit=1)
+        title = helpers.prepare_for_markdown(title)
+        body = helpers.prepare_for_markdown(body)
+        news = f'*{title}*\n{body}'
+        return self.try_again(news, parse_mode='MarkdownV2')
 
 
 class NamesGeneratorHandler(NpcMessageHandler):
